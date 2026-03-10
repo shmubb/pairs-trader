@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETH/BTC Pairs Trader</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#070b14;color:#e2e8f0;font-family:'Outfit',sans-serif;min-height:100vh}
+  .mono{font-family:'JetBrains Mono',monospace}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .header{border-bottom:1px solid #1e293b;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .header-left{display:flex;align-items:center;gap:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#22d3ee;box-shadow:0 0 12px #22d3ee}
+  .header-right{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px}
+  .header-right .label{font-size:10px;color:#64748b}
+  .main{display:flex;flex-wrap:wrap}
+  .chart-area{flex:1 1 500px;padding:20px 24px;min-width:0}
+  .right-panel{width:290px;padding:20px 20px 20px 0;flex-shrink:0}
+  .window-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .btn-group{display:flex;gap:2px;background:#0f172a;border-radius:6px;padding:2px;flex-wrap:wrap}
+  .btn{padding:6px 14px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;background:transparent;color:#64748b;transition:all .2s}
+  .btn:hover{opacity:.85}
+  .btn.active{background:#22d3ee;color:#070b14}
+  .badges{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600}
+
+  .chart-wrapper{position:relative}
+  .chart-svg-box{background:#0c1221;border:1px solid #1e293b;border-radius:12px;padding:12px 8px 8px 8px}
+  .chart-svg-box svg{width:100%;height:auto;cursor:crosshair;display:block}
+  .chart-tooltip{position:absolute;top:20px;right:20px;background:#1e293bee;border:1px solid #334155;border-radius:8px;padding:8px 12px;pointer-events:none;font-size:11px;z-index:10;opacity:0;transition:opacity .15s}
+  .chart-tooltip.show{opacity:1}
+
+  .price-row{display:flex;gap:16px;margin-top:14px}
+  .price-card{flex:1;background:#0c1221;border:1px solid #1e293b;border-radius:8px;padding:10px 14px}
+  .price-card .lbl{font-size:10px;color:#64748b;margin-bottom:2px}
+  .price-card .val{font-size:18px;font-weight:700}
+  .signal-box{border-radius:10px;padding:14px;margin-bottom:18px}
+  .signal-box .signal-label{font-size:10px;letter-spacing:.1em;margin-bottom:6px}
+  .signal-box .signal-text{font-size:13px;color:#e2e8f0;line-height:1.5}
+  .z-display{text-align:center;margin-bottom:10px}
+  .z-big{font-size:48px;font-weight:800;line-height:1}
+  .z-label{font-size:11px;color:#64748b;margin-top:4px}
+  .gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:#64748b}
+  .gauge-track{position:relative;height:10px;background:linear-gradient(90deg,#22c55e 0%,#1e293b 35%,#1e293b 65%,#ef4444 100%);border-radius:5px;margin:4px 0 6px}
+  .gauge-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;border:2px solid #0f172a;transition:left .6s cubic-bezier(.4,0,.2,1)}
+  .stats-box{background:#0c1221;border:1px solid #1e293b;border-radius:10px;padding:14px;margin-bottom:18px}
+  .stats-box .stats-title{font-size:10px;color:#64748b;letter-spacing:.1em;margin-bottom:10px}
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b}
+  .stat-row .stat-lbl{font-size:11px;color:#94a3b8}
+  .stat-row .stat-val{font-size:13px;font-weight:600}
+  .rule-row{display:flex;gap:10px;align-items:center;padding:5px 0}
+  .rule-row .rule-z{font-size:12px;font-weight:700;min-width:70px}
+  .rule-row .rule-action{font-size:12px;color:#94a3b8}
+  .source-tag{font-size:9px;color:#475569;margin-top:6px;display:flex;align-items:center;gap:8px}
+  #notional-input:focus{border-color:#22d3ee;box-shadow:0 0 0 2px #22d3ee20}
+
+  @media(max-width:850px){.right-panel{width:100%;padding:0 24px 24px}.main{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="dot"></div>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-.02em">PAIRS</span>
+    </div>
+    <span class="mono" style="font-size:22px;font-weight:700">ETH<span style="color:#475569"> / </span>BTC</span>
+  </div>
+  <div class="header-right mono">
+    <div><span class="label">Ratio </span><span id="hdr-ratio" style="font-weight:700">—</span></div>
+    <div><span class="label">Z-Score </span><span id="hdr-z" style="font-weight:700">—</span></div>
+    <div><span class="label">Spread </span><span id="hdr-spread" style="font-weight:700">—</span></div>
+    <div><span class="label">μ = </span><span id="hdr-mean" style="font-weight:600;color:#94a3b8">—</span></div>
+    <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:11px">
+      <div id="live-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:pulse 2s infinite"></div>
+      <span id="hdr-clock">--:--:--</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="chart-area">
+    <div class="window-bar">
+      <div class="btn-group" id="window-btns"></div>
+      <span id="window-desc" class="mono" style="font-size:10px;color:#475569"></span>
+    </div>
+    <div class="badges" id="badges"></div>
+
+    <div class="chart-wrapper" id="chart-wrapper">
+      <div class="chart-svg-box" id="chart-svg-box">
+        <div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+          <div class="spinner" style="width:28px;height:28px;border:3px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>
+          <span class="mono" style="font-size:11px;color:#64748b">Connecting to Hyperliquid...</span>
+        </div>
+      </div>
+      <div class="chart-tooltip mono" id="chart-tooltip">
+        <div id="tt-ratio" style="color:#e2e8f0;font-weight:600"></div>
+        <div id="tt-time" style="color:#94a3b8;font-size:10px;margin-top:2px"></div>
+      </div>
+    </div>
+
+    <div class="price-row" id="price-row" style="display:none">
+      <div class="price-card mono"><div class="lbl">ETH PRICE</div><div class="val" id="eth-price">—</div></div>
+      <div class="price-card mono"><div class="lbl">BTC PRICE</div><div class="val" id="btc-price">—</div></div>
+      <div class="price-card mono"><div class="lbl">DATA POINTS</div><div class="val" id="data-points">—</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <div class="source-tag mono" style="margin-top:0">
+        <span id="source-info">Connecting...</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;color:#64748b"><span id="refresh-spinner" style="display:inline-block;width:10px;height:10px;border:1.5px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite"></span>Live</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;background:#0f172a;border-radius:6px;padding:2px">
+        <button id="src-hl" class="btn mono active" style="padding:4px 10px;font-size:10px">Hyperliquid</button>
+        <button id="src-bin" class="btn mono" style="padding:4px 10px;font-size:10px">Binance.US</button>
+      </div>
+    </div>
+
+    <!-- Scanner then Sessions in left column -->
+    <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:14px">
+      <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span>MULTI-TIMEFRAME SCANNER</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#475569;letter-spacing:0">
+          <span style="display:inline-block;width:8px;height:8px;border:1.5px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite"></span>
+          <span id="scanner-status">Loading...</span>
+        </span>
+      </div>
+      <div id="scanner-grid" style="display:flex;gap:4px"></div>
+    </div>
+
+    <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:10px">
+      <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span>TRADING SESSIONS</span>
+        <span class="mono" style="font-size:9px;color:#475569;letter-spacing:0" id="session-status"></span>
+      </div>
+      <div id="sessions-widget" style="position:relative"></div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="signal-box" id="signal-box" style="background:#0f172a;border:1px solid #1e293b30">
+      <div class="signal-label mono" id="signal-label" style="color:#64748b">SIGNAL</div>
+      <div class="signal-text" id="signal-text">Loading...</div>
+    </div>
+    <div style="margin-bottom:18px">
+      <div class="z-display">
+        <div class="z-big mono" id="z-big">+0.00</div>
+        <div class="z-label mono">z-score</div>
+      </div>
+      <div class="gauge-labels mono"><span>-3σ</span><span>0</span><span>+3σ</span></div>
+      <div class="gauge-track"><div class="gauge-dot" id="gauge-dot" style="left:50%"></div></div>
+      <div class="gauge-labels mono"><span>ETH cheap vs BTC</span><span>ETH expensive vs BTC</span></div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-title mono">PAIR STATISTICS</div>
+      <div class="stat-row"><span class="stat-lbl">Current Ratio</span><span class="stat-val mono" id="s-ratio">—</span></div>
+      <div class="stat-row"><span class="stat-lbl">Mean Ratio</span><span class="stat-val mono" id="s-mean" style="color:#f59e0b">—</span></div>
+      <div class="stat-row"><span class="stat-lbl">Std Deviation</span><span class="stat-val mono" id="s-std">—</span></div>
+      <div class="stat-row"><span class="stat-lbl">Spread from Mean</span><span class="stat-val mono" id="s-spread">—</span></div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-title mono">PROFIT CALCULATOR</div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">Est. profit if z-score reverts to 0 (mean)</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">TOTAL NOTIONAL (split 50/50 per leg)</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:#64748b;font-size:14px">$</span>
+          <input type="text" id="notional-input" value="0" style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:8px 10px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;outline:none;width:100%" />
+        </div>
+      </div>
+      <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:10px;color:#64748b">Per Leg</span>
+          <span class="mono" style="font-size:13px;font-weight:600" id="pc-per-leg">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:10px;color:#64748b">Current Spread</span>
+          <span class="mono" style="font-size:13px;font-weight:600" id="pc-spread">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-top:8px;border-top:1px solid #1e293b">
+          <span style="font-size:10px;color:#64748b">Direction</span>
+          <span class="mono" style="font-size:11px;font-weight:600" id="pc-direction">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #1e293b">
+          <span style="font-size:11px;color:#94a3b8;font-weight:600">Est. Profit at z → 0</span>
+          <span class="mono" style="font-size:18px;font-weight:800" id="pc-profit">—</span>
+        </div>
+      </div>
+      <div style="font-size:9px;color:#475569;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-title mono" style="margin-bottom:6px">TRADE RULES</div>
+      <div style="display:flex;gap:3px;flex-direction:column">
+        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#22c55e;min-width:55px">z ≤ -1.5</span><span style="font-size:11px;color:#94a3b8">→ Long ETH / Short BTC</span></div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#ef4444;min-width:55px">z ≥ +1.5</span><span style="font-size:11px;color:#94a3b8">→ Short ETH / Long BTC</span></div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#64748b;min-width:55px">|z| < 1.5</span><span style="font-size:11px;color:#94a3b8">→ No trade — wait</span></div>
+      </div>
+    </div>
+    <div class="stats-box">
+      <div class="stats-title mono" style="margin-bottom:6px">ALERTS</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+        <span style="font-size:10px;color:#94a3b8">Sound |z| ≥ 1.5</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+        <span style="font-size:10px;color:#94a3b8">Flash tab title</span>
+      </div>
+      <div id="last-alert" style="font-size:9px;color:#475569;margin-top:5px">No alerts yet</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ===== CONFIG =====
+  var HYPERLIQUID = "https://api.hyperliquid.xyz/info";
+  var BINANCE_US = "https://api.binance.us/api/v3/klines";
+  var BINANCE_GLOBAL = "https://api.binance.com/api/v3/klines";
+
+  var WINDOWS = [
+    { label:"1H",  hours:1,    interval:"1m",  hlInterval:"1m",  desc:"Past hour · 1m candles" },
+    { label:"4H",  hours:4,    interval:"5m",  hlInterval:"5m",  desc:"Past 4 hours · 5m candles" },
+    { label:"12H", hours:12,   interval:"5m",  hlInterval:"5m",  desc:"Past 12 hours · 5m candles" },
+    { label:"1D",  hours:24,   interval:"5m",  hlInterval:"5m",  desc:"Past day · 5m candles" },
+    { label:"3D",  hours:72,   interval:"15m", hlInterval:"15m", desc:"Past 3 days · 15m candles" },
+    { label:"1W",  hours:168,  interval:"1h",  hlInterval:"1h",  desc:"Past week · 1h candles" },
+    { label:"2W",  hours:336,  interval:"1h",  hlInterval:"1h",  desc:"Past 2 weeks · 1h candles" },
+    { label:"1M",  hours:720,  interval:"4h",  hlInterval:"4h",  desc:"Past month · 4h candles" },
+    { label:"3M",  hours:2160, interval:"12h", hlInterval:"12h", desc:"Past 3 months · 12h candles" }
+  ];
+
+  var currentWindow = 3;
+  var chartData = [];
+  var dataSource = "";
+  var sourcePreference = "hyperliquid"; // "hyperliquid" or "binance"
+  var isFetching = false;
+  var refreshIntervalMs = 3000;
+  var lastFetchTime = 0;
+  var refreshTimerId = null;
+  var tickTimerId = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  // ===== LIVE CLOCK — ticks every second =====
+  function startClock() {
+    function tick() {
+      $("hdr-clock").textContent = new Date().toLocaleTimeString();
+    }
+    tick();
+    tickTimerId = setInterval(tick, 1000);
+  }
+
+  // ===== BUILD BUTTONS =====
+  var btnGroup = $("window-btns");
+  WINDOWS.forEach(function(w, i) {
+    var btn = document.createElement("button");
+    btn.className = "btn mono" + (i === currentWindow ? " active" : "");
+    btn.textContent = w.label;
+    btn.addEventListener("click", function() { selectWindow(i); });
+    btnGroup.appendChild(btn);
+  });
+
+  function selectWindow(idx) {
+    if (isFetching) return;
+    currentWindow = idx;
+    var btns = btnGroup.querySelectorAll(".btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].className = "btn mono" + (i === idx ? " active" : "");
+    }
+    $("window-desc").textContent = WINDOWS[idx].desc;
+    refreshIntervalMs = sourcePreference === "hyperliquid" ? 3000 : 1000;
+    showLoading();
+    scheduleRefresh(true);
+  }
+
+  // ===== REFRESH SCHEDULER =====
+  function scheduleRefresh(immediate) {
+    clearInterval(refreshTimerId);
+    if (immediate) {
+      fetchData();
+    }
+    refreshTimerId = setInterval(function() {
+      fetchData();
+    }, refreshIntervalMs);
+  }
+
+  // ===== LOADING / ERROR =====
+  function showLoading() {
+    $("chart-svg-box").innerHTML =
+      '<div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column">' +
+      '<div class="spinner" style="width:28px;height:28px;border:3px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>' +
+      '<span class="mono" style="font-size:11px;color:#64748b">Fetching data...</span></div>';
+    $("chart-tooltip").classList.remove("show");
+  }
+
+  function showError(msg) {
+    $("chart-svg-box").innerHTML =
+      '<div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;text-align:center">' +
+      '<span class="mono" style="color:#ef4444;font-size:12px;max-width:500px;line-height:1.5">' + msg + '</span>' +
+      '<span class="mono" style="color:#64748b;font-size:11px;margin-top:8px">Will retry automatically...</span></div>';
+    $("live-dot").style.background = "#ef4444";
+    $("live-dot").style.animation = "none";
+  }
+
+  // ===== STATS =====
+  function calcStats(ratios) {
+    if (!ratios.length) return { mean:0, std:0, zScore:0, spread:0, current:0 };
+    var sum = 0;
+    for (var i = 0; i < ratios.length; i++) sum += ratios[i];
+    var mean = sum / ratios.length;
+    var varSum = 0;
+    for (var i = 0; i < ratios.length; i++) varSum += (ratios[i] - mean) * (ratios[i] - mean);
+    var std = Math.sqrt(varSum / ratios.length);
+    var current = ratios[ratios.length - 1];
+    var zScore = std === 0 ? 0 : (current - mean) / std;
+    var spread = mean === 0 ? 0 : ((current - mean) / mean) * 100;
+    return { mean:mean, std:std, zScore:zScore, spread:spread, current:current };
+  }
+
+  function zColor(z) {
+    return Math.abs(z) >= 2.5 ? "#ff3b5c" : Math.abs(z) >= 1.5 ? "#f59e0b" : "#22d3ee";
+  }
+
+  function signalInfo(z) {
+    var az = Math.abs(z);
+    if (az >= 2.5) return { text: z > 0 ? "STRONG — ETH extremely expensive vs BTC → Short ETH / Long BTC" : "STRONG — ETH extremely cheap vs BTC → Long ETH / Short BTC", color:"#ff3b5c", bg:"#1a0008" };
+    if (az >= 1.5) return { text: z > 0 ? "ETH expensive vs BTC → Short ETH / Long BTC" : "ETH cheap vs BTC → Long ETH / Short BTC", color:"#f59e0b", bg:"#1a1500" };
+    return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for z > ±1.5", color:"#64748b", bg:"#0f172a" };
+  }
+
+  // ===== FETCH =====
+  function fetchFromHyperliquid(win) {
+    var startTime = Date.now() - win.hours * 3600000;
+    var endTime = Date.now();
+
+    return Promise.all([
+      fetch(HYPERLIQUID, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "candleSnapshot", req: { coin: "ETH", interval: win.hlInterval, startTime: startTime, endTime: endTime } })
+      }).then(function(r) { if (!r.ok) throw new Error("HL ETH:" + r.status); return r.json(); }),
+      fetch(HYPERLIQUID, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "candleSnapshot", req: { coin: "BTC", interval: win.hlInterval, startTime: startTime, endTime: endTime } })
+      }).then(function(r) { if (!r.ok) throw new Error("HL BTC:" + r.status); return r.json(); })
+    ]).then(function(results) {
+      var ethCandles = results[0];
+      var btcCandles = results[1];
+
+      if (!Array.isArray(ethCandles) || !Array.isArray(btcCandles)) throw new Error("HL: bad response");
+      if (ethCandles.length < 3) throw new Error("HL: too few ETH candles (" + ethCandles.length + ")");
+      if (btcCandles.length < 3) throw new Error("HL: too few BTC candles (" + btcCandles.length + ")");
+
+      // Hyperliquid candles: { t: openMs, T: closeMs, o, h, l, c, v, s, i, n }
+      // Match by open time (t)
+      var btcMap = {};
+      for (var i = 0; i < btcCandles.length; i++) {
+        btcMap[btcCandles[i].t] = parseFloat(btcCandles[i].c);
+      }
+
+      var result = [];
+      for (var i = 0; i < ethCandles.length; i++) {
+        var ec = ethCandles[i];
+        var btcClose = btcMap[ec.t];
+        if (btcClose && btcClose > 0) {
+          result.push({
+            time: ec.t,
+            ratio: parseFloat(ec.c) / btcClose,
+            ethPrice: parseFloat(ec.c),
+            btcPrice: btcClose
+          });
+        }
+      }
+
+      if (result.length < 3) throw new Error("HL: insufficient matched data (" + result.length + ")");
+      dataSource = "Hyperliquid";
+      return result;
+    });
+  }
+
+  function fetchFromBinance(baseUrl, label, win) {
+    var startTime = Date.now() - win.hours * 3600000;
+    var ethUrl = baseUrl + "?symbol=ETHUSDT&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
+    var btcUrl = baseUrl + "?symbol=BTCUSDT&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
+
+    return Promise.all([
+      fetch(ethUrl).then(function(r) { if (!r.ok) throw new Error(label + " ETH:" + r.status); return r.json(); }),
+      fetch(btcUrl).then(function(r) { if (!r.ok) throw new Error(label + " BTC:" + r.status); return r.json(); })
+    ]).then(function(results) {
+      var ethData = results[0];
+      var btcData = results[1];
+
+      if (ethData.code || ethData.msg) throw new Error(label + ": " + (ethData.msg || ethData.code));
+      if (btcData.code || btcData.msg) throw new Error(label + ": " + (btcData.msg || btcData.code));
+      if (!Array.isArray(ethData) || !Array.isArray(btcData)) throw new Error(label + ": bad response");
+      if (ethData.length < 3) throw new Error(label + ": too few ETH candles");
+      if (btcData.length < 3) throw new Error(label + ": too few BTC candles");
+
+      var btcMap = {};
+      for (var i = 0; i < btcData.length; i++) {
+        btcMap[btcData[i][0]] = parseFloat(btcData[i][4]);
+      }
+
+      var result = [];
+      for (var i = 0; i < ethData.length; i++) {
+        var k = ethData[i];
+        var btcClose = btcMap[k[0]];
+        if (btcClose && btcClose > 0) {
+          result.push({
+            time: k[0],
+            ratio: parseFloat(k[4]) / btcClose,
+            ethPrice: parseFloat(k[4]),
+            btcPrice: btcClose
+          });
+        }
+      }
+
+      if (result.length < 3) throw new Error(label + ": insufficient matched data");
+      dataSource = label;
+      return result;
+    });
+  }
+
+  function fetchData() {
+    if (isFetching) return;
+    isFetching = true;
+
+    var win = WINDOWS[currentWindow];
+
+    function onSuccess(data) {
+      chartData = data;
+      lastFetchTime = Date.now();
+      isFetching = false;
+      updateUI();
+    }
+
+    function onFail(msg) {
+      lastFetchTime = Date.now();
+      isFetching = false;
+      showError(msg);
+    }
+
+    if (sourcePreference === "hyperliquid") {
+      fetchFromHyperliquid(win)
+        .then(onSuccess)
+        .catch(function(err1) {
+          console.warn("Hyperliquid failed:", err1.message);
+          // Fallback to Binance.US
+          fetchFromBinance(BINANCE_US, "Binance.US", win)
+            .then(onSuccess)
+            .catch(function(err2) {
+              onFail("Hyperliquid: " + err1.message + " → Binance: " + err2.message);
+            });
+        });
+    } else {
+      fetchFromBinance(BINANCE_US, "Binance.US", win)
+        .then(onSuccess)
+        .catch(function(err1) {
+          console.warn("Binance.US failed:", err1.message);
+          fetchFromBinance(BINANCE_GLOBAL, "Binance", win)
+            .then(onSuccess)
+            .catch(function(err2) {
+              onFail("Binance.US: " + err1.message + " → Binance: " + err2.message);
+            });
+        });
+    }
+  }
+
+  // ===== UPDATE UI =====
+  function updateUI() {
+    var ratios = [];
+    for (var i = 0; i < chartData.length; i++) ratios.push(chartData[i].ratio);
+    var stats = calcStats(ratios);
+    var sig = signalInfo(stats.zScore);
+    var zc = zColor(stats.zScore);
+    var last = chartData[chartData.length - 1];
+
+    $("hdr-ratio").textContent = stats.current.toFixed(6);
+    $("hdr-z").textContent = stats.zScore.toFixed(2);
+    $("hdr-z").style.color = zc;
+    $("hdr-spread").textContent = stats.spread.toFixed(2) + "%";
+    $("hdr-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
+    $("hdr-mean").textContent = stats.mean.toFixed(6);
+    $("live-dot").style.background = "#22c55e";
+    $("live-dot").style.animation = "pulse 2s infinite";
+
+    $("badges").innerHTML =
+      '<span class="badge mono" style="background:' + zc + '18;color:' + zc + ';border:1px solid ' + zc + '40">z = ' + stats.zScore.toFixed(2) + '</span>' +
+      '<span class="badge mono" style="background:#f59e0b10;color:#f59e0b;border:1px solid #f59e0b30;font-weight:500">μ = ' + stats.mean.toFixed(6) + '</span>';
+
+    var sb = $("signal-box");
+    sb.style.background = sig.bg;
+    sb.style.border = "1px solid " + sig.color + "30";
+    $("signal-label").style.color = sig.color;
+    $("signal-text").textContent = sig.text;
+
+    $("z-big").textContent = (stats.zScore >= 0 ? "+" : "") + stats.zScore.toFixed(2);
+    $("z-big").style.color = zc;
+
+    var pct = ((Math.max(-3, Math.min(3, stats.zScore)) + 3) / 6) * 100;
+    $("gauge-dot").style.left = pct + "%";
+    $("gauge-dot").style.background = zc;
+    $("gauge-dot").style.boxShadow = "0 0 10px " + zc + "80";
+
+    $("s-ratio").textContent = stats.current.toFixed(6);
+    $("s-mean").textContent = stats.mean.toFixed(6);
+    $("s-std").textContent = stats.std.toFixed(9);
+    $("s-spread").textContent = (stats.spread >= 0 ? "+" : "") + stats.spread.toFixed(2) + "%";
+    $("s-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
+
+    if (last) {
+      $("price-row").style.display = "flex";
+      $("eth-price").textContent = "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      $("btc-price").textContent = "$" + last.btcPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      $("data-points").textContent = chartData.length;
+    }
+
+    $("source-info").textContent = "Data: " + dataSource + " · " + chartData.length + " pts";
+
+    // Profit calculator
+    updateProfitCalc(stats);
+
+    drawChart(stats);
+  }
+
+  // ===== PROFIT CALCULATOR =====
+  function getNotional() {
+    var raw = $("notional-input").value.replace(/[^0-9.]/g, "");
+    return parseFloat(raw) || 0;
+  }
+
+  function formatUSD(n) {
+    if (Math.abs(n) >= 1000) return "$" + n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    return "$" + n.toFixed(2);
+  }
+
+  function updateProfitCalc(stats) {
+    var total = getNotional();
+    var perLeg = total / 2;
+    var spreadPct = Math.abs(stats.spread) / 100; // as decimal
+
+    $("pc-per-leg").textContent = formatUSD(perLeg);
+    $("pc-spread").textContent = (stats.spread >= 0 ? "+" : "") + stats.spread.toFixed(3) + "%";
+    $("pc-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
+
+    // Direction
+    if (stats.zScore <= -1.5) {
+      $("pc-direction").textContent = "Long ETH / Short BTC";
+      $("pc-direction").style.color = "#22c55e";
+    } else if (stats.zScore >= 1.5) {
+      $("pc-direction").textContent = "Short ETH / Long BTC";
+      $("pc-direction").style.color = "#ef4444";
+    } else {
+      $("pc-direction").textContent = "No signal (|z| < 1.5)";
+      $("pc-direction").style.color = "#64748b";
+    }
+
+    // Profit estimate:
+    // When ratio reverts to mean, ETH leg gains/loses ~spread% and BTC leg gains/loses ~spread%
+    // Since both legs converge, total profit ≈ perLeg × spread%
+    // (Long leg gains as ratio reverts + short leg gains as ratio reverts)
+    var estProfit = perLeg * spreadPct;
+
+    $("pc-profit").textContent = formatUSD(estProfit);
+    $("pc-profit").style.color = estProfit > 0 ? "#22c55e" : "#64748b";
+  }
+
+  // Format input with commas as user types
+  $("notional-input").addEventListener("input", function() {
+    var raw = this.value.replace(/[^0-9.]/g, "");
+    var parts = raw.split(".");
+    if (parts[0]) parts[0] = parseInt(parts[0]).toLocaleString();
+    this.value = parts.join(".");
+    // Update per-leg display immediately
+    var perLeg = (parseFloat(raw) || 0) / 2;
+    $("pc-per-leg").textContent = formatUSD(perLeg);
+  });
+
+  // ===== CHART =====
+  function drawChart(stats) {
+    var svgBox = $("chart-svg-box");
+    var cw = svgBox.clientWidth - 16;
+    var width = Math.max(400, cw);
+    var height = Math.max(220, Math.min(320, width * 0.38));
+    var pad = { top:20, right:58, bottom:32, left:72 };
+    var w = width - pad.left - pad.right;
+    var h = height - pad.top - pad.bottom;
+
+    var values = [];
+    for (var i = 0; i < chartData.length; i++) values.push(chartData[i].ratio);
+    var minV = Math.min.apply(null, values);
+    var maxV = Math.max.apply(null, values);
+    var range = maxV - minV || 0.0001;
+    var pr = range * 0.05;
+    var yMin = minV - pr, yMax = maxV + pr, yRange = yMax - yMin;
+
+    function xP(i) { return pad.left + (i / (chartData.length - 1)) * w; }
+    function yP(v) { return pad.top + (1 - (v - yMin) / yRange) * h; }
+
+    var s = [];
+    s.push('<defs>');
+    s.push('<linearGradient id="aG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.25"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/></linearGradient>');
+    s.push('<linearGradient id="lG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>');
+    s.push('</defs>');
+
+    var gc = 5, gs = yRange / gc;
+    for (var i = 0; i <= gc; i++) {
+      var val = yMin + gs * i, yp = yP(val);
+      s.push('<line x1="'+pad.left+'" y1="'+yp+'" x2="'+(pad.left+w)+'" y2="'+yp+'" stroke="#1e293b" stroke-width="1"/>');
+      s.push('<text x="'+(pad.left-8)+'" y="'+(yp+4)+'" text-anchor="end" fill="#64748b" font-size="10" font-family="\'JetBrains Mono\',monospace">'+val.toFixed(5)+'</text>');
+    }
+
+    var lc = Math.min(7, chartData.length);
+    for (var i = 0; i < lc; i++) {
+      var idx = Math.floor((i / (lc - 1)) * (chartData.length - 1));
+      var d = new Date(chartData[idx].time);
+      var lbl = (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+      s.push('<text x="'+xP(idx)+'" y="'+(pad.top+h+20)+'" text-anchor="middle" fill="#64748b" font-size="9" font-family="\'JetBrains Mono\',monospace">'+lbl+'</text>');
+    }
+
+    var meanY = yP(stats.mean);
+    if (meanY >= pad.top-5 && meanY <= pad.top+h+5) {
+      s.push('<line x1="'+pad.left+'" y1="'+meanY+'" x2="'+(pad.left+w)+'" y2="'+meanY+'" stroke="#f59e0b" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(meanY+3)+'" fill="#f59e0b" font-size="9" font-family="\'JetBrains Mono\',monospace">μ</text>');
+    }
+
+    var upperY = yP(stats.mean + 1.5 * stats.std);
+    var lowerY = yP(stats.mean - 1.5 * stats.std);
+    if (upperY >= pad.top-5 && upperY <= pad.top+h+5) {
+      s.push('<line x1="'+pad.left+'" y1="'+upperY+'" x2="'+(pad.left+w)+'" y2="'+upperY+'" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(upperY+3)+'" fill="#ef4444" font-size="8" font-family="\'JetBrains Mono\',monospace">+1.5σ</text>');
+    }
+    if (lowerY >= pad.top-5 && lowerY <= pad.top+h+5) {
+      s.push('<line x1="'+pad.left+'" y1="'+lowerY+'" x2="'+(pad.left+w)+'" y2="'+lowerY+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#22c55e" font-size="8" font-family="\'JetBrains Mono\',monospace">-1.5σ</text>');
+    }
+
+    var pp = [];
+    for (var i = 0; i < chartData.length; i++) {
+      pp.push((i===0?"M":"L")+xP(i).toFixed(1)+","+yP(chartData[i].ratio).toFixed(1));
+    }
+    var pathD = pp.join(" ");
+    var areaD = pathD+" L"+xP(chartData.length-1).toFixed(1)+","+(pad.top+h).toFixed(1)+" L"+pad.left.toFixed(1)+","+(pad.top+h).toFixed(1)+" Z";
+
+    s.push('<path d="'+areaD+'" fill="url(#aG)"/>');
+    s.push('<path d="'+pathD+'" fill="none" stroke="url(#lG)" stroke-width="1.8" stroke-linejoin="round"/>');
+
+    var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
+    s.push('<circle cx="'+lx+'" cy="'+ly+'" r="7" fill="#22d3ee" opacity="0.2"/>');
+    s.push('<circle cx="'+lx+'" cy="'+ly+'" r="3.5" fill="#22d3ee"/>');
+    s.push('<rect x="'+pad.left+'" y="'+pad.top+'" width="'+w+'" height="'+h+'" fill="transparent"/>');
+
+    svgBox.innerHTML = '<svg viewBox="0 0 '+width+' '+height+'">'+s.join("")+'</svg>';
+
+    // Tooltip (lives outside svg box — never gets destroyed)
+    var tooltip = $("chart-tooltip");
+    var svgEl = svgBox.querySelector("svg");
+
+    svgEl.addEventListener("mousemove", function(e) {
+      var rect = svgEl.getBoundingClientRect();
+      var scale = width / rect.width;
+      var mx = (e.clientX - rect.left) * scale;
+      var dataX = ((mx - pad.left) / w) * (chartData.length - 1);
+      var idx = Math.max(0, Math.min(chartData.length - 1, Math.round(dataX)));
+      var d = chartData[idx];
+      var dt = new Date(d.time);
+      $("tt-ratio").textContent = "Ratio: " + d.ratio.toFixed(7);
+      $("tt-time").textContent = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear()+", "+dt.toLocaleTimeString();
+      tooltip.classList.add("show");
+    });
+
+    svgEl.addEventListener("mouseleave", function() {
+      tooltip.classList.remove("show");
+    });
+  }
+
+  // ===== ALERTS =====
+  var soundAlertOn = false;
+  var titleAlertOn = false;
+  var titleFlashTimer = null;
+  var originalTitle = document.title;
+  var prevZWasSignal = false;
+  var lastAlertTime = 0;
+  var ALERT_COOLDOWN = 60000; // 60 seconds
+
+  $("alert-toggle").addEventListener("click", function() {
+    soundAlertOn = !soundAlertOn;
+    this.textContent = soundAlertOn ? "ON" : "OFF";
+    this.style.background = soundAlertOn ? "#22c55e20" : "#0f172a";
+    this.style.color = soundAlertOn ? "#22c55e" : "#64748b";
+    this.style.borderColor = soundAlertOn ? "#22c55e40" : "#1e293b";
+  });
+
+  $("title-alert-toggle").addEventListener("click", function() {
+    titleAlertOn = !titleAlertOn;
+    this.textContent = titleAlertOn ? "ON" : "OFF";
+    this.style.background = titleAlertOn ? "#22c55e20" : "#0f172a";
+    this.style.color = titleAlertOn ? "#22c55e" : "#64748b";
+    this.style.borderColor = titleAlertOn ? "#22c55e40" : "#1e293b";
+    if (!titleAlertOn) {
+      clearInterval(titleFlashTimer);
+      document.title = originalTitle;
+    }
+  });
+
+  function playAlertSound() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = "sine";
+      gain.gain.value = 0.3;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {}
+  }
+
+  function checkAlerts(zScore) {
+    var isSignal = Math.abs(zScore) >= 1.5;
+    var now = Date.now();
+    if (isSignal && !prevZWasSignal && (now - lastAlertTime >= ALERT_COOLDOWN)) {
+      lastAlertTime = now;
+      var dir = zScore < 0 ? "Long ETH / Short BTC" : "Short ETH / Long BTC";
+      $("last-alert").textContent = "Alert: z=" + zScore.toFixed(2) + " → " + dir + " at " + new Date().toLocaleTimeString();
+      $("last-alert").style.color = "#f59e0b";
+      if (soundAlertOn) playAlertSound();
+      if (titleAlertOn) {
+        clearInterval(titleFlashTimer);
+        var flash = false;
+        titleFlashTimer = setInterval(function() {
+          flash = !flash;
+          document.title = flash ? ("⚠ SIGNAL z=" + zScore.toFixed(2)) : originalTitle;
+        }, 1000);
+      }
+    }
+    if (!isSignal && titleAlertOn) {
+      clearInterval(titleFlashTimer);
+      document.title = originalTitle;
+    }
+    prevZWasSignal = isSignal;
+  }
+
+  // ===== MULTI-TIMEFRAME SCANNER =====
+  var scannerData = {};
+  var scannerBusy = false;
+  var scannerIdx = 0;
+  var scannerCache = {};
+
+  function scanTimeframe(win) {
+    var primary = sourcePreference === "hyperliquid"
+      ? function() { return fetchFromHyperliquid(win); }
+      : function() { return fetchFromBinance(BINANCE_US, "Binance.US", win); };
+    var fallback = sourcePreference === "hyperliquid"
+      ? function() { return fetchFromBinance(BINANCE_US, "Binance.US", win); }
+      : function() { return fetchFromBinance(BINANCE_GLOBAL, "Binance", win); };
+
+    return primary()
+      .catch(function() { return fallback(); })
+      .then(function(data) {
+        var ratios = [];
+        for (var i = 0; i < data.length; i++) ratios.push(data[i].ratio);
+        var s = calcStats(ratios);
+        return { label: win.label, z: s.zScore, spread: s.spread, pts: data.length };
+      })
+      .catch(function() {
+        return { label: win.label, z: null, spread: null, pts: 0 };
+      });
+  }
+
+  function runScanner() {
+    if (scannerBusy) return;
+    scannerBusy = true;
+
+    var scanWindows = [
+      WINDOWS[0], WINDOWS[1], WINDOWS[3], WINDOWS[4], WINDOWS[5], WINDOWS[7], WINDOWS[8]
+    ]; // 1H, 4H, 1D, 3D, 1W, 1M, 3M
+
+    // Scan one timeframe at a time in round-robin
+    var tw = scanWindows[scannerIdx % scanWindows.length];
+    scannerIdx++;
+
+    scanTimeframe(tw).then(function(r) {
+      scannerCache[r.label] = r;
+      // Build ordered results from cache
+      var ordered = [];
+      for (var i = 0; i < scanWindows.length; i++) {
+        var lbl = scanWindows[i].label;
+        if (scannerCache[lbl]) ordered.push(scannerCache[lbl]);
+        else ordered.push({ label: lbl, z: null });
+      }
+      renderScanner(ordered);
+      scannerBusy = false;
+      $("scanner-status").textContent = "Live · " + r.label;
+    }).catch(function() {
+      scannerBusy = false;
+    });
+  }
+
+  function renderScanner(results) {
+    var grid = $("scanner-grid");
+    var html = "";
+    for (var i = 0; i < results.length; i++) {
+      var r = results[i];
+      var z = r.z;
+      var col = z === null ? "#64748b" : (Math.abs(z) >= 2.5 ? "#ff3b5c" : Math.abs(z) >= 1.5 ? "#f59e0b" : "#22d3ee");
+      var bg = z !== null && Math.abs(z) >= 1.5 ? (z > 0 ? "#ef444415" : "#22c55e15") : "#0f172a";
+      var border = z !== null && Math.abs(z) >= 1.5 ? col + "40" : "#1e293b";
+      var zText = z === null ? "—" : (z >= 0 ? "+" : "") + z.toFixed(2);
+      html += '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:5px;padding:4px 8px;text-align:center;flex:1 1 0;min-width:52px">';
+      html += '<div class="mono" style="font-size:9px;color:#64748b">' + r.label + '</div>';
+      html += '<div class="mono" style="font-size:14px;font-weight:700;color:' + col + '">' + zText + '</div>';
+      html += '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  // Hook alerts into updateUI
+  var _origUpdateUI = updateUI;
+  updateUI = function() {
+    _origUpdateUI();
+    var ratios = [];
+    for (var i = 0; i < chartData.length; i++) ratios.push(chartData[i].ratio);
+    var stats = calcStats(ratios);
+    checkAlerts(stats.zScore);
+  };
+
+  // ===== VOLUME =====
+  // ===== TRADING SESSIONS =====
+  var SESSIONS = [
+    { name: "Sydney",   color: "#3b82f6", utcOpen: 21, utcClose: 6 },
+    { name: "Tokyo",    color: "#d946ef", utcOpen: 0,  utcClose: 9 },
+    { name: "London",   color: "#38bdf8", utcOpen: 8,  utcClose: 17 },
+    { name: "New York", color: "#22c55e", utcOpen: 13, utcClose: 22 }
+  ];
+
+  // Typical crypto volume curve (24h UTC, normalized 0-1)
+  // Higher during London+NY overlap, lowest during late US / early Asia
+  var VOLUME_CURVE = [
+    0.3,0.35,0.3,0.25,0.2,0.18,0.15,0.2,0.4,0.55,0.65,0.7,
+    0.75,0.85,0.95,1.0,0.95,0.85,0.7,0.55,0.45,0.4,0.38,0.35
+  ];
+
+  function renderSessions() {
+    var container = $("sessions-widget");
+    var now = new Date();
+
+    // Get PT offset (handles DST automatically)
+    var ptString = now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+    var ptDate = new Date(ptString);
+    var ptH = ptDate.getHours();
+    var ptM = ptDate.getMinutes();
+    var ptFrac = ptH + ptM / 60;
+
+    // Convert session UTC times to PT hours
+    var utcNow = now.getUTCHours() + now.getUTCMinutes() / 60;
+    var ptOffset = ptH - now.getUTCHours(); // could be negative
+    if (ptOffset > 12) ptOffset -= 24;
+    if (ptOffset < -12) ptOffset += 24;
+
+    function utcToPt(utcHour) {
+      var pt = utcHour + ptOffset;
+      if (pt < 0) pt += 24;
+      if (pt >= 24) pt -= 24;
+      return pt;
+    }
+
+    function isOpen(s) {
+      if (s.utcOpen < s.utcClose) return utcNow >= s.utcOpen && utcNow < s.utcClose;
+      return utcNow >= s.utcOpen || utcNow < s.utcClose;
+    }
+
+    // Session bars in PT coordinates
+    function barPosPt(s) {
+      var startPt = utcToPt(s.utcOpen);
+      var endPt = utcToPt(s.utcClose);
+      var startPct = (startPt / 24) * 100;
+      var endPct = (endPt / 24) * 100;
+      if (startPt < endPt) return [{ left: startPct, width: endPct - startPct }];
+      // Wraps around midnight
+      return [
+        { left: startPct, width: 100 - startPct },
+        { left: 0, width: endPct }
+      ];
+    }
+
+    var openSessions = SESSIONS.filter(isOpen).map(function(s) { return s.name; });
+    $("session-status").textContent = openSessions.length ? openSessions.join(" + ") + " Open" : "Between sessions";
+    $("session-status").style.color = openSessions.length ? "#22c55e" : "#64748b";
+
+    var utcH = now.getUTCHours();
+    var volLevel = VOLUME_CURVE[utcH];
+    var volText = volLevel >= 0.7 ? "High" : volLevel >= 0.4 ? "Medium" : "Low";
+    var volColor = volLevel >= 0.7 ? "#22c55e" : volLevel >= 0.4 ? "#f59e0b" : "#64748b";
+
+    var nowPct = (ptFrac / 24) * 100;
+    var labelW = 52;
+    var statusW = 38;
+    var html = '';
+
+    // Hour ticks header
+    html += '<div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:4px">';
+    html += '<span style="min-width:' + labelW + 'px"></span>';
+    html += '<div style="flex:1;position:relative;height:16px">';
+    // Now line on tick row
+    html += '<div style="position:absolute;left:' + nowPct + '%;top:0;bottom:0;width:1.5px;background:#e2e8f0;z-index:2"></div>';
+    for (var h = 0; h < 24; h++) {
+      var xPct = (h / 24) * 100;
+      var showLabel = (h % 3 === 0);
+      var label12 = h === 0 ? "12a" : h < 12 ? (h + "a") : h === 12 ? "12p" : ((h - 12) + "p");
+      html += '<div style="position:absolute;left:' + xPct + '%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)">';
+      if (showLabel) {
+        html += '<span class="mono" style="font-size:7px;color:#475569;white-space:nowrap">' + label12 + '</span>';
+      }
+      html += '<div style="width:1px;height:' + (showLabel ? '4' : '3') + 'px;background:#334155"></div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '<span style="min-width:' + statusW + 'px"></span>';
+    html += '</div>';
+
+    // Session bars with now line
+    for (var i = 0; i < SESSIONS.length; i++) {
+      var s = SESSIONS[i];
+      var open = isOpen(s);
+      var bars = barPosPt(s);
+      var opacity = open ? "0.8" : "0.25";
+      html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+      html += '<span class="mono" style="font-size:9px;color:' + (open ? s.color : '#475569') + ';min-width:' + labelW + 'px;text-align:right">' + s.name + '</span>';
+      html += '<div style="flex:1;height:8px;background:#0f172a;border-radius:4px;position:relative;overflow:hidden">';
+      for (var b = 0; b < bars.length; b++) {
+        var br = bars[b].left === 0 ? '0 4px 4px 0' : (bars[b].left + bars[b].width >= 99.5 ? '4px 0 0 4px' : '4px');
+        html += '<div style="position:absolute;left:' + bars[b].left + '%;width:' + bars[b].width + '%;height:100%;background:' + s.color + ';opacity:' + opacity + ';border-radius:' + br + '"></div>';
+      }
+      // Now line inside bar
+      html += '<div style="position:absolute;left:' + nowPct + '%;top:-1px;bottom:-1px;width:1.5px;background:#e2e8f0;z-index:2"></div>';
+      html += '</div>';
+      html += '<span class="mono" style="font-size:8px;color:' + (open ? '#22c55e' : '#475569') + ';min-width:' + statusW + 'px">' + (open ? 'OPEN' : 'CLOSED') + '</span>';
+      html += '</div>';
+    }
+
+    // Volume curve in PT
+    var svgW = 300, svgH = 28;
+    var pts = [];
+    for (var h = 0; h <= 24; h++) {
+      var x = (h / 24) * svgW;
+      // Convert PT hour back to UTC for volume lookup
+      var utcEquiv = (h - ptOffset + 24) % 24;
+      var v = VOLUME_CURVE[Math.floor(utcEquiv) % 24];
+      var y = svgH - v * (svgH - 2) - 1;
+      pts.push(x.toFixed(1) + "," + y.toFixed(1));
+    }
+    var areaD = "M0," + svgH + " L" + pts.join(" L") + " L" + svgW + "," + svgH + " Z";
+    var lineD = "M" + pts.join(" L");
+    var nowSvgX = (ptFrac / 24) * svgW;
+    var nowVolUtc = VOLUME_CURVE[utcH];
+    var nowVolY = svgH - nowVolUtc * (svgH - 2) - 1;
+
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-top:10px">';
+    html += '<span class="mono" style="min-width:' + labelW + 'px;font-size:9px;color:#475569;text-align:right">Volume</span>';
+    html += '<div style="flex:1;position:relative">';
+    html += '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;height:28px;display:block">';
+    html += '<defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + volColor + '" stop-opacity="0.3"/><stop offset="100%" stop-color="' + volColor + '" stop-opacity="0.02"/></linearGradient></defs>';
+    html += '<path d="' + areaD + '" fill="url(#vg)"/>';
+    html += '<path d="' + lineD + '" fill="none" stroke="' + volColor + '" stroke-width="1.5" opacity="0.6"/>';
+    html += '<line x1="' + nowSvgX + '" y1="0" x2="' + nowSvgX + '" y2="' + svgH + '" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>';
+    html += '<circle cx="' + nowSvgX + '" cy="' + nowVolY + '" r="3" fill="' + volColor + '"/>';
+    html += '</svg>';
+    html += '</div>';
+    html += '<span class="mono" style="min-width:' + statusW + 'px;font-size:8px;color:' + volColor + ';text-align:center">' + volText + '</span>';
+    html += '</div>';
+
+    // Timezone label
+    html += '<div style="display:flex;justify-content:space-between;margin-top:3px;padding-left:' + (labelW + 6) + 'px;padding-right:' + (statusW + 6) + 'px">';
+    html += '<span class="mono" style="font-size:7px;color:#475569">Pacific Time (PT)</span>';
+    html += '<span class="mono" style="font-size:7px;color:#475569">' + ptH + ':' + String(ptM).padStart(2,"0") + ' PT</span>';
+    html += '</div>';
+
+    container.innerHTML = html;
+  }
+
+  // ===== SOURCE TOGGLE =====
+  function setSourceUI() {
+    if (sourcePreference === "hyperliquid") {
+      $("src-hl").className = "btn mono active";
+      $("src-hl").style.padding = "4px 10px";
+      $("src-hl").style.fontSize = "10px";
+      $("src-bin").className = "btn mono";
+      $("src-bin").style.padding = "4px 10px";
+      $("src-bin").style.fontSize = "10px";
+    } else {
+      $("src-bin").className = "btn mono active";
+      $("src-bin").style.padding = "4px 10px";
+      $("src-bin").style.fontSize = "10px";
+      $("src-hl").className = "btn mono";
+      $("src-hl").style.padding = "4px 10px";
+      $("src-hl").style.fontSize = "10px";
+    }
+  }
+  $("src-hl").addEventListener("click", function() {
+    if (sourcePreference === "hyperliquid") return;
+    sourcePreference = "hyperliquid";
+    setSourceUI();
+    scannerCache = {};
+    isFetching = false;
+    refreshIntervalMs = 3000;
+    showLoading();
+    scheduleRefresh(true);
+  });
+  $("src-bin").addEventListener("click", function() {
+    if (sourcePreference === "binance") return;
+    sourcePreference = "binance";
+    setSourceUI();
+    scannerCache = {};
+    isFetching = false;
+    refreshIntervalMs = 1000;
+    showLoading();
+    scheduleRefresh(true);
+  });
+
+  // ===== INIT =====
+  $("window-desc").textContent = WINDOWS[currentWindow].desc;
+  startClock();
+  scheduleRefresh(true);
+
+  // Scanner: every 3s to avoid overloading Hyperliquid
+  setTimeout(runScanner, 2000);
+  setInterval(runScanner, 3000);
+
+  // Trading sessions: render now and every 60s
+  renderSessions();
+  setInterval(renderSessions, 60000);
+
+})();
+</script>
+</body>
+</html>
