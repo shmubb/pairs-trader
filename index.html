@@ -96,6 +96,7 @@
     .z-label{font-size:10px}
     .gauge-labels{font-size:8px}
     .source-tag{font-size:8px}
+    #z-threshold{width:32px !important;font-size:10px !important;padding:2px 4px !important}
 
     /* Collapsible sections on mobile */
     .mobile-collapse{display:none}
@@ -126,6 +127,31 @@
       <span id="hdr-clock">--:--:--</span>
     </div>
   </div>
+</div>
+
+<!-- Alerts bar -->
+<div style="border-bottom:1px solid #1e293b;padding:6px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+  <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">ALERTS</span>
+  <div style="display:flex;align-items:center;gap:4px">
+    <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
+    <input type="text" id="z-threshold" value="1.5" style="width:38px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span style="font-size:9px;color:#94a3b8">Sound</span>
+    <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span style="font-size:9px;color:#94a3b8">Tab Flash</span>
+    <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span style="font-size:9px;color:#94a3b8">Push Notifications</span>
+    <button id="push-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+    <button id="push-test-btn" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s">Test</button>
+    <span id="push-status" style="font-size:8px;color:#475569">—</span>
+  </div>
+  <div style="flex:1"></div>
+  <div id="alert-log" class="mono" style="font-size:9px;color:#475569;text-align:right;max-width:400px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
 </div>
 
 <div class="main">
@@ -246,33 +272,6 @@
         </div>
       </div>
       <div style="font-size:9px;color:#475569;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
-    </div>
-    <div class="stats-box">
-      <div class="stats-title mono" style="margin-bottom:6px">ALERTS</div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-        <span style="font-size:10px;color:#64748b">Threshold |z| ≥</span>
-        <input type="text" id="z-threshold" value="1.5" style="width:45px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;outline:none;text-align:center" />
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-        <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
-        <span style="font-size:10px;color:#94a3b8">Sound alert</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-        <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
-        <span style="font-size:10px;color:#94a3b8">Flash tab title</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
-        <button id="push-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
-        <span style="font-size:10px;color:#94a3b8">Push notification</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button id="push-test-btn" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#475569;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:all .2s">Test</button>
-        <span id="push-status" style="font-size:9px;color:#475569">—</span>
-      </div>
-      <div style="margin-top:8px;border-top:1px solid #1e293b;padding-top:6px">
-        <div class="stats-title mono" style="margin-bottom:4px">ALERT LOG</div>
-        <div id="alert-log" style="max-height:80px;overflow-y:auto;font-size:9px;color:#475569;line-height:1.6">No alerts yet</div>
-      </div>
     </div>
     </div><!-- end mobile-collapse -->
   </div>
@@ -972,12 +971,9 @@
       // Add to log
       alertLog.unshift(entry);
       if (alertLog.length > 20) alertLog.pop();
-      var logHtml = "";
-      for (var i = 0; i < alertLog.length; i++) {
-        var col = i === 0 ? "#f59e0b" : "#475569";
-        logHtml += '<div style="color:' + col + '">' + alertLog[i] + '</div>';
-      }
-      $("alert-log").innerHTML = logHtml;
+      $("alert-log").textContent = entry;
+      $("alert-log").style.color = "#f59e0b";
+      $("alert-log").title = alertLog.join("\n");
 
       if (soundAlertOn) playAlertSound();
       if (pushAlertOn) sendPushNotification("ETH/BTC Signal", "z = " + zScore.toFixed(2) + " → " + dir);
