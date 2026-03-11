@@ -760,15 +760,16 @@
       s.push('<text x="'+(pad.left+w+4)+'" y="'+(meanY+3)+'" fill="#f59e0b" font-size="9" font-family="\'JetBrains Mono\',monospace">μ</text>');
     }
 
-    var upperY = yP(stats.mean + 1.5 * stats.std);
-    var lowerY = yP(stats.mean - 1.5 * stats.std);
+    var chartThreshold = getThreshold();
+    var upperY = yP(stats.mean + chartThreshold * stats.std);
+    var lowerY = yP(stats.mean - chartThreshold * stats.std);
     if (upperY >= pad.top-5 && upperY <= pad.top+h+5) {
       s.push('<line x1="'+pad.left+'" y1="'+upperY+'" x2="'+(pad.left+w)+'" y2="'+upperY+'" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(upperY+3)+'" fill="#ef4444" font-size="8" font-family="\'JetBrains Mono\',monospace">+1.5σ</text>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(upperY+3)+'" fill="#ef4444" font-size="8" font-family="\'JetBrains Mono\',monospace">+'+chartThreshold+'σ</text>');
     }
     if (lowerY >= pad.top-5 && lowerY <= pad.top+h+5) {
       s.push('<line x1="'+pad.left+'" y1="'+lowerY+'" x2="'+(pad.left+w)+'" y2="'+lowerY+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#22c55e" font-size="8" font-family="\'JetBrains Mono\',monospace">-1.5σ</text>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#22c55e" font-size="8" font-family="\'JetBrains Mono\',monospace">-'+chartThreshold+'σ</text>');
     }
 
     var pp = [];
