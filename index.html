@@ -257,9 +257,17 @@
         <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
         <span style="font-size:10px;color:#94a3b8">Sound alert</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
         <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
         <span style="font-size:10px;color:#94a3b8">Flash tab title</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <button id="push-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+        <span style="font-size:10px;color:#94a3b8">Push notification</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="push-test-btn" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#475569;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:all .2s">Test</button>
+        <span id="push-status" style="font-size:9px;color:#475569">—</span>
       </div>
       <div style="margin-top:8px;border-top:1px solid #1e293b;padding-top:6px">
         <div class="stats-title mono" style="margin-bottom:4px">ALERT LOG</div>
@@ -840,6 +848,99 @@
     }
   });
 
+  // ===== PUSH NOTIFICATIONS =====
+  var pushAlertOn = false;
+  var pushPermission = "default"; // "default", "granted", "denied"
+
+  function updatePushStatus() {
+    if (!("Notification" in window)) {
+      $("push-status").textContent = "Not supported in this browser";
+      $("push-status").style.color = "#ef4444";
+      return;
+    }
+    pushPermission = Notification.permission;
+    if (pushPermission === "granted") {
+      $("push-status").textContent = pushAlertOn ? "Enabled" : "Permitted";
+      $("push-status").style.color = pushAlertOn ? "#22c55e" : "#475569";
+    } else if (pushPermission === "denied") {
+      $("push-status").textContent = "Blocked — check browser settings";
+      $("push-status").style.color = "#ef4444";
+    } else {
+      $("push-status").textContent = "Click ON to enable";
+      $("push-status").style.color = "#475569";
+    }
+  }
+
+  function requestPushPermission(callback) {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      callback(true);
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function(perm) {
+        pushPermission = perm;
+        callback(perm === "granted");
+        updatePushStatus();
+      });
+    } else {
+      callback(false);
+      updatePushStatus();
+    }
+  }
+
+  function sendPushNotification(title, body) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+    try {
+      var n = new Notification(title, {
+        body: body,
+        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23070b14'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2322d3ee' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2322d3ee'/></svg>",
+        tag: "pairs-signal",
+        renotify: true
+      });
+      setTimeout(function() { n.close(); }, 10000);
+    } catch (e) {}
+  }
+
+  $("push-alert-toggle").addEventListener("click", function() {
+    var btn = this;
+    if (pushAlertOn) {
+      pushAlertOn = false;
+      btn.textContent = "OFF";
+      btn.style.background = "#0f172a";
+      btn.style.color = "#64748b";
+      btn.style.borderColor = "#1e293b";
+      updatePushStatus();
+    } else {
+      requestPushPermission(function(granted) {
+        if (granted) {
+          pushAlertOn = true;
+          btn.textContent = "ON";
+          btn.style.background = "#22c55e20";
+          btn.style.color = "#22c55e";
+          btn.style.borderColor = "#22c55e40";
+        } else {
+          btn.textContent = "OFF";
+        }
+        updatePushStatus();
+      });
+    }
+  });
+
+  $("push-test-btn").addEventListener("click", function() {
+    requestPushPermission(function(granted) {
+      if (granted) {
+        sendPushNotification("ETH/BTC Pairs Trader", "Test notification — push alerts are working!");
+        $("push-status").textContent = "Test sent!";
+        $("push-status").style.color = "#22c55e";
+        setTimeout(updatePushStatus, 3000);
+      } else {
+        $("push-status").textContent = "Permission needed — check browser prompt";
+        $("push-status").style.color = "#f59e0b";
+      }
+    });
+  });
+
+  updatePushStatus();
+
   function playAlertSound() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -879,6 +980,7 @@
       $("alert-log").innerHTML = logHtml;
 
       if (soundAlertOn) playAlertSound();
+      if (pushAlertOn) sendPushNotification("ETH/BTC Signal", "z = " + zScore.toFixed(2) + " → " + dir);
       if (titleAlertOn) {
         clearInterval(titleFlashTimer);
         var flash = false;
