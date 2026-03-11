@@ -63,7 +63,47 @@
   #alert-log::-webkit-scrollbar-track{background:#0c1221}
   #alert-log::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
 
-  @media(max-width:850px){.right-panel{width:100%;padding:0 24px 24px}.main{flex-direction:column}}
+  @media(max-width:850px){
+    .right-panel{width:100%;padding:0 24px 24px}
+    .main{flex-direction:column}
+  }
+
+  /* Mobile-first compact view */
+  @media(max-width:600px){
+    .header{padding:10px 14px;gap:8px}
+    .header-left{gap:8px}
+    .header-left .dot{width:6px;height:6px}
+    .header-left span:first-of-type{font-size:14px !important}
+    .header-left span:last-of-type{font-size:16px !important}
+    .header-right{gap:10px;font-size:11px}
+    .header-right .label{font-size:9px}
+    .main{flex-direction:column}
+    .chart-area{padding:12px 14px}
+    .right-panel{width:100%;padding:0 14px 14px}
+    .window-bar{gap:6px;margin-bottom:10px}
+    .btn{padding:5px 10px;font-size:11px}
+    .badges{margin-bottom:10px}
+    .chart-svg-box{padding:8px 4px 4px 4px}
+    .price-row{gap:8px;margin-top:10px}
+    .price-card{padding:8px 10px}
+    .price-card .lbl{font-size:9px}
+    .price-card .val{font-size:15px}
+    .stats-box{padding:10px !important}
+    .stat-row .stat-lbl{font-size:10px}
+    .stat-row .stat-val{font-size:12px}
+    .signal-box{padding:10px}
+    .z-big{font-size:36px !important}
+    .z-label{font-size:10px}
+    .gauge-labels{font-size:8px}
+    .source-tag{font-size:8px}
+
+    /* Collapsible sections on mobile */
+    .mobile-collapse{display:none}
+    .mobile-toggle{display:flex !important}
+  }
+  @media(min-width:601px){
+    .mobile-toggle{display:none !important}
+  }
 </style>
 </head>
 <body>
@@ -125,7 +165,13 @@
       </div>
     </div>
 
+    <!-- Mobile toggle for extra sections -->
+    <div class="mobile-toggle" style="display:none;margin-top:12px">
+      <button id="mobile-more-btn" style="width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;text-align:center">Show More ▼</button>
+    </div>
+
     <!-- Scanner then Sessions in left column -->
+    <div id="mobile-extra" class="mobile-collapse">
     <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:14px">
       <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span>MULTI-TIMEFRAME SCANNER</span>
@@ -144,6 +190,7 @@
       </div>
       <div id="sessions-widget" style="position:relative"></div>
     </div>
+    </div>
   </div>
 
   <div class="right-panel">
@@ -160,6 +207,7 @@
       <div class="gauge-track"><div class="gauge-dot" id="gauge-dot" style="left:50%"></div></div>
       <div class="gauge-labels mono"><span>ETH cheap vs BTC</span><span>ETH expensive vs BTC</span></div>
     </div>
+    <div class="mobile-collapse">
     <div class="stats-box">
       <div class="stats-title mono">PAIR STATISTICS</div>
       <div class="stat-row"><span class="stat-lbl">Current Ratio</span><span class="stat-val mono" id="s-ratio">—</span></div>
@@ -218,6 +266,7 @@
         <div id="alert-log" style="max-height:80px;overflow-y:auto;font-size:9px;color:#475569;line-height:1.6">No alerts yet</div>
       </div>
     </div>
+    </div><!-- end mobile-collapse -->
   </div>
 </div>
 
@@ -1121,6 +1170,20 @@
     showLoading();
     scheduleRefresh(true);
   });
+
+  // ===== MOBILE TOGGLE =====
+  var mobileExpanded = false;
+  var mobileBtn = $("mobile-more-btn");
+  if (mobileBtn) {
+    mobileBtn.addEventListener("click", function() {
+      mobileExpanded = !mobileExpanded;
+      var extras = document.querySelectorAll(".mobile-collapse");
+      for (var i = 0; i < extras.length; i++) {
+        extras[i].style.display = mobileExpanded ? "block" : "";
+      }
+      mobileBtn.textContent = mobileExpanded ? "Show Less ▲" : "Show More ▼";
+    });
+  }
 
   // ===== INIT =====
   $("window-desc").textContent = WINDOWS[currentWindow].desc;
