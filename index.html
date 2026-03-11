@@ -58,6 +58,10 @@
   .rule-row .rule-action{font-size:12px;color:#94a3b8}
   .source-tag{font-size:9px;color:#475569;margin-top:6px;display:flex;align-items:center;gap:8px}
   #notional-input:focus{border-color:#22d3ee;box-shadow:0 0 0 2px #22d3ee20}
+  #z-threshold:focus{border-color:#f59e0b;box-shadow:0 0 0 2px #f59e0b20}
+  #alert-log::-webkit-scrollbar{width:3px}
+  #alert-log::-webkit-scrollbar-track{background:#0c1221}
+  #alert-log::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
 
   @media(max-width:850px){.right-panel{width:100%;padding:0 24px 24px}.main{flex-direction:column}}
 </style>
@@ -162,6 +166,8 @@
       <div class="stat-row"><span class="stat-lbl">Mean Ratio</span><span class="stat-val mono" id="s-mean" style="color:#f59e0b">—</span></div>
       <div class="stat-row"><span class="stat-lbl">Std Deviation</span><span class="stat-val mono" id="s-std">—</span></div>
       <div class="stat-row"><span class="stat-lbl">Spread from Mean</span><span class="stat-val mono" id="s-spread">—</span></div>
+      <div class="stat-row"><span class="stat-lbl">Correlation</span><span class="stat-val mono" id="s-corr" style="color:#22d3ee">—</span></div>
+      <div class="stat-row" style="border-bottom:none"><span class="stat-lbl">Mean Reversion Rate</span><span class="stat-val mono" id="s-revert" style="color:#22d3ee">—</span></div>
     </div>
     <div class="stats-box">
       <div class="stats-title mono">PROFIT CALCULATOR</div>
@@ -194,24 +200,23 @@
       <div style="font-size:9px;color:#475569;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
     </div>
     <div class="stats-box">
-      <div class="stats-title mono" style="margin-bottom:6px">TRADE RULES</div>
-      <div style="display:flex;gap:3px;flex-direction:column">
-        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#22c55e;min-width:55px">z ≤ -1.5</span><span style="font-size:11px;color:#94a3b8">→ Long ETH / Short BTC</span></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#ef4444;min-width:55px">z ≥ +1.5</span><span style="font-size:11px;color:#94a3b8">→ Short ETH / Long BTC</span></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="mono" style="font-size:11px;font-weight:700;color:#64748b;min-width:55px">|z| < 1.5</span><span style="font-size:11px;color:#94a3b8">→ No trade — wait</span></div>
-      </div>
-    </div>
-    <div class="stats-box">
       <div class="stats-title mono" style="margin-bottom:6px">ALERTS</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <span style="font-size:10px;color:#64748b">Threshold |z| ≥</span>
+        <input type="text" id="z-threshold" value="1.5" style="width:45px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;outline:none;text-align:center" />
+      </div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
         <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
-        <span style="font-size:10px;color:#94a3b8">Sound |z| ≥ 1.5</span>
+        <span style="font-size:10px;color:#94a3b8">Sound alert</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:5px;padding:4px 10px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
         <span style="font-size:10px;color:#94a3b8">Flash tab title</span>
       </div>
-      <div id="last-alert" style="font-size:9px;color:#475569;margin-top:5px">No alerts yet</div>
+      <div style="margin-top:8px;border-top:1px solid #1e293b;padding-top:6px">
+        <div class="stats-title mono" style="margin-bottom:4px">ALERT LOG</div>
+        <div id="alert-log" style="max-height:80px;overflow-y:auto;font-size:9px;color:#475569;line-height:1.6">No alerts yet</div>
+      </div>
     </div>
   </div>
 </div>
@@ -311,6 +316,11 @@
   }
 
   // ===== STATS =====
+  function getThreshold() {
+    var v = parseFloat($("z-threshold").value);
+    return (v > 0 && v <= 5) ? v : 1.5;
+  }
+
   function calcStats(ratios) {
     if (!ratios.length) return { mean:0, std:0, zScore:0, spread:0, current:0 };
     var sum = 0;
@@ -325,15 +335,65 @@
     return { mean:mean, std:std, zScore:zScore, spread:spread, current:current };
   }
 
+  function calcCorrelation(data) {
+    if (data.length < 10) return null;
+    var n = data.length;
+    var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+    for (var i = 1; i < n; i++) {
+      var xRet = (data[i].ethPrice - data[i-1].ethPrice) / data[i-1].ethPrice;
+      var yRet = (data[i].btcPrice - data[i-1].btcPrice) / data[i-1].btcPrice;
+      sumX += xRet; sumY += yRet;
+      sumXY += xRet * yRet;
+      sumX2 += xRet * xRet;
+      sumY2 += yRet * yRet;
+    }
+    var nm = n - 1;
+    var num = nm * sumXY - sumX * sumY;
+    var den = Math.sqrt((nm * sumX2 - sumX * sumX) * (nm * sumY2 - sumY * sumY));
+    return den === 0 ? 0 : num / den;
+  }
+
+  function calcMeanReversion(data, threshold) {
+    if (data.length < 30) return null;
+    var ratios = [];
+    for (var i = 0; i < data.length; i++) ratios.push(data[i].ratio);
+    // Walk through and find all times z crosses threshold, check if it reverts to 0
+    var mean = 0, std = 0;
+    for (var i = 0; i < ratios.length; i++) mean += ratios[i];
+    mean /= ratios.length;
+    for (var i = 0; i < ratios.length; i++) std += (ratios[i] - mean) * (ratios[i] - mean);
+    std = Math.sqrt(std / ratios.length);
+    if (std === 0) return null;
+
+    var signals = 0, reverted = 0;
+    var lookForward = Math.min(50, Math.floor(ratios.length * 0.25));
+    for (var i = 0; i < ratios.length - lookForward; i++) {
+      var z = (ratios[i] - mean) / std;
+      var prevZ = i > 0 ? (ratios[i-1] - mean) / std : 0;
+      // Detect crossing threshold
+      if (Math.abs(z) >= threshold && Math.abs(prevZ) < threshold) {
+        signals++;
+        // Check if z reverts toward 0 within lookForward candles
+        for (var j = i + 1; j <= i + lookForward; j++) {
+          var fz = (ratios[j] - mean) / std;
+          if (Math.abs(fz) < Math.abs(z) * 0.5) { reverted++; break; }
+        }
+      }
+    }
+    return signals > 0 ? { rate: reverted / signals, signals: signals, reverted: reverted } : null;
+  }
+
   function zColor(z) {
-    return Math.abs(z) >= 2.5 ? "#ff3b5c" : Math.abs(z) >= 1.5 ? "#f59e0b" : "#22d3ee";
+    var t = getThreshold();
+    return Math.abs(z) >= t * 1.67 ? "#ff3b5c" : Math.abs(z) >= t ? "#f59e0b" : "#22d3ee";
   }
 
   function signalInfo(z) {
+    var t = getThreshold();
     var az = Math.abs(z);
-    if (az >= 2.5) return { text: z > 0 ? "STRONG — ETH extremely expensive vs BTC → Short ETH / Long BTC" : "STRONG — ETH extremely cheap vs BTC → Long ETH / Short BTC", color:"#ff3b5c", bg:"#1a0008" };
-    if (az >= 1.5) return { text: z > 0 ? "ETH expensive vs BTC → Short ETH / Long BTC" : "ETH cheap vs BTC → Long ETH / Short BTC", color:"#f59e0b", bg:"#1a1500" };
-    return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for z > ±1.5", color:"#64748b", bg:"#0f172a" };
+    if (az >= t * 1.67) return { text: z > 0 ? "STRONG — ETH extremely expensive vs BTC → Short ETH / Long BTC" : "STRONG — ETH extremely cheap vs BTC → Long ETH / Short BTC", color:"#ff3b5c", bg:"#1a0008" };
+    if (az >= t) return { text: z > 0 ? "ETH expensive vs BTC → Short ETH / Long BTC" : "ETH cheap vs BTC → Long ETH / Short BTC", color:"#f59e0b", bg:"#1a1500" };
+    return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for |z| > " + t.toFixed(1), color:"#64748b", bg:"#0f172a" };
   }
 
   // ===== FETCH =====
@@ -517,6 +577,23 @@
     $("s-spread").textContent = (stats.spread >= 0 ? "+" : "") + stats.spread.toFixed(2) + "%";
     $("s-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
 
+    // Correlation
+    var corr = calcCorrelation(chartData);
+    if (corr !== null) {
+      $("s-corr").textContent = (corr * 100).toFixed(1) + "%";
+      $("s-corr").style.color = corr >= 0.85 ? "#22c55e" : corr >= 0.7 ? "#f59e0b" : "#ef4444";
+    }
+
+    // Mean reversion rate
+    var threshold = getThreshold();
+    var mrr = calcMeanReversion(chartData, threshold);
+    if (mrr) {
+      $("s-revert").textContent = (mrr.rate * 100).toFixed(0) + "% (" + mrr.reverted + "/" + mrr.signals + ")";
+      $("s-revert").style.color = mrr.rate >= 0.7 ? "#22c55e" : mrr.rate >= 0.5 ? "#f59e0b" : "#ef4444";
+    } else {
+      $("s-revert").textContent = "—";
+    }
+
     if (last) {
       $("price-row").style.display = "flex";
       $("eth-price").textContent = "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -553,14 +630,15 @@
     $("pc-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
 
     // Direction
-    if (stats.zScore <= -1.5) {
+    var t = getThreshold();
+    if (stats.zScore <= -t) {
       $("pc-direction").textContent = "Long ETH / Short BTC";
       $("pc-direction").style.color = "#22c55e";
-    } else if (stats.zScore >= 1.5) {
+    } else if (stats.zScore >= t) {
       $("pc-direction").textContent = "Short ETH / Long BTC";
       $("pc-direction").style.color = "#ef4444";
     } else {
-      $("pc-direction").textContent = "No signal (|z| < 1.5)";
+      $("pc-direction").textContent = "No signal (|z| < " + t.toFixed(1) + ")";
       $("pc-direction").style.color = "#64748b";
     }
 
@@ -728,14 +806,28 @@
     } catch (e) {}
   }
 
+  var alertLog = [];
+
   function checkAlerts(zScore) {
-    var isSignal = Math.abs(zScore) >= 1.5;
+    var t = getThreshold();
+    var isSignal = Math.abs(zScore) >= t;
     var now = Date.now();
     if (isSignal && !prevZWasSignal && (now - lastAlertTime >= ALERT_COOLDOWN)) {
       lastAlertTime = now;
       var dir = zScore < 0 ? "Long ETH / Short BTC" : "Short ETH / Long BTC";
-      $("last-alert").textContent = "Alert: z=" + zScore.toFixed(2) + " → " + dir + " at " + new Date().toLocaleTimeString();
-      $("last-alert").style.color = "#f59e0b";
+      var timeStr = new Date().toLocaleTimeString();
+      var entry = "z=" + zScore.toFixed(2) + " → " + dir + " · " + timeStr;
+
+      // Add to log
+      alertLog.unshift(entry);
+      if (alertLog.length > 20) alertLog.pop();
+      var logHtml = "";
+      for (var i = 0; i < alertLog.length; i++) {
+        var col = i === 0 ? "#f59e0b" : "#475569";
+        logHtml += '<div style="color:' + col + '">' + alertLog[i] + '</div>';
+      }
+      $("alert-log").innerHTML = logHtml;
+
       if (soundAlertOn) playAlertSound();
       if (titleAlertOn) {
         clearInterval(titleFlashTimer);
@@ -785,7 +877,7 @@
     scannerBusy = true;
 
     var scanWindows = [
-      WINDOWS[0], WINDOWS[1], WINDOWS[3], WINDOWS[4], WINDOWS[5], WINDOWS[7], WINDOWS[8]
+      WINDOWS[0], WINDOWS[1], WINDOWS[2], WINDOWS[4], WINDOWS[5], WINDOWS[7], WINDOWS[8]
     ]; // 1H, 4H, 1D, 3D, 1W, 1M, 3M
 
     // Scan one timeframe at a time in round-robin
