@@ -115,10 +115,12 @@
     /* Collapsible sections on mobile */
     .mobile-collapse{display:none}
     .mobile-toggle{display:flex !important}
+    .mobile-hide-alerts{display:none !important}
   }
   @media(min-width:601px){
     .mobile-toggle{display:none !important}
-    #alerts-bar.mobile-collapse{display:flex !important}
+    .mobile-hide-alerts{display:flex !important}
+    #mobile-alerts{display:none !important}
   }
 </style>
 </head>
@@ -180,8 +182,8 @@
   </div>
 </div>
 
-<!-- Alerts bar -->
-<div id="alerts-bar" class="mobile-collapse" style="border-bottom:1px solid #1e293b;padding:6px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+<!-- Alerts bar (hidden on mobile, duplicated inside Show More) -->
+<div id="alerts-bar" class="mobile-hide-alerts" style="border-bottom:1px solid #1e293b;padding:6px 24px;align-items:center;gap:12px;flex-wrap:wrap">
   <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">ALERTS</span>
   <div style="display:flex;align-items:center;gap:4px">
     <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
@@ -251,7 +253,32 @@
 
     <!-- Scanner then Sessions in left column -->
     <div id="mobile-extra" class="mobile-collapse">
-    <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:14px">
+
+    <!-- Alerts (mobile version, inside Show More) -->
+    <div id="mobile-alerts" class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:14px">
+      <div class="stats-title mono" style="margin-bottom:8px">ALERTS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <div style="display:flex;align-items:center;gap:4px">
+          <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
+          <input type="text" id="z-threshold-mobile" value="1.5" style="width:38px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:9px;color:#94a3b8">Sound</span>
+          <button id="alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:9px;color:#94a3b8">Tab Flash</span>
+          <button id="title-alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span style="font-size:9px;color:#94a3b8">Push</span>
+          <button id="push-alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+        </div>
+      </div>
+      <div id="mobile-alert-log" class="mono" style="font-size:9px;color:#475569;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
+    </div>
+
+    <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:10px">
       <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span>MULTI-TIMEFRAME SCANNER</span>
         <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#475569;letter-spacing:0">
@@ -738,7 +765,10 @@
     // Toggle panels
     $("pair-panel").style.display = isSolo ? "none" : "";
     $("solo-panel").style.display = isSolo ? "" : "none";
-    $("mobile-extra").style.display = isSolo ? "none" : "";
+    // Only force-hide mobile-extra for solo; for pairs, let mobile toggle control it
+    if (isSolo) {
+      $("mobile-extra").style.display = "none";
+    }
     // Hide source toggle row and data points card for solo
     $("z-velocity").parentElement.style.display = isSolo ? "none" : "";
 
@@ -1634,6 +1664,7 @@
     originalTitle = document.title;
     // Hide alerts bar for pairs with alerts disabled
     $("alerts-bar").style.display = p.alertsDisabled ? "none" : "";
+    if ($("mobile-alerts")) $("mobile-alerts").style.display = p.alertsDisabled ? "none" : "";
     if (!p.binA && sourcePreference === "binance") {
       sourcePreference = "hyperliquid";
       refreshIntervalMs = 3000;
@@ -1823,6 +1854,36 @@
     if (H > 0.55 || ac > 0.1) return { regime: "Trending ✗", color: "#ef4444", desc: "Caution: trending" };
     return { regime: "Random Walk", color: "#f59e0b", desc: "Neutral regime" };
   }
+
+  // ===== MOBILE ALERT CONTROLS (sync with desktop) =====
+  // Sync threshold
+  if ($("z-threshold-mobile")) {
+    $("z-threshold-mobile").addEventListener("input", function() {
+      $("z-threshold").value = this.value;
+      $("z-threshold").dispatchEvent(new Event("input"));
+    });
+    $("z-threshold").addEventListener("input", function() {
+      $("z-threshold-mobile").value = this.value;
+    });
+  }
+  // Mirror toggle buttons
+  function syncMobileToggle(mobileId, desktopId) {
+    var mob = $(mobileId);
+    var desk = $(desktopId);
+    if (!mob || !desk) return;
+    mob.addEventListener("click", function() { desk.click(); mob.textContent = desk.textContent; mob.style.color = desk.style.color; mob.style.background = desk.style.background; mob.style.borderColor = desk.style.borderColor; });
+    // Watch desktop button for changes
+    new MutationObserver(function() { mob.textContent = desk.textContent; mob.style.color = desk.style.color; mob.style.background = desk.style.background; mob.style.borderColor = desk.style.borderColor; }).observe(desk, { childList: true, attributes: true, attributeFilter: ["style"] });
+  }
+  syncMobileToggle("alert-toggle-mobile", "alert-toggle");
+  syncMobileToggle("title-alert-toggle-mobile", "title-alert-toggle");
+  syncMobileToggle("push-alert-toggle-mobile", "push-alert-toggle");
+
+  // Sync alert log to mobile
+  new MutationObserver(function() {
+    var mobLog = $("mobile-alert-log");
+    if (mobLog) mobLog.textContent = $("alert-log").textContent;
+  }).observe($("alert-log"), { childList: true, characterData: true, subtree: true });
 
   // ===== MOBILE TOGGLE =====
   var mobileExpanded = false;
