@@ -59,9 +59,13 @@
   .source-tag{font-size:9px;color:#475569;margin-top:6px;display:flex;align-items:center;gap:8px}
   #notional-input:focus{border-color:#22d3ee;box-shadow:0 0 0 2px #22d3ee20}
   #z-threshold:focus{border-color:#f59e0b;box-shadow:0 0 0 2px #f59e0b20}
+  .pair-option:hover{background:#1e293b !important}
+  .pair-option.active-pair{background:#22d3ee15 !important;color:#22d3ee !important}
+  #pair-dropdown-btn:hover{border-color:#334155}
   #alert-log::-webkit-scrollbar{width:3px}
   #alert-log::-webkit-scrollbar-track{background:#0c1221}
   #alert-log::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  .chart-annotation{position:absolute;background:#f59e0b20;border:1px solid #f59e0b40;border-radius:4px;padding:2px 6px;font-size:8px;color:#f59e0b;cursor:pointer;z-index:5;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
 
   @media(max-width:850px){
     .right-panel{width:100%;padding:0 24px 24px}
@@ -70,33 +74,43 @@
 
   /* Mobile-first compact view */
   @media(max-width:600px){
-    .header{padding:10px 14px;gap:8px}
-    .header-left{gap:8px}
-    .header-left .dot{width:6px;height:6px}
-    .header-left span:first-of-type{font-size:14px !important}
-    .header-left span:last-of-type{font-size:16px !important}
-    .header-right{gap:10px;font-size:11px}
-    .header-right .label{font-size:9px}
+    .header{padding:8px 12px;gap:6px;flex-wrap:wrap}
+    .header-left{gap:6px}
+    .header-left .dot{width:5px;height:5px}
+    .header-left span:first-of-type{font-size:13px !important}
+    .header-right{gap:6px;font-size:9px;flex-wrap:wrap}
+    .header-right .label{font-size:8px}
+    .header-right > div{white-space:nowrap}
     .main{flex-direction:column}
-    .chart-area{padding:12px 14px}
-    .right-panel{width:100%;padding:0 14px 14px}
-    .window-bar{gap:6px;margin-bottom:10px}
-    .btn{padding:5px 10px;font-size:11px}
-    .badges{margin-bottom:10px}
-    .chart-svg-box{padding:8px 4px 4px 4px}
-    .price-row{gap:8px;margin-top:10px}
-    .price-card{padding:8px 10px}
-    .price-card .lbl{font-size:9px}
-    .price-card .val{font-size:15px}
-    .stats-box{padding:10px !important}
-    .stat-row .stat-lbl{font-size:10px}
-    .stat-row .stat-val{font-size:12px}
-    .signal-box{padding:10px}
-    .z-big{font-size:36px !important}
-    .z-label{font-size:10px}
-    .gauge-labels{font-size:8px}
+    .chart-area{padding:8px 10px}
+    .right-panel{width:100%;padding:0 10px 14px}
+    .window-bar{gap:4px;margin-bottom:8px;flex-wrap:wrap}
+    .btn{padding:4px 8px;font-size:10px}
+    .chart-svg-box{padding:6px 2px 2px 2px}
+    .price-row{gap:6px;margin-top:8px;flex-wrap:wrap}
+    .price-card{padding:6px 8px;flex:1 1 45%;min-width:0}
+    .price-card .lbl{font-size:8px}
+    .price-card .val{font-size:13px}
+    .stats-box{padding:8px !important}
+    .stat-row .stat-lbl{font-size:9px}
+    .stat-row .stat-val{font-size:10px}
+    .signal-box{padding:8px;margin-bottom:12px !important}
+    .signal-box .signal-text{font-size:11px}
+    .z-big{font-size:32px !important}
+    .z-label{font-size:9px}
+    .gauge-labels{font-size:7px}
     .source-tag{font-size:8px}
-    #z-threshold{width:32px !important;font-size:10px !important;padding:2px 4px !important}
+    #z-threshold{width:30px !important;font-size:9px !important;padding:2px 3px !important}
+    #alerts-bar{padding:5px 12px !important;gap:6px !important}
+    #alerts-bar span,#alerts-bar button{font-size:8px !important}
+    #alert-log{max-width:150px;font-size:8px !important}
+    #pair-dropdown-btn{font-size:14px !important;padding:4px 8px !important}
+    #pair-dropdown-btn span:first-child{font-size:14px !important}
+    #scanner-grid{flex-wrap:wrap}
+    #scanner-grid > div{min-width:28%;flex:1 1 28%}
+    .chart-tooltip{top:8px;right:8px;padding:4px 8px}
+    #regime-badge{font-size:8px !important;padding:2px 5px !important}
+    #annotate-btn{font-size:8px !important;padding:2px 5px !important}
 
     /* Collapsible sections on mobile */
     .mobile-collapse{display:none}
@@ -115,7 +129,26 @@
       <div class="dot"></div>
       <span style="font-size:18px;font-weight:700;letter-spacing:-.02em">PAIRS</span>
     </div>
-    <span class="mono" style="font-size:22px;font-weight:700">ETH<span style="color:#475569"> / </span>BTC</span>
+    <div style="position:relative;display:inline-block" id="pair-dropdown-wrap">
+      <button id="pair-dropdown-btn" class="mono" style="background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:5px 12px;color:#e2e8f0;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;outline:none">
+        <span id="pair-dropdown-label">ETH / BTC</span>
+        <span style="font-size:10px;color:#64748b;transition:transform .2s" id="pair-arrow">▼</span>
+      </button>
+      <div id="pair-dropdown-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden;z-index:100;min-width:100%;box-shadow:0 8px 24px #00000060">
+        <div class="pair-option" data-value="ETH/BTC" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">ETH / BTC</div>
+        <div class="pair-option" data-value="HYPE/SOL" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">HYPE / SOL</div>
+        <div style="padding:4px 14px;font-size:9px;color:#475569;border-bottom:1px solid #1e293b;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em">PRICE CHARTS</div>
+        <div class="pair-option" data-value="ETH/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">ETH / USDT</div>
+        <div class="pair-option" data-value="BTC/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s">BTC / USDT</div>
+      </div>
+      <!-- Hidden select for compatibility -->
+      <select id="pair-select" style="display:none">
+        <option value="ETH/BTC">ETH / BTC</option>
+        <option value="HYPE/SOL">HYPE / SOL</option>
+        <option value="ETH/USDT">ETH / USDT</option>
+        <option value="BTC/USDT">BTC / USDT</option>
+      </select>
+    </div>
   </div>
   <div class="header-right mono">
     <div><span class="label">Ratio </span><span id="hdr-ratio" style="font-weight:700">—</span></div>
@@ -130,7 +163,7 @@
 </div>
 
 <!-- Alerts bar -->
-<div style="border-bottom:1px solid #1e293b;padding:6px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+<div id="alerts-bar" style="border-bottom:1px solid #1e293b;padding:6px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
   <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">ALERTS</span>
   <div style="display:flex;align-items:center;gap:4px">
     <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
@@ -159,8 +192,10 @@
     <div class="window-bar">
       <div class="btn-group" id="window-btns"></div>
       <span id="window-desc" class="mono" style="font-size:10px;color:#475569"></span>
+      <div style="flex:1"></div>
+      <span id="regime-badge" class="mono" style="font-size:9px;padding:3px 8px;border-radius:4px;background:#0f172a;border:1px solid #1e293b;color:#64748b">—</span>
+      <button id="annotate-btn" class="mono" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;font-size:9px;color:#64748b;cursor:pointer" title="Click to add annotation on chart">📌 Note</button>
     </div>
-    <div class="badges" id="badges"></div>
 
     <div class="chart-wrapper" id="chart-wrapper">
       <div class="chart-svg-box" id="chart-svg-box">
@@ -176,9 +211,9 @@
     </div>
 
     <div class="price-row" id="price-row" style="display:none">
-      <div class="price-card mono"><div class="lbl">ETH PRICE</div><div class="val" id="eth-price">—</div></div>
-      <div class="price-card mono"><div class="lbl">BTC PRICE</div><div class="val" id="btc-price">—</div></div>
-      <div class="price-card mono"><div class="lbl">DATA POINTS</div><div class="val" id="data-points">—</div></div>
+      <div class="price-card mono"><div class="lbl" id="lbl-leg-a">ETH PRICE</div><div class="val" id="eth-price">—</div><div id="eth-pct" style="font-size:11px;margin-top:2px;font-weight:600">—</div></div>
+      <div class="price-card mono"><div class="lbl" id="lbl-leg-b">BTC PRICE</div><div class="val" id="btc-price">—</div><div id="btc-pct" style="font-size:11px;margin-top:2px;font-weight:600">—</div></div>
+      <div class="price-card mono"><div class="lbl">DATA POINTS</div><div class="val" id="data-points">—</div><div id="z-velocity" style="font-size:10px;margin-top:2px;font-weight:600;color:#64748b">—</div></div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
       <div class="source-tag mono" style="margin-top:0">
@@ -206,7 +241,7 @@
           <span id="scanner-status">Loading...</span>
         </span>
       </div>
-      <div id="scanner-grid" style="display:flex;gap:4px"></div>
+      <div id="scanner-grid" style="display:flex;gap:3px"></div>
     </div>
 
     <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:10px">
@@ -220,6 +255,18 @@
   </div>
 
   <div class="right-panel">
+    <!-- Solo mode: simple price display -->
+    <div id="solo-panel" style="display:none">
+      <div class="stats-box">
+        <div class="stats-title mono" id="solo-title">PRICE CHART</div>
+        <div class="stat-row"><span class="stat-lbl">Current Price</span><span class="stat-val mono" id="solo-price">—</span></div>
+        <div class="stat-row"><span class="stat-lbl">Period Change</span><span class="stat-val mono" id="solo-change">—</span></div>
+        <div class="stat-row"><span class="stat-lbl">Period High</span><span class="stat-val mono" id="solo-high">—</span></div>
+        <div class="stat-row" style="border-bottom:none"><span class="stat-lbl">Period Low</span><span class="stat-val mono" id="solo-low">—</span></div>
+      </div>
+    </div>
+    <!-- Pair mode: full analysis -->
+    <div id="pair-panel">
     <div class="signal-box" id="signal-box" style="background:#0f172a;border:1px solid #1e293b30">
       <div class="signal-label mono" id="signal-label" style="color:#64748b">SIGNAL</div>
       <div class="signal-text" id="signal-text">Loading...</div>
@@ -231,7 +278,7 @@
       </div>
       <div class="gauge-labels mono"><span>-3σ</span><span>0</span><span>+3σ</span></div>
       <div class="gauge-track"><div class="gauge-dot" id="gauge-dot" style="left:50%"></div></div>
-      <div class="gauge-labels mono"><span>ETH cheap vs BTC</span><span>ETH expensive vs BTC</span></div>
+      <div class="gauge-labels mono"><span id="gauge-cheap">ETH cheap vs BTC</span><span id="gauge-expensive">ETH expensive vs BTC</span></div>
     </div>
     <div class="mobile-collapse">
     <div class="stats-box">
@@ -244,7 +291,7 @@
       <div class="stat-row" style="border-bottom:none"><span class="stat-lbl">Mean Reversion Rate</span><span class="stat-val mono" id="s-revert" style="color:#22d3ee">—</span></div>
     </div>
     <div class="stats-box">
-      <div class="stats-title mono">PROFIT CALCULATOR</div>
+      <div class="stats-title mono">EST. PNL CALCULATOR</div>
       <div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">Est. profit if z-score reverts to 0 (mean)</div>
       <div style="margin-bottom:10px">
         <div style="font-size:10px;color:#64748b;margin-bottom:4px">TOTAL NOTIONAL (split 50/50 per leg)</div>
@@ -274,6 +321,7 @@
       <div style="font-size:9px;color:#475569;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
     </div>
     </div><!-- end mobile-collapse -->
+    </div><!-- end pair-panel -->
   </div>
 </div>
 
@@ -285,6 +333,38 @@
   var HYPERLIQUID = "https://api.hyperliquid.xyz/info";
   var BINANCE_US = "https://api.binance.us/api/v3/klines";
   var BINANCE_GLOBAL = "https://api.binance.com/api/v3/klines";
+
+  var PAIRS = {
+    "ETH/BTC": {
+      legA: "ETH", legB: "BTC",
+      binA: "ETHUSDT", binB: "BTCUSDT",
+      hlA: "ETH", hlB: "BTC"
+    },
+    "HYPE/SOL": {
+      legA: "HYPE", legB: "SOL",
+      binA: null, binB: null,
+      hlA: "HYPE", hlB: "SOL",
+      alertsDisabled: true
+    },
+    "ETH/USDT": {
+      legA: "ETH", legB: "USDT",
+      binA: "ETHUSDT", binB: null,
+      hlA: "ETH", hlB: null,
+      solo: true, // single asset price chart, not a ratio
+      alertsDisabled: true
+    },
+    "BTC/USDT": {
+      legA: "BTC", legB: "USDT",
+      binA: "BTCUSDT", binB: null,
+      hlA: "BTC", hlB: null,
+      solo: true,
+      alertsDisabled: true
+    }
+  };
+
+  var currentPair = "ETH/BTC";
+
+  function getPair() { return PAIRS[currentPair]; }
 
   var WINDOWS = [
     { label:"1H",  hours:1,    interval:"1m",  hlInterval:"1m",  desc:"Past hour · 1m candles" },
@@ -340,6 +420,8 @@
     refreshIntervalMs = sourcePreference === "hyperliquid" ? 3000 : 1000;
     showLoading();
     scheduleRefresh(true);
+    // Instantly update scanner highlight
+    if (typeof rerenderScannerFromCache === "function") rerenderScannerFromCache();
   }
 
   // ===== REFRESH SCHEDULER =====
@@ -446,53 +528,75 @@
 
   function signalInfo(z) {
     var t = getThreshold();
+    var p = getPair();
     var az = Math.abs(z);
-    if (az >= t * 1.67) return { text: z > 0 ? "STRONG — ETH extremely expensive vs BTC → Short ETH / Long BTC" : "STRONG — ETH extremely cheap vs BTC → Long ETH / Short BTC", color:"#ff3b5c", bg:"#1a0008" };
-    if (az >= t) return { text: z > 0 ? "ETH expensive vs BTC → Short ETH / Long BTC" : "ETH cheap vs BTC → Long ETH / Short BTC", color:"#f59e0b", bg:"#1a1500" };
+    var longDir = "Long " + p.legA + " / Short " + p.legB;
+    var shortDir = "Short " + p.legA + " / Long " + p.legB;
+    if (az >= t * 1.67) return { text: z > 0 ? "STRONG — " + p.legA + " extremely expensive vs " + p.legB + " → " + shortDir : "STRONG — " + p.legA + " extremely cheap vs " + p.legB + " → " + longDir, color:"#ff3b5c", bg:"#1a0008" };
+    if (az >= t) return { text: z > 0 ? p.legA + " expensive vs " + p.legB + " → " + shortDir : p.legA + " cheap vs " + p.legB + " → " + longDir, color:"#f59e0b", bg:"#1a1500" };
     return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for |z| > " + t.toFixed(1), color:"#64748b", bg:"#0f172a" };
   }
 
   // ===== FETCH =====
   function fetchFromHyperliquid(win) {
+    var p = getPair();
     var startTime = Date.now() - win.hours * 3600000;
     var endTime = Date.now();
 
+    // Solo mode: single asset price chart
+    if (p.solo) {
+      return fetch(HYPERLIQUID, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "candleSnapshot", req: { coin: p.hlA, interval: win.hlInterval, startTime: startTime, endTime: endTime } })
+      }).then(function(r) { if (!r.ok) throw new Error("HL " + p.hlA + ":" + r.status); return r.json(); })
+      .then(function(candles) {
+        if (!Array.isArray(candles) || candles.length < 3) throw new Error("HL: too few candles");
+        var result = [];
+        for (var i = 0; i < candles.length; i++) {
+          var price = parseFloat(candles[i].c);
+          result.push({ time: candles[i].t, ratio: price, ethPrice: price, btcPrice: 1, open: parseFloat(candles[i].o), high: parseFloat(candles[i].h), low: parseFloat(candles[i].l), close: price });
+        }
+        dataSource = "Hyperliquid";
+        return result;
+      });
+    }
+
+    // Pair mode: ratio of two assets
     return Promise.all([
       fetch(HYPERLIQUID, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "candleSnapshot", req: { coin: "ETH", interval: win.hlInterval, startTime: startTime, endTime: endTime } })
-      }).then(function(r) { if (!r.ok) throw new Error("HL ETH:" + r.status); return r.json(); }),
+        body: JSON.stringify({ type: "candleSnapshot", req: { coin: p.hlA, interval: win.hlInterval, startTime: startTime, endTime: endTime } })
+      }).then(function(r) { if (!r.ok) throw new Error("HL " + p.hlA + ":" + r.status); return r.json(); }),
       fetch(HYPERLIQUID, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "candleSnapshot", req: { coin: "BTC", interval: win.hlInterval, startTime: startTime, endTime: endTime } })
-      }).then(function(r) { if (!r.ok) throw new Error("HL BTC:" + r.status); return r.json(); })
+        body: JSON.stringify({ type: "candleSnapshot", req: { coin: p.hlB, interval: win.hlInterval, startTime: startTime, endTime: endTime } })
+      }).then(function(r) { if (!r.ok) throw new Error("HL " + p.hlB + ":" + r.status); return r.json(); })
     ]).then(function(results) {
-      var ethCandles = results[0];
-      var btcCandles = results[1];
+      var aCandles = results[0];
+      var bCandles = results[1];
 
-      if (!Array.isArray(ethCandles) || !Array.isArray(btcCandles)) throw new Error("HL: bad response");
-      if (ethCandles.length < 3) throw new Error("HL: too few ETH candles (" + ethCandles.length + ")");
-      if (btcCandles.length < 3) throw new Error("HL: too few BTC candles (" + btcCandles.length + ")");
+      if (!Array.isArray(aCandles) || !Array.isArray(bCandles)) throw new Error("HL: bad response");
+      if (aCandles.length < 3) throw new Error("HL: too few " + p.hlA + " candles (" + aCandles.length + ")");
+      if (bCandles.length < 3) throw new Error("HL: too few " + p.hlB + " candles (" + bCandles.length + ")");
 
-      // Hyperliquid candles: { t: openMs, T: closeMs, o, h, l, c, v, s, i, n }
-      // Match by open time (t)
-      var btcMap = {};
-      for (var i = 0; i < btcCandles.length; i++) {
-        btcMap[btcCandles[i].t] = parseFloat(btcCandles[i].c);
+      var bMap = {};
+      for (var i = 0; i < bCandles.length; i++) {
+        bMap[bCandles[i].t] = parseFloat(bCandles[i].c);
       }
 
       var result = [];
-      for (var i = 0; i < ethCandles.length; i++) {
-        var ec = ethCandles[i];
-        var btcClose = btcMap[ec.t];
-        if (btcClose && btcClose > 0) {
+      for (var i = 0; i < aCandles.length; i++) {
+        var ac = aCandles[i];
+        var bClose = bMap[ac.t];
+        if (bClose && bClose > 0) {
           result.push({
-            time: ec.t,
-            ratio: parseFloat(ec.c) / btcClose,
-            ethPrice: parseFloat(ec.c),
-            btcPrice: btcClose
+            time: ac.t,
+            ratio: parseFloat(ac.c) / bClose,
+            ethPrice: parseFloat(ac.c),
+            btcPrice: bClose
           });
         }
       }
@@ -504,38 +608,40 @@
   }
 
   function fetchFromBinance(baseUrl, label, win) {
+    var p = getPair();
+    if (!p.binA || !p.binB) throw new Error(label + ": " + currentPair + " not available on Binance");
     var startTime = Date.now() - win.hours * 3600000;
-    var ethUrl = baseUrl + "?symbol=ETHUSDT&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
-    var btcUrl = baseUrl + "?symbol=BTCUSDT&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
+    var aUrl = baseUrl + "?symbol=" + p.binA + "&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
+    var bUrl = baseUrl + "?symbol=" + p.binB + "&interval=" + win.interval + "&startTime=" + startTime + "&limit=1000";
 
     return Promise.all([
-      fetch(ethUrl).then(function(r) { if (!r.ok) throw new Error(label + " ETH:" + r.status); return r.json(); }),
-      fetch(btcUrl).then(function(r) { if (!r.ok) throw new Error(label + " BTC:" + r.status); return r.json(); })
+      fetch(aUrl).then(function(r) { if (!r.ok) throw new Error(label + " " + p.legA + ":" + r.status); return r.json(); }),
+      fetch(bUrl).then(function(r) { if (!r.ok) throw new Error(label + " " + p.legB + ":" + r.status); return r.json(); })
     ]).then(function(results) {
-      var ethData = results[0];
-      var btcData = results[1];
+      var aData = results[0];
+      var bData = results[1];
 
-      if (ethData.code || ethData.msg) throw new Error(label + ": " + (ethData.msg || ethData.code));
-      if (btcData.code || btcData.msg) throw new Error(label + ": " + (btcData.msg || btcData.code));
-      if (!Array.isArray(ethData) || !Array.isArray(btcData)) throw new Error(label + ": bad response");
-      if (ethData.length < 3) throw new Error(label + ": too few ETH candles");
-      if (btcData.length < 3) throw new Error(label + ": too few BTC candles");
+      if (aData.code || aData.msg) throw new Error(label + ": " + (aData.msg || aData.code));
+      if (bData.code || bData.msg) throw new Error(label + ": " + (bData.msg || bData.code));
+      if (!Array.isArray(aData) || !Array.isArray(bData)) throw new Error(label + ": bad response");
+      if (aData.length < 3) throw new Error(label + ": too few " + p.legA + " candles");
+      if (bData.length < 3) throw new Error(label + ": too few " + p.legB + " candles");
 
-      var btcMap = {};
-      for (var i = 0; i < btcData.length; i++) {
-        btcMap[btcData[i][0]] = parseFloat(btcData[i][4]);
+      var bMap = {};
+      for (var i = 0; i < bData.length; i++) {
+        bMap[bData[i][0]] = parseFloat(bData[i][4]);
       }
 
       var result = [];
-      for (var i = 0; i < ethData.length; i++) {
-        var k = ethData[i];
-        var btcClose = btcMap[k[0]];
-        if (btcClose && btcClose > 0) {
+      for (var i = 0; i < aData.length; i++) {
+        var k = aData[i];
+        var bClose = bMap[k[0]];
+        if (bClose && bClose > 0) {
           result.push({
             time: k[0],
-            ratio: parseFloat(k[4]) / btcClose,
+            ratio: parseFloat(k[4]) / bClose,
             ethPrice: parseFloat(k[4]),
-            btcPrice: btcClose
+            btcPrice: bClose
           });
         }
       }
@@ -551,6 +657,7 @@
     isFetching = true;
 
     var win = WINDOWS[currentWindow];
+    var p = getPair();
 
     function onSuccess(data) {
       chartData = data;
@@ -570,14 +677,22 @@
         .then(onSuccess)
         .catch(function(err1) {
           console.warn("Hyperliquid failed:", err1.message);
-          // Fallback to Binance.US
-          fetchFromBinance(BINANCE_US, "Binance.US", win)
-            .then(onSuccess)
-            .catch(function(err2) {
-              onFail("Hyperliquid: " + err1.message + " → Binance: " + err2.message);
-            });
+          if (p.binA) {
+            fetchFromBinance(BINANCE_US, "Binance.US", win)
+              .then(onSuccess)
+              .catch(function(err2) {
+                onFail("Hyperliquid: " + err1.message + " → Binance: " + err2.message);
+              });
+          } else {
+            onFail("Hyperliquid: " + err1.message);
+          }
         });
     } else {
+      if (!p.binA) {
+        // Force Hyperliquid for pairs not on Binance
+        fetchFromHyperliquid(win).then(onSuccess).catch(function(e) { onFail(e.message); });
+        return;
+      }
       fetchFromBinance(BINANCE_US, "Binance.US", win)
         .then(onSuccess)
         .catch(function(err1) {
@@ -599,19 +714,58 @@
     var sig = signalInfo(stats.zScore);
     var zc = zColor(stats.zScore);
     var last = chartData[chartData.length - 1];
+    var p = getPair();
+    var isSolo = !!p.solo;
 
-    $("hdr-ratio").textContent = stats.current.toFixed(6);
-    $("hdr-z").textContent = stats.zScore.toFixed(2);
-    $("hdr-z").style.color = zc;
-    $("hdr-spread").textContent = stats.spread.toFixed(2) + "%";
-    $("hdr-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
-    $("hdr-mean").textContent = stats.mean.toFixed(6);
+    // Toggle panels
+    $("pair-panel").style.display = isSolo ? "none" : "";
+    $("solo-panel").style.display = isSolo ? "" : "none";
+    $("mobile-extra").style.display = isSolo ? "none" : "";
+    // Hide source toggle row and data points card for solo
+    $("z-velocity").parentElement.style.display = isSolo ? "none" : "";
+
+    // Update dynamic pair labels
+    $("lbl-leg-a").textContent = p.legA + " PRICE";
+    if (isSolo) {
+      $("lbl-leg-b").parentElement.style.display = "none";
+    } else {
+      $("lbl-leg-b").parentElement.style.display = "";
+      $("lbl-leg-b").textContent = p.legB + " PRICE";
+      $("gauge-cheap").textContent = p.legA + " cheap vs " + p.legB;
+      $("gauge-expensive").textContent = p.legA + " expensive vs " + p.legB;
+    }
+
+    // Solo panel updates
+    if (isSolo && last) {
+      $("solo-title").textContent = p.legA + " / USDT";
+      $("solo-price").textContent = "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      var first = chartData[0];
+      if (first) {
+        var chg = ((last.ethPrice - first.ethPrice) / first.ethPrice) * 100;
+        $("solo-change").textContent = (chg >= 0 ? "+" : "") + chg.toFixed(2) + "%";
+        $("solo-change").style.color = chg >= 0 ? "#22c55e" : "#ef4444";
+      }
+      var allPrices = chartData.map(function(d) { return d.ethPrice; });
+      $("solo-high").textContent = "$" + Math.max.apply(null, allPrices).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      $("solo-low").textContent = "$" + Math.min.apply(null, allPrices).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    // Header stats
+    if (isSolo) {
+      $("hdr-ratio").textContent = last ? "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : "—";
+      $("hdr-z").textContent = "—"; $("hdr-z").style.color = "#64748b";
+      $("hdr-spread").textContent = "—"; $("hdr-spread").style.color = "#64748b";
+      $("hdr-mean").textContent = "—";
+    } else {
+      $("hdr-ratio").textContent = stats.current.toFixed(6);
+      $("hdr-z").textContent = stats.zScore.toFixed(2);
+      $("hdr-z").style.color = zc;
+      $("hdr-spread").textContent = stats.spread.toFixed(2) + "%";
+      $("hdr-spread").style.color = stats.spread >= 0 ? "#22c55e" : "#ef4444";
+      $("hdr-mean").textContent = stats.mean.toFixed(6);
+    }
     $("live-dot").style.background = "#22c55e";
     $("live-dot").style.animation = "pulse 2s infinite";
-
-    $("badges").innerHTML =
-      '<span class="badge mono" style="background:' + zc + '18;color:' + zc + ';border:1px solid ' + zc + '40">z = ' + stats.zScore.toFixed(2) + '</span>' +
-      '<span class="badge mono" style="background:#f59e0b10;color:#f59e0b;border:1px solid #f59e0b30;font-weight:500">μ = ' + stats.mean.toFixed(6) + '</span>';
 
     var sb = $("signal-box");
     sb.style.background = sig.bg;
@@ -653,16 +807,62 @@
     if (last) {
       $("price-row").style.display = "flex";
       $("eth-price").textContent = "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-      $("btc-price").textContent = "$" + last.btcPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      if (!isSolo) {
+        $("btc-price").textContent = "$" + last.btcPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      }
       $("data-points").textContent = chartData.length;
+
+      // Price % change over the window
+      var first = chartData[0];
+      if (first) {
+        var ethPct = ((last.ethPrice - first.ethPrice) / first.ethPrice) * 100;
+        $("eth-pct").textContent = (ethPct >= 0 ? "+" : "") + ethPct.toFixed(2) + "%";
+        $("eth-pct").style.color = ethPct >= 0 ? "#22c55e" : "#ef4444";
+        if (!isSolo) {
+          var btcPct = ((last.btcPrice - first.btcPrice) / first.btcPrice) * 100;
+          $("btc-pct").textContent = (btcPct >= 0 ? "+" : "") + btcPct.toFixed(2) + "%";
+          $("btc-pct").style.color = btcPct >= 0 ? "#22c55e" : "#ef4444";
+        }
+      }
+
+      // Z-score velocity (change over last ~10% of data points)
+      if (!isSolo && chartData.length >= 10) {
+        var lookback = Math.max(5, Math.floor(chartData.length * 0.1));
+        var olderRatios = chartData.slice(0, chartData.length - lookback).map(function(d){return d.ratio;});
+        var olderStats = calcStats(olderRatios.length > 5 ? chartData.slice(0, chartData.length - lookback).map(function(d){return d.ratio;}) : ratios);
+        // Simpler: use full-window stats but compare current z to z from lookback candles ago
+        var olderIdx = chartData.length - 1 - lookback;
+        var olderZ = stats.std === 0 ? 0 : (chartData[olderIdx].ratio - stats.mean) / stats.std;
+        var zDelta = stats.zScore - olderZ;
+        var arrow = zDelta > 0.05 ? "▲" : zDelta < -0.05 ? "▼" : "▸";
+        var velColor = Math.abs(stats.zScore) > Math.abs(olderZ) ? "#f59e0b" : "#22c55e";
+        $("z-velocity").textContent = arrow + " " + (zDelta >= 0 ? "+" : "") + zDelta.toFixed(2) + " z/period";
+        $("z-velocity").style.color = velColor;
+      }
     }
 
     $("source-info").textContent = "Data: " + dataSource + " · " + chartData.length + " pts";
 
-    // Profit calculator
-    updateProfitCalc(stats);
+    if (!isSolo) {
+      // Profit calculator
+      updateProfitCalc(stats);
+
+      // Regime detection
+      var regime = detectRegime(chartData);
+      $("regime-badge").textContent = regime.regime;
+      $("regime-badge").style.color = regime.color;
+      $("regime-badge").style.borderColor = regime.color + "40";
+      $("regime-badge").title = regime.desc || "";
+    } else {
+      $("regime-badge").textContent = p.legA + "/USDT";
+      $("regime-badge").style.color = "#94a3b8";
+      $("regime-badge").style.borderColor = "#1e293b";
+    }
 
     drawChart(stats);
+
+    // Re-render annotations after chart redraw
+    renderAnnotations();
   }
 
   // ===== PROFIT CALCULATOR =====
@@ -687,11 +887,12 @@
 
     // Direction
     var t = getThreshold();
+    var p = getPair();
     if (stats.zScore <= -t) {
-      $("pc-direction").textContent = "Long ETH / Short BTC";
+      $("pc-direction").textContent = "Long " + p.legA + " / Short " + p.legB;
       $("pc-direction").style.color = "#22c55e";
     } else if (stats.zScore >= t) {
-      $("pc-direction").textContent = "Short ETH / Long BTC";
+      $("pc-direction").textContent = "Short " + p.legA + " / Long " + p.legB;
       $("pc-direction").style.color = "#ef4444";
     } else {
       $("pc-direction").textContent = "No signal (|z| < " + t.toFixed(1) + ")";
@@ -729,8 +930,18 @@
     var w = width - pad.left - pad.right;
     var h = height - pad.top - pad.bottom;
 
+    var isSoloChart = !!getPair().solo;
+
     var values = [];
-    for (var i = 0; i < chartData.length; i++) values.push(chartData[i].ratio);
+    if (isSoloChart) {
+      for (var i = 0; i < chartData.length; i++) {
+        if (chartData[i].high) values.push(chartData[i].high);
+        if (chartData[i].low) values.push(chartData[i].low);
+        values.push(chartData[i].ratio);
+      }
+    } else {
+      for (var i = 0; i < chartData.length; i++) values.push(chartData[i].ratio);
+    }
     var minV = Math.min.apply(null, values);
     var maxV = Math.max.apply(null, values);
     var range = maxV - minV || 0.0001;
@@ -750,7 +961,8 @@
     for (var i = 0; i <= gc; i++) {
       var val = yMin + gs * i, yp = yP(val);
       s.push('<line x1="'+pad.left+'" y1="'+yp+'" x2="'+(pad.left+w)+'" y2="'+yp+'" stroke="#1e293b" stroke-width="1"/>');
-      s.push('<text x="'+(pad.left-8)+'" y="'+(yp+4)+'" text-anchor="end" fill="#64748b" font-size="10" font-family="\'JetBrains Mono\',monospace">'+val.toFixed(5)+'</text>');
+      var yLabel = isSoloChart ? "$" + val.toFixed(val >= 100 ? 0 : 2) : val.toFixed(5);
+      s.push('<text x="'+(pad.left-8)+'" y="'+(yp+4)+'" text-anchor="end" fill="#64748b" font-size="10" font-family="\'JetBrains Mono\',monospace">'+yLabel+'</text>');
     }
 
     var lc = Math.min(7, chartData.length);
@@ -761,6 +973,7 @@
       s.push('<text x="'+xP(idx)+'" y="'+(pad.top+h+20)+'" text-anchor="middle" fill="#64748b" font-size="9" font-family="\'JetBrains Mono\',monospace">'+lbl+'</text>');
     }
 
+    if (!isSoloChart) {
     var meanY = yP(stats.mean);
     if (meanY >= pad.top-5 && meanY <= pad.top+h+5) {
       s.push('<line x1="'+pad.left+'" y1="'+meanY+'" x2="'+(pad.left+w)+'" y2="'+meanY+'" stroke="#f59e0b" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>');
@@ -768,6 +981,19 @@
     }
 
     var chartThreshold = getThreshold();
+    var strongThreshold = chartThreshold * 1.67;
+
+    var sUpperY = yP(stats.mean + strongThreshold * stats.std);
+    var sLowerY = yP(stats.mean - strongThreshold * stats.std);
+    if (sUpperY >= pad.top-5 && sUpperY <= pad.top+h+5) {
+      s.push('<line x1="'+pad.left+'" y1="'+sUpperY+'" x2="'+(pad.left+w)+'" y2="'+sUpperY+'" stroke="#ff3b5c" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sUpperY+3)+'" fill="#ff3b5c" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">+'+strongThreshold.toFixed(1)+'σ</text>');
+    }
+    if (sLowerY >= pad.top-5 && sLowerY <= pad.top+h+5) {
+      s.push('<line x1="'+pad.left+'" y1="'+sLowerY+'" x2="'+(pad.left+w)+'" y2="'+sLowerY+'" stroke="#ff3b5c" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sLowerY+3)+'" fill="#ff3b5c" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">-'+strongThreshold.toFixed(1)+'σ</text>');
+    }
+
     var upperY = yP(stats.mean + chartThreshold * stats.std);
     var lowerY = yP(stats.mean - chartThreshold * stats.std);
     if (upperY >= pad.top-5 && upperY <= pad.top+h+5) {
@@ -778,43 +1004,114 @@
       s.push('<line x1="'+pad.left+'" y1="'+lowerY+'" x2="'+(pad.left+w)+'" y2="'+lowerY+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
       s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#22c55e" font-size="8" font-family="\'JetBrains Mono\',monospace">-'+chartThreshold+'σ</text>');
     }
+    } // end !isSoloChart
 
-    var pp = [];
-    for (var i = 0; i < chartData.length; i++) {
-      pp.push((i===0?"M":"L")+xP(i).toFixed(1)+","+yP(chartData[i].ratio).toFixed(1));
+    if (isSoloChart && chartData[0] && chartData[0].open !== undefined) {
+      // Candlestick chart
+      var candleW = Math.max(1.5, Math.min(8, (w / chartData.length) * 0.7));
+      for (var i = 0; i < chartData.length; i++) {
+        var cd = chartData[i];
+        var cx = xP(i);
+        var bullish = cd.close >= cd.open;
+        var col = bullish ? "#22c55e" : "#ef4444";
+        var bodyTop = yP(Math.max(cd.open, cd.close));
+        var bodyBot = yP(Math.min(cd.open, cd.close));
+        var bodyH = Math.max(0.5, bodyBot - bodyTop);
+        var wickTop = yP(cd.high);
+        var wickBot = yP(cd.low);
+        // Wick
+        s.push('<line x1="'+cx.toFixed(1)+'" y1="'+wickTop.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+wickBot.toFixed(1)+'" stroke="'+col+'" stroke-width="0.8"/>');
+        // Body
+        s.push('<rect x="'+(cx - candleW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+candleW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" fill="'+(bullish ? col : col)+'" rx="0.5" opacity="0.9"/>');
+      }
+      // Last price dot
+      var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="5" fill="#22d3ee" opacity="0.2"/>');
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="2.5" fill="#22d3ee"/>');
+    } else {
+      // Line chart (pairs mode)
+      var pp = [];
+      for (var i = 0; i < chartData.length; i++) {
+        pp.push((i===0?"M":"L")+xP(i).toFixed(1)+","+yP(chartData[i].ratio).toFixed(1));
+      }
+      var pathD = pp.join(" ");
+      var areaD = pathD+" L"+xP(chartData.length-1).toFixed(1)+","+(pad.top+h).toFixed(1)+" L"+pad.left.toFixed(1)+","+(pad.top+h).toFixed(1)+" Z";
+
+      s.push('<path d="'+areaD+'" fill="url(#aG)"/>');
+      s.push('<path d="'+pathD+'" fill="none" stroke="url(#lG)" stroke-width="1.8" stroke-linejoin="round"/>');
+
+      var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="7" fill="#22d3ee" opacity="0.2"/>');
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="3.5" fill="#22d3ee"/>');
     }
-    var pathD = pp.join(" ");
-    var areaD = pathD+" L"+xP(chartData.length-1).toFixed(1)+","+(pad.top+h).toFixed(1)+" L"+pad.left.toFixed(1)+","+(pad.top+h).toFixed(1)+" Z";
+    // Crosshair elements (hidden by default)
+    s.push('<line id="ch-v" x1="0" y1="'+pad.top+'" x2="0" y2="'+(pad.top+h)+'" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
+    s.push('<line id="ch-h" x1="'+pad.left+'" y1="0" x2="'+(pad.left+w)+'" y2="0" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
+    s.push('<circle id="ch-dot" cx="0" cy="0" r="4" fill="#22d3ee" stroke="#070b14" stroke-width="1.5" opacity="0" pointer-events="none"/>');
+    // Y-axis label background + text
+    s.push('<rect id="ch-ylbl-bg" x="0" y="0" width="55" height="14" rx="3" fill="#22d3ee" opacity="0" pointer-events="none"/>');
+    s.push('<text id="ch-ylbl" x="0" y="0" fill="#070b14" font-size="9" font-weight="600" font-family="\'JetBrains Mono\',monospace" text-anchor="middle" opacity="0" pointer-events="none"></text>');
 
-    s.push('<path d="'+areaD+'" fill="url(#aG)"/>');
-    s.push('<path d="'+pathD+'" fill="none" stroke="url(#lG)" stroke-width="1.8" stroke-linejoin="round"/>');
-
-    var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
-    s.push('<circle cx="'+lx+'" cy="'+ly+'" r="7" fill="#22d3ee" opacity="0.2"/>');
-    s.push('<circle cx="'+lx+'" cy="'+ly+'" r="3.5" fill="#22d3ee"/>');
     s.push('<rect x="'+pad.left+'" y="'+pad.top+'" width="'+w+'" height="'+h+'" fill="transparent"/>');
 
     svgBox.innerHTML = '<svg viewBox="0 0 '+width+' '+height+'">'+s.join("")+'</svg>';
 
-    // Tooltip (lives outside svg box — never gets destroyed)
+    // Tooltip and crosshair
     var tooltip = $("chart-tooltip");
     var svgEl = svgBox.querySelector("svg");
+    var chV = svgEl.querySelector("#ch-v");
+    var chH = svgEl.querySelector("#ch-h");
+    var chDot = svgEl.querySelector("#ch-dot");
+    var chYBg = svgEl.querySelector("#ch-ylbl-bg");
+    var chYTxt = svgEl.querySelector("#ch-ylbl");
 
     svgEl.addEventListener("mousemove", function(e) {
       var rect = svgEl.getBoundingClientRect();
       var scale = width / rect.width;
       var mx = (e.clientX - rect.left) * scale;
+      var my = (e.clientY - rect.top) * scale;
       var dataX = ((mx - pad.left) / w) * (chartData.length - 1);
       var idx = Math.max(0, Math.min(chartData.length - 1, Math.round(dataX)));
       var d = chartData[idx];
       var dt = new Date(d.time);
-      $("tt-ratio").textContent = "Ratio: " + d.ratio.toFixed(7);
+      var snapX = xP(idx);
+      var snapY = yP(d.ratio);
+
+      $("tt-ratio").textContent = getPair().solo ? "Price: $" + d.ratio.toFixed(2) : "Ratio: " + d.ratio.toFixed(7);
       $("tt-time").textContent = (dt.getMonth()+1)+"/"+dt.getDate()+"/"+dt.getFullYear()+", "+dt.toLocaleTimeString();
       tooltip.classList.add("show");
+
+      // Update crosshair
+      chV.setAttribute("x1", snapX);
+      chV.setAttribute("x2", snapX);
+      chV.setAttribute("opacity", "0.6");
+
+      chH.setAttribute("y1", snapY);
+      chH.setAttribute("y2", snapY);
+      chH.setAttribute("opacity", "0.6");
+
+      chDot.setAttribute("cx", snapX);
+      chDot.setAttribute("cy", snapY);
+      chDot.setAttribute("opacity", "1");
+
+      // Y-axis price label
+      var lblX = pad.left - 30;
+      chYBg.setAttribute("x", lblX - 27);
+      chYBg.setAttribute("y", snapY - 7);
+      chYBg.setAttribute("opacity", "0.9");
+      chYTxt.setAttribute("x", lblX);
+      chYTxt.setAttribute("y", snapY + 3);
+      chYTxt.textContent = getPair().solo ? "$" + d.ratio.toFixed(2) : d.ratio.toFixed(5);
+      chYTxt.setAttribute("opacity", "1");
     });
 
     svgEl.addEventListener("mouseleave", function() {
       tooltip.classList.remove("show");
+      chV.setAttribute("opacity", "0");
+      chH.setAttribute("opacity", "0");
+      chDot.setAttribute("opacity", "0");
+      chYBg.setAttribute("opacity", "0");
+      chYTxt.setAttribute("opacity", "0");
     });
   }
 
@@ -927,7 +1224,7 @@
   $("push-test-btn").addEventListener("click", function() {
     requestPushPermission(function(granted) {
       if (granted) {
-        sendPushNotification("ETH/BTC Pairs Trader", "Test notification — push alerts are working!");
+        sendPushNotification(currentPair + " Pairs Trader", "Test notification — push alerts are working!");
         $("push-status").textContent = "Test sent!";
         $("push-status").style.color = "#22c55e";
         setTimeout(updatePushStatus, 3000);
@@ -959,12 +1256,15 @@
   var alertLog = [];
 
   function checkAlerts(zScore) {
+    var cp = getPair();
+    if (cp.alertsDisabled) return;
     var t = getThreshold();
     var isSignal = Math.abs(zScore) >= t;
     var now = Date.now();
     if (isSignal && !prevZWasSignal && (now - lastAlertTime >= ALERT_COOLDOWN)) {
       lastAlertTime = now;
-      var dir = zScore < 0 ? "Long ETH / Short BTC" : "Short ETH / Long BTC";
+      var ap = getPair();
+      var dir = zScore < 0 ? "Long " + ap.legA + " / Short " + ap.legB : "Short " + ap.legA + " / Long " + ap.legB;
       var timeStr = new Date().toLocaleTimeString();
       var entry = "z=" + zScore.toFixed(2) + " → " + dir + " · " + timeStr;
 
@@ -976,7 +1276,7 @@
       $("alert-log").title = alertLog.join("\n");
 
       if (soundAlertOn) playAlertSound();
-      if (pushAlertOn) sendPushNotification("ETH/BTC Signal", "z = " + zScore.toFixed(2) + " → " + dir);
+      if (pushAlertOn) sendPushNotification(currentPair + " Signal", "z = " + zScore.toFixed(2) + " → " + dir);
       if (titleAlertOn) {
         clearInterval(titleFlashTimer);
         var flash = false;
@@ -1000,12 +1300,13 @@
   var scannerCache = {};
 
   function scanTimeframe(win) {
+    var p = getPair();
     var primary = sourcePreference === "hyperliquid"
       ? function() { return fetchFromHyperliquid(win); }
-      : function() { return fetchFromBinance(BINANCE_US, "Binance.US", win); };
+      : function() { return p.binA ? fetchFromBinance(BINANCE_US, "Binance.US", win) : fetchFromHyperliquid(win); };
     var fallback = sourcePreference === "hyperliquid"
-      ? function() { return fetchFromBinance(BINANCE_US, "Binance.US", win); }
-      : function() { return fetchFromBinance(BINANCE_GLOBAL, "Binance", win); };
+      ? function() { return p.binA ? fetchFromBinance(BINANCE_US, "Binance.US", win) : Promise.reject(new Error("no fallback")); }
+      : function() { return fetchFromHyperliquid(win); };
 
     return primary()
       .catch(function() { return fallback(); })
@@ -1025,7 +1326,7 @@
     scannerBusy = true;
 
     var scanWindows = [
-      WINDOWS[0], WINDOWS[1], WINDOWS[2], WINDOWS[4], WINDOWS[5], WINDOWS[7], WINDOWS[8]
+      WINDOWS[0], WINDOWS[1], WINDOWS[2], WINDOWS[3], WINDOWS[4], WINDOWS[5], WINDOWS[6], WINDOWS[7], WINDOWS[8]
     ]; // 1H, 4H, 1D, 3D, 1W, 1M, 3M
 
     // Scan one timeframe at a time in round-robin
@@ -1049,22 +1350,53 @@
     });
   }
 
+  // Map scanner index to WINDOWS index
+  var scannerToWindowIdx = [0, 1, 2, 3, 4, 5, 6, 7, 8]; // all timeframes
+
   function renderScanner(results) {
     var grid = $("scanner-grid");
     var html = "";
     for (var i = 0; i < results.length; i++) {
       var r = results[i];
       var z = r.z;
-      var col = z === null ? "#64748b" : (Math.abs(z) >= 2.5 ? "#ff3b5c" : Math.abs(z) >= 1.5 ? "#f59e0b" : "#22d3ee");
-      var bg = z !== null && Math.abs(z) >= 1.5 ? (z > 0 ? "#ef444415" : "#22c55e15") : "#0f172a";
-      var border = z !== null && Math.abs(z) >= 1.5 ? col + "40" : "#1e293b";
+      var t = getThreshold();
+      var col = z === null ? "#64748b" : (Math.abs(z) >= t * 1.67 ? "#ff3b5c" : Math.abs(z) >= t ? "#f59e0b" : "#22d3ee");
+      var bg = z !== null && Math.abs(z) >= t ? (z > 0 ? "#ef444415" : "#22c55e15") : "#0f172a";
+      var border = z !== null && Math.abs(z) >= t ? col + "40" : "#1e293b";
       var zText = z === null ? "—" : (z >= 0 ? "+" : "") + z.toFixed(2);
-      html += '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:5px;padding:4px 8px;text-align:center;flex:1 1 0;min-width:52px">';
-      html += '<div class="mono" style="font-size:9px;color:#64748b">' + r.label + '</div>';
-      html += '<div class="mono" style="font-size:14px;font-weight:700;color:' + col + '">' + zText + '</div>';
+      var wIdx = scannerToWindowIdx[i];
+      var isActive = wIdx === currentWindow;
+      var activeBorder = isActive ? "#22d3ee" : border;
+      html += '<div data-widx="' + wIdx + '" style="background:' + bg + ';border:1px solid ' + activeBorder + ';border-radius:4px;padding:3px 4px;text-align:center;flex:1 1 0;min-width:0;cursor:pointer;transition:all .15s' + (isActive ? ';box-shadow:0 0 6px #22d3ee30' : '') + '">';
+      html += '<div class="mono" style="font-size:8px;color:' + (isActive ? '#22d3ee' : '#64748b') + '">' + r.label + '</div>';
+      html += '<div class="mono" style="font-size:12px;font-weight:700;color:' + col + '">' + zText + '</div>';
       html += '</div>';
     }
     grid.innerHTML = html;
+
+    // Add click handlers
+    var items = grid.querySelectorAll("[data-widx]");
+    for (var j = 0; j < items.length; j++) {
+      items[j].addEventListener("click", function() {
+        var idx = parseInt(this.getAttribute("data-widx"));
+        selectWindow(idx);
+        // Immediately re-render scanner with cached data to update highlight
+        rerenderScannerFromCache();
+      });
+    }
+  }
+
+  function rerenderScannerFromCache() {
+    var scanWindows = [
+      WINDOWS[0], WINDOWS[1], WINDOWS[2], WINDOWS[3], WINDOWS[4], WINDOWS[5], WINDOWS[6], WINDOWS[7], WINDOWS[8]
+    ];
+    var ordered = [];
+    for (var i = 0; i < scanWindows.length; i++) {
+      var lbl = scanWindows[i].label;
+      if (scannerCache[lbl]) ordered.push(scannerCache[lbl]);
+      else ordered.push({ label: lbl, z: null });
+    }
+    renderScanner(ordered);
   }
 
   // Hook alerts into updateUI
@@ -1231,6 +1563,73 @@
     container.innerHTML = html;
   }
 
+  // ===== PAIR SELECTOR (custom dropdown) =====
+  var pairMenuOpen = false;
+
+  function togglePairMenu() {
+    pairMenuOpen = !pairMenuOpen;
+    $("pair-dropdown-menu").style.display = pairMenuOpen ? "block" : "none";
+    $("pair-arrow").style.transform = pairMenuOpen ? "rotate(180deg)" : "";
+  }
+
+  function selectPair(val) {
+    currentPair = val;
+    var p = getPair();
+    $("pair-dropdown-label").textContent = val.replace("/", " / ");
+    $("pair-select").value = val;
+    pairMenuOpen = false;
+    $("pair-dropdown-menu").style.display = "none";
+    $("pair-arrow").style.transform = "";
+
+    // Highlight active option
+    var opts = document.querySelectorAll(".pair-option");
+    for (var i = 0; i < opts.length; i++) {
+      opts[i].classList.toggle("active-pair", opts[i].getAttribute("data-value") === val);
+    }
+
+    document.title = p.legA + "/" + p.legB + " Pairs Trader";
+    originalTitle = document.title;
+    // Hide alerts bar for pairs with alerts disabled
+    $("alerts-bar").style.display = p.alertsDisabled ? "none" : "flex";
+    if (!p.binA && sourcePreference === "binance") {
+      sourcePreference = "hyperliquid";
+      refreshIntervalMs = 3000;
+    }
+    $("src-bin").disabled = !p.binA;
+    $("src-bin").style.opacity = p.binA ? "1" : "0.3";
+    $("src-bin").style.cursor = p.binA ? "pointer" : "not-allowed";
+    setSourceUI();
+    chartData = [];
+    scannerCache = {};
+    isFetching = false;
+    showLoading();
+    scheduleRefresh(true);
+  }
+
+  $("pair-dropdown-btn").addEventListener("click", function(e) {
+    e.stopPropagation();
+    togglePairMenu();
+  });
+
+  var pairOpts = document.querySelectorAll(".pair-option");
+  for (var po = 0; po < pairOpts.length; po++) {
+    pairOpts[po].addEventListener("click", function() {
+      selectPair(this.getAttribute("data-value"));
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function() {
+    if (pairMenuOpen) {
+      pairMenuOpen = false;
+      $("pair-dropdown-menu").style.display = "none";
+      $("pair-arrow").style.transform = "";
+    }
+  });
+
+  // Mark default as active
+  document.querySelector('.pair-option[data-value="ETH/BTC"]').classList.add("active-pair");
+
   // ===== SOURCE TOGGLE =====
   function setSourceUI() {
     if (sourcePreference === "hyperliquid") {
@@ -1270,6 +1669,118 @@
     scheduleRefresh(true);
   });
 
+  // ===== CHART ANNOTATIONS =====
+  var annotations = JSON.parse(localStorage.getItem("pairs-annotations") || "[]");
+  var annotateMode = false;
+
+  $("annotate-btn").addEventListener("click", function() {
+    annotateMode = !annotateMode;
+    this.style.background = annotateMode ? "#f59e0b20" : "#0f172a";
+    this.style.color = annotateMode ? "#f59e0b" : "#64748b";
+    this.style.borderColor = annotateMode ? "#f59e0b40" : "#1e293b";
+    if (annotateMode) {
+      // Add click listener to chart
+      var svgBox = $("chart-svg-box");
+      svgBox.style.cursor = "crosshair";
+      svgBox.dataset.annotating = "true";
+    } else {
+      $("chart-svg-box").style.cursor = "";
+      $("chart-svg-box").dataset.annotating = "";
+    }
+  });
+
+  // Handle annotation click on chart
+  document.addEventListener("click", function(e) {
+    var svgBox = $("chart-svg-box");
+    if (svgBox.dataset.annotating !== "true") return;
+    var svgEl = svgBox.querySelector("svg");
+    if (!svgEl || !svgEl.contains(e.target)) return;
+
+    var text = prompt("Add note:");
+    if (!text) return;
+
+    var rect = svgEl.getBoundingClientRect();
+    var xPct = ((e.clientX - rect.left) / rect.width) * 100;
+    var yPct = ((e.clientY - rect.top) / rect.height) * 100;
+
+    annotations.push({ x: xPct, y: yPct, text: text, pair: currentPair, time: Date.now() });
+    localStorage.setItem("pairs-annotations", JSON.stringify(annotations));
+    renderAnnotations();
+
+    // Exit annotate mode
+    annotateMode = false;
+    $("annotate-btn").style.background = "#0f172a";
+    $("annotate-btn").style.color = "#64748b";
+    $("annotate-btn").style.borderColor = "#1e293b";
+    svgBox.style.cursor = "";
+    svgBox.dataset.annotating = "";
+  });
+
+  function renderAnnotations() {
+    // Remove existing annotation elements
+    var existing = document.querySelectorAll(".chart-annotation");
+    for (var i = 0; i < existing.length; i++) existing[i].remove();
+
+    var wrapper = $("chart-svg-box");
+    wrapper.style.position = "relative";
+
+    for (var i = 0; i < annotations.length; i++) {
+      var a = annotations[i];
+      if (a.pair !== currentPair) continue;
+      var el = document.createElement("div");
+      el.className = "chart-annotation";
+      el.style.left = a.x + "%";
+      el.style.top = a.y + "%";
+      el.textContent = "📌 " + a.text;
+      el.title = a.text + "\nClick to delete";
+      el.dataset.idx = i;
+      el.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (confirm("Delete this note?")) {
+          annotations.splice(parseInt(this.dataset.idx), 1);
+          localStorage.setItem("pairs-annotations", JSON.stringify(annotations));
+          renderAnnotations();
+        }
+      });
+      wrapper.appendChild(el);
+    }
+  }
+
+  // ===== REGIME DETECTION =====
+  function detectRegime(data) {
+    if (data.length < 30) return { regime: "Unknown", color: "#64748b" };
+    var ratios = data.map(function(d) { return d.ratio; });
+    var n = ratios.length;
+
+    // Hurst exponent approximation using R/S analysis
+    // H < 0.5 = mean reverting, H ~ 0.5 = random walk, H > 0.5 = trending
+    var returns = [];
+    for (var i = 1; i < n; i++) returns.push(ratios[i] - ratios[i-1]);
+
+    var mean = returns.reduce(function(a, b) { return a + b; }, 0) / returns.length;
+    var cumDev = [];
+    var sum = 0;
+    for (var i = 0; i < returns.length; i++) {
+      sum += returns[i] - mean;
+      cumDev.push(sum);
+    }
+    var R = Math.max.apply(null, cumDev) - Math.min.apply(null, cumDev);
+    var S = Math.sqrt(returns.reduce(function(s, r) { return s + (r - mean) * (r - mean); }, 0) / returns.length);
+    var RS = S > 0 ? R / S : 0;
+    var H = RS > 0 ? Math.log(RS) / Math.log(returns.length) : 0.5;
+
+    // Also check autocorrelation of returns (negative = mean reverting)
+    var autoCorr = 0;
+    for (var i = 1; i < returns.length; i++) autoCorr += returns[i] * returns[i-1];
+    autoCorr /= returns.length;
+    var retVar = returns.reduce(function(s, r) { return s + r * r; }, 0) / returns.length;
+    var ac = retVar > 0 ? autoCorr / retVar : 0;
+
+    if (H < 0.45 || ac < -0.1) return { regime: "Mean Reverting ✓", color: "#22c55e", desc: "Pairs trading favored" };
+    if (H > 0.55 || ac > 0.1) return { regime: "Trending ✗", color: "#ef4444", desc: "Caution: trending" };
+    return { regime: "Random Walk", color: "#f59e0b", desc: "Neutral regime" };
+  }
+
   // ===== MOBILE TOGGLE =====
   var mobileExpanded = false;
   var mobileBtn = $("mobile-more-btn");
@@ -1289,13 +1800,16 @@
   startClock();
   scheduleRefresh(true);
 
-  // Scanner: every 3s to avoid overloading Hyperliquid
+  // Scanner: every 3s
   setTimeout(runScanner, 2000);
   setInterval(runScanner, 3000);
 
   // Trading sessions: render now and every 60s
   renderSessions();
   setInterval(renderSessions, 60000);
+
+  // Annotations: render on load
+  renderAnnotations();
 
 })();
 </script>
