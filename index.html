@@ -119,6 +119,7 @@
     #risk-cards-row > div{flex:1 1 100% !important}
     #src-hl,#src-bin{padding:3px 6px !important;font-size:8px !important}
     #z-display-section{display:none !important}
+    #mtf-filter{display:none !important}
     .chart-area{padding:8px 10px 0 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
     .right-panel .stats-box{margin-bottom:6px !important}
@@ -268,6 +269,9 @@
       <span id="lbl-leg-b"></span><span id="btc-price"></span><span id="btc-pct"></span>
       <span id="data-points"></span><span id="z-velocity"></span>
     </div>
+
+    <!-- Mobile-only Timeframe Agreement (shown above Show More on mobile) -->
+    <div id="mtf-filter-mobile" class="mobile-toggle stats-box" style="display:none;margin-top:8px;padding:10px;margin-bottom:0"></div>
 
     <!-- Mobile toggle for extra sections -->
     <div class="mobile-toggle" style="display:none;margin-top:6px">
@@ -1297,6 +1301,8 @@
     var p = getPair();
     if (!panel || p.solo || p.alertsDisabled) {
       if (panel) panel.style.display = "none";
+      var mobileMtf = $("mtf-filter-mobile");
+      if (mobileMtf) mobileMtf.innerHTML = "";
       return;
     }
 
@@ -1314,6 +1320,9 @@
       $("mtf-bar").style.width = "50%";
       $("mtf-bar").style.background = "#64748b";
       renderMTFAnchors(currentZ, null);
+      // Sync to mobile
+      var mobileMtf = $("mtf-filter-mobile");
+      if (mobileMtf && panel) mobileMtf.innerHTML = panel.innerHTML;
       return;
     }
 
@@ -1407,6 +1416,14 @@
     $("mtf-bar").style.background = agreePct >= 70 ? "#22c55e" : agreePct >= 40 ? "#f59e0b" : "#ef4444";
 
     renderMTFAnchors(currentZ, anchorsData);
+
+    // Sync to mobile-only MTF
+    var mobileMtf = $("mtf-filter-mobile");
+    var desktopMtf = $("mtf-filter");
+    if (mobileMtf && desktopMtf) {
+      mobileMtf.innerHTML = desktopMtf.innerHTML;
+      mobileMtf.style.display = "";
+    }
   }
 
   function renderMTFAnchors(currentZ, anchorsData) {
