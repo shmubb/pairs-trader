@@ -4,72 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETH/BTC Pairs Trader</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23070b14'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2322d3ee' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2322d3ee'/></svg>"
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111111'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2394a3b8' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2394a3b8'/></svg>"
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#070b14;color:#e2e8f0;font-family:'Outfit',sans-serif;min-height:100vh}
+  body{background:#111111;color:#ffffff;font-family:'Outfit',sans-serif;min-height:100vh}
   .mono{font-family:'JetBrains Mono',monospace}
   .toggle-tri{display:inline-block;width:0;height:0;border-left:5px solid currentColor;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;transition:transform .25s cubic-bezier(.4,0,.2,1);vertical-align:middle}
   .toggle-tri.open{transform:rotate(90deg)}
-  .toggle-btn{background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 8px 2px 6px;color:#475569;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:border-color .2s,color .2s}
-  .toggle-btn:hover{border-color:#334155;color:#94a3b8}
+  .toggle-btn{background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 8px 2px 6px;color:#aaaaaa;font-family:'JetBrains Mono',monospace;font-size:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:border-color .2s,color .2s}
+  .toggle-btn:hover{border-color:#444444;color:#ffffff}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  .header{border-bottom:1px solid #1e293b;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .header{border-bottom:1px solid #333333;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .header-left{display:flex;align-items:center;gap:14px}
-  .dot{width:8px;height:8px;border-radius:50%;background:#22d3ee;box-shadow:0 0 12px #22d3ee}
+  .dot{width:8px;height:8px;border-radius:50%;background:#ffffff;box-shadow:0 0 12px #ffffff}
   .header-right{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px}
-  .header-right .label{font-size:10px;color:#64748b}
+  .header-right .label{font-size:10px;color:#ffffff}
   .main{display:flex;flex-wrap:wrap}
-  .chart-area{flex:1 1 500px;padding:20px 24px;min-width:0}
+  .chart-area{flex:1 1 500px;padding:20px 24px;min-width:0;overflow-x:hidden}
   .right-panel{width:290px;padding:20px 20px 20px 0;flex-shrink:0}
   .window-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-  .btn-group{display:flex;gap:2px;background:#0f172a;border-radius:6px;padding:2px;flex-wrap:wrap}
-  .btn{padding:6px 14px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;background:transparent;color:#64748b;transition:all .2s}
+  .btn-group{display:flex;gap:2px;background:#222222;border-radius:6px;padding:2px;flex-wrap:wrap}
+  .btn{padding:6px 14px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;background:transparent;color:#ffffff;transition:all .2s}
   .btn:hover{opacity:.85}
-  .btn.active{background:#22d3ee;color:#070b14}
+  .btn.active{background:#ffffff;color:#111111}
   .badges{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
   .badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600}
 
   .chart-wrapper{position:relative}
-  .chart-svg-box{background:#0c1221;border:1px solid #1e293b;border-radius:12px;padding:12px 8px 8px 8px}
+  .chart-svg-box{background:#1a1a1a;border:1px solid #333333;border-radius:12px;padding:12px 8px 8px 8px}
   .chart-svg-box svg{width:100%;height:auto;cursor:crosshair;display:block}
-  .chart-tooltip{position:absolute;top:20px;right:20px;background:#1e293bee;border:1px solid #334155;border-radius:8px;padding:8px 12px;pointer-events:none;font-size:11px;z-index:10;opacity:0;transition:opacity .15s}
+  .chart-tooltip{position:absolute;top:20px;right:20px;background:#333333ee;border:1px solid #444444;border-radius:8px;padding:8px 12px;pointer-events:none;font-size:11px;z-index:10;opacity:0;transition:opacity .15s}
   .chart-tooltip.show{opacity:1}
 
   .price-row{display:none !important}
   #price-row{display:none !important}
-  .price-card{flex:1;background:#0c1221;border:1px solid #1e293b;border-radius:8px;padding:10px 14px}
-  .price-card .lbl{font-size:10px;color:#64748b;margin-bottom:2px}
+  .price-card{flex:1;background:#1a1a1a;border:1px solid #333333;border-radius:8px;padding:10px 14px}
+  .price-card .lbl{font-size:10px;color:#ffffff;margin-bottom:2px}
   .price-card .val{font-size:18px;font-weight:700}
   .signal-box{border-radius:10px;padding:14px;margin-bottom:18px}
   .signal-box .signal-label{font-size:10px;letter-spacing:.1em;margin-bottom:6px}
-  .signal-box .signal-text{font-size:13px;color:#e2e8f0;line-height:1.5}
+  .signal-box .signal-text{font-size:13px;color:#ffffff;line-height:1.5}
   .z-display{text-align:center;margin-bottom:10px}
   .z-big{font-size:48px;font-weight:800;line-height:1}
-  .z-label{font-size:11px;color:#64748b;margin-top:4px}
-  .gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:#64748b}
-  .gauge-track{position:relative;height:10px;background:linear-gradient(90deg,#22c55e 0%,#1e293b 35%,#1e293b 65%,#ef4444 100%);border-radius:5px;margin:4px 0 6px}
-  .gauge-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;border:2px solid #0f172a;transition:left .6s cubic-bezier(.4,0,.2,1)}
-  .stats-box{background:#0c1221;border:1px solid #1e293b;border-radius:10px;padding:14px;margin-bottom:18px}
-  .stats-box .stats-title{font-size:10px;color:#64748b;letter-spacing:.1em;margin-bottom:10px}
-  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e293b}
-  .stat-row .stat-lbl{font-size:11px;color:#94a3b8}
+  .z-label{font-size:11px;color:#ffffff;margin-top:4px}
+  .gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:#ffffff}
+  .gauge-track{position:relative;height:10px;background:linear-gradient(90deg,#eab308 0%,#333333 35%,#333333 65%,#a855f7 100%);border-radius:5px;margin:4px 0 6px}
+  .gauge-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;border:2px solid #222222;transition:left .6s cubic-bezier(.4,0,.2,1)}
+  .stats-box{background:#1a1a1a;border:1px solid #333333;border-radius:10px;padding:14px;margin-bottom:18px}
+  .stats-box .stats-title{font-size:10px;color:#ffffff;letter-spacing:.1em;margin-bottom:10px}
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #333333}
+  .stat-row .stat-lbl{font-size:11px;color:#ffffff}
   .stat-row .stat-val{font-size:13px;font-weight:600}
   .rule-row{display:flex;gap:10px;align-items:center;padding:5px 0}
   .rule-row .rule-z{font-size:12px;font-weight:700;min-width:70px}
-  .rule-row .rule-action{font-size:12px;color:#94a3b8}
-  .source-tag{font-size:9px;color:#475569;margin-top:6px;display:flex;align-items:center;gap:8px}
-  #notional-input:focus{border-color:#22d3ee;box-shadow:0 0 0 2px #22d3ee20}
+  .rule-row .rule-action{font-size:12px;color:#ffffff}
+  .source-tag{font-size:9px;color:#aaaaaa;margin-top:6px;display:flex;align-items:center;gap:8px}
+  #notional-input:focus{border-color:#ffffff;box-shadow:0 0 0 2px #ffffff20}
   #z-threshold:focus{border-color:#f59e0b;box-shadow:0 0 0 2px #f59e0b20}
-  .pair-option:hover{background:#1e293b !important}
-  .pair-option.active-pair{background:#22d3ee15 !important;color:#22d3ee !important}
-  #pair-dropdown-btn:hover{border-color:#334155}
+  .pair-option:hover{background:#333333 !important}
+  .pair-option.active-pair{background:#ffffff15 !important;color:#ffffff !important}
+  #pair-dropdown-btn:hover{border-color:#444444}
   #alert-log::-webkit-scrollbar{width:3px}
-  #alert-log::-webkit-scrollbar-track{background:#0c1221}
-  #alert-log::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  #alert-log::-webkit-scrollbar-track{background:#1a1a1a}
+  #alert-log::-webkit-scrollbar-thumb{background:#444444;border-radius:3px}
   .chart-annotation{position:absolute;background:#f59e0b20;border:1px solid #f59e0b40;border-radius:4px;padding:2px 6px;font-size:8px;color:#f59e0b;cursor:pointer;z-index:5;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
 
   @media(max-width:850px){
@@ -120,6 +120,12 @@
     #src-hl,#src-bin{padding:3px 6px !important;font-size:8px !important}
     #z-display-section{display:none !important}
     #smart-entry{display:none !important}
+    #smart-entry-mobile{max-width:100%;overflow:hidden;word-break:break-word}
+    #smart-entry-mobile .mono{word-break:break-word}
+    #smart-entry-mobile [style*="font-size:13px"]{font-size:11px !important}
+    #smart-entry-mobile [style*="font-size:11px"]{font-size:9px !important}
+    #smart-entry-mobile [style*="font-size:10px"]{font-size:9px !important}
+    body{overflow-x:hidden}
     .chart-area{padding:8px 10px 0 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
     .right-panel .stats-box{margin-bottom:6px !important}
@@ -148,16 +154,16 @@
       <span style="font-size:18px;font-weight:700;letter-spacing:-.02em">PAIRS</span>
     </div>
     <div style="position:relative;display:inline-block" id="pair-dropdown-wrap">
-      <button id="pair-dropdown-btn" class="mono" style="background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:5px 12px;color:#e2e8f0;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;outline:none">
+      <button id="pair-dropdown-btn" class="mono" style="background:#222222;border:1px solid #333333;border-radius:6px;padding:5px 12px;color:#ffffff;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;outline:none">
         <span id="pair-dropdown-label">ETH / BTC</span>
-        <span style="font-size:10px;color:#64748b;transition:transform .2s" id="pair-arrow">▼</span>
+        <span style="font-size:10px;color:#ffffff;transition:transform .2s" id="pair-arrow">▼</span>
       </button>
-      <div id="pair-dropdown-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;overflow:hidden;z-index:100;min-width:100%;box-shadow:0 8px 24px #00000060">
-        <div class="pair-option" data-value="ETH/BTC" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">ETH / BTC</div>
-        <div class="pair-option" data-value="HYPE/SOL" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">HYPE / SOL</div>
-        <div style="padding:4px 14px;font-size:9px;color:#475569;border-bottom:1px solid #1e293b;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em">PRICE CHARTS</div>
-        <div class="pair-option" data-value="ETH/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s;border-bottom:1px solid #1e293b">ETH / USDT</div>
-        <div class="pair-option" data-value="BTC/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#e2e8f0;transition:background .15s">BTC / USDT</div>
+      <div id="pair-dropdown-menu" style="display:none;position:absolute;top:100%;left:0;margin-top:4px;background:#222222;border:1px solid #333333;border-radius:8px;overflow:hidden;z-index:100;min-width:100%;box-shadow:0 8px 24px #00000060">
+        <div class="pair-option" data-value="ETH/BTC" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#ffffff;transition:background .15s;border-bottom:1px solid #333333">ETH / BTC</div>
+        <div class="pair-option" data-value="HYPE/SOL" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#ffffff;transition:background .15s;border-bottom:1px solid #333333">HYPE / SOL</div>
+        <div style="padding:4px 14px;font-size:9px;color:#aaaaaa;border-bottom:1px solid #333333;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em">PRICE CHARTS</div>
+        <div class="pair-option" data-value="ETH/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#ffffff;transition:background .15s;border-bottom:1px solid #333333">ETH / USDT</div>
+        <div class="pair-option" data-value="BTC/USDT" style="padding:8px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#ffffff;transition:background .15s">BTC / USDT</div>
       </div>
       <select id="pair-select" style="display:none">
         <option value="ETH/BTC">ETH / BTC</option>
@@ -168,16 +174,16 @@
     </div>
     <!-- Pair statistics inline in header -->
     <div id="hdr-pair-stats" class="mono" style="display:flex;align-items:center;gap:10px;margin-left:6px">
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Current Ratio</span><span style="font-weight:700;font-size:12px" id="s-ratio">—</span></div>
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Mean Ratio</span><span style="font-weight:700;font-size:12px;color:#f59e0b" id="s-mean">—</span></div>
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Standard Deviation</span><span style="font-weight:700;font-size:12px" id="s-std">—</span></div>
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Spread</span><span style="font-weight:700;font-size:12px" id="s-spread">—</span></div>
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Correlation</span><span style="font-weight:700;font-size:12px;color:#22d3ee" id="s-corr">—</span></div>
-      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#64748b">Mean Reversion Rate</span><span style="font-weight:700;font-size:12px;color:#22d3ee" id="s-revert">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Current Ratio</span><span style="font-weight:700;font-size:12px;color:#cccccc" id="s-ratio">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Mean Ratio</span><span style="font-weight:700;font-size:12px;color:#3b82f6" id="s-mean">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Standard Deviation</span><span style="font-weight:700;font-size:12px;color:#cccccc" id="s-std">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Spread</span><span style="font-weight:700;font-size:12px" id="s-spread">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Correlation</span><span style="font-weight:700;font-size:12px" id="s-corr">—</span></div>
+      <div style="display:flex;align-items:center;gap:3px"><span style="font-size:10px;color:#ffffff">Mean Reversion Rate</span><span style="font-weight:700;font-size:12px" id="s-revert">—</span></div>
     </div>
   </div>
   <div class="header-right mono">
-    <div style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:11px">
+    <div style="display:flex;align-items:center;gap:6px;color:#ffffff;font-size:11px">
       <div id="live-dot" style="width:6px;height:6px;border-radius:50%;background:#f59e0b;animation:pulse 2s infinite"></div>
       <span id="hdr-clock">--:--:--</span>
     </div>
@@ -191,75 +197,75 @@
 <span id="window-desc" style="display:none"></span>
 
 <!-- Mobile z-score summary strip (visible only on mobile) -->
-<div id="mobile-z-strip" class="mobile-toggle" style="display:none;border-bottom:1px solid #1e293b;padding:8px 12px;align-items:center;justify-content:space-between">
+<div id="mobile-z-strip" class="mobile-toggle" style="display:none;border-bottom:1px solid #333333;padding:8px 12px;align-items:center;justify-content:space-between">
   <div style="display:flex;align-items:center;gap:10px">
     <div class="mono" style="font-size:28px;font-weight:800" id="mobile-z-val">+0.00</div>
     <div style="display:flex;flex-direction:column;gap:2px">
-      <div class="mono" style="font-size:8px;color:#64748b;letter-spacing:0.05em">Z-SCORE</div>
+      <div class="mono" style="font-size:8px;color:#ffffff;letter-spacing:0.05em">Z-SCORE</div>
       <div class="mono" style="font-size:10px" id="mobile-signal-short">—</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <div style="text-align:right">
-      <div class="mono" style="font-size:10px;color:#64748b" id="mobile-ratio-lbl">—</div>
+      <div class="mono" style="font-size:10px;color:#ffffff" id="mobile-ratio-lbl">—</div>
       <div class="mono" style="font-size:10px" id="mobile-spread-lbl">—</div>
     </div>
   </div>
 </div>
 
 <!-- Alerts bar (hidden on mobile, duplicated inside Show More) -->
-<div id="alerts-bar" class="mobile-hide-alerts" style="border-bottom:1px solid #1e293b;padding:6px 24px;align-items:center;gap:12px;flex-wrap:wrap">
-  <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">ALERTS</span>
+<div id="alerts-bar" class="mobile-hide-alerts" style="border-bottom:1px solid #333333;padding:6px 24px;align-items:center;gap:12px;flex-wrap:wrap">
+  <span class="mono" style="font-size:10px;color:#ffffff;letter-spacing:0.1em">ALERTS</span>
   <div style="display:flex;align-items:center;gap:4px">
-    <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
-    <input type="text" id="z-threshold" value="1.5" style="width:38px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
+    <span class="mono" style="font-size:10px;color:#ffffff">|z| ≥</span>
+    <input type="text" id="z-threshold" value="1.5" style="width:38px;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span style="font-size:9px;color:#94a3b8">Sound</span>
-    <button id="alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+    <span style="font-size:9px;color:#ffffff">Sound</span>
+    <button id="alert-toggle" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span style="font-size:9px;color:#94a3b8">Tab Flash</span>
-    <button id="title-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+    <span style="font-size:9px;color:#ffffff">Tab Flash</span>
+    <button id="title-alert-toggle" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px">
-    <span style="font-size:9px;color:#94a3b8">Push Notifications</span>
-    <button id="push-alert-toggle" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
-    <button id="push-test-btn" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#475569;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s">Test</button>
-    <span id="push-status" style="font-size:8px;color:#475569">—</span>
+    <span style="font-size:9px;color:#ffffff">Push Notifications</span>
+    <button id="push-alert-toggle" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer;transition:all .2s">OFF</button>
+    <button id="push-test-btn" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#aaaaaa;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;cursor:pointer;transition:all .2s">Test</button>
+    <span id="push-status" style="font-size:8px;color:#aaaaaa">—</span>
   </div>
   <div style="flex:1"></div>
-  <div id="alert-log" class="mono" style="font-size:9px;color:#475569;text-align:right;max-width:400px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
+  <div id="alert-log" class="mono" style="font-size:9px;color:#aaaaaa;text-align:right;max-width:400px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
 </div>
 
 <div class="main">
   <div class="chart-area">
     <div class="window-bar">
       <div class="btn-group" id="window-btns"></div>
-      <div style="display:flex;align-items:center;gap:4px;background:#0f172a;border-radius:6px;padding:2px">
+      <div style="display:flex;align-items:center;gap:4px;background:#222222;border-radius:6px;padding:2px">
         <button id="src-hl" class="btn mono active" style="padding:4px 10px;font-size:10px">Hyperliquid</button>
         <button id="src-bin" class="btn mono" style="padding:4px 10px;font-size:10px">Binance.US</button>
       </div>
-      <span class="source-tag mono" style="font-size:9px;color:#475569;display:flex;align-items:center;gap:5px">
+      <span class="source-tag mono" style="font-size:9px;color:#aaaaaa;display:flex;align-items:center;gap:5px">
         <span id="source-info">Connecting...</span>
         <span id="rate-limit-dot" style="display:none;width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 6px #ef4444" title="Rate limited — retrying"></span>
-        <span style="display:inline-flex;align-items:center;gap:4px;color:#64748b"><span id="refresh-spinner" style="display:inline-block;width:8px;height:8px;border:1.5px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite"></span>Live</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;color:#ffffff"><span id="refresh-spinner" style="display:inline-block;width:8px;height:8px;border:1.5px solid #333333;border-top-color:#ffffff;border-radius:50%;animation:spin 1s linear infinite"></span>Live</span>
       </span>
       <div style="flex:1"></div>
-      <span id="regime-badge" class="mono" style="font-size:9px;padding:3px 8px;border-radius:4px;background:#0f172a;border:1px solid #1e293b;color:#64748b">—</span>
-      <button id="annotate-btn" class="mono" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;font-size:9px;color:#64748b;cursor:pointer" title="Click to add annotation on chart">📌 Note</button>
+      <span id="regime-badge" class="mono" style="font-size:9px;padding:3px 8px;border-radius:4px;background:#222222;border:1px solid #333333;color:#ffffff">—</span>
+      <button id="annotate-btn" class="mono" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;font-size:9px;color:#ffffff;cursor:pointer" title="Click to add annotation on chart">📌 Note</button>
     </div>
 
     <div class="chart-wrapper" id="chart-wrapper">
       <div class="chart-svg-box" id="chart-svg-box">
         <div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column">
-          <div class="spinner" style="width:28px;height:28px;border:3px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>
-          <span class="mono" style="font-size:11px;color:#64748b">Connecting to Hyperliquid...</span>
+          <div class="spinner" style="width:28px;height:28px;border:3px solid #333333;border-top-color:#ffffff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>
+          <span class="mono" style="font-size:11px;color:#ffffff">Connecting to Hyperliquid...</span>
         </div>
       </div>
       <div class="chart-tooltip mono" id="chart-tooltip">
-        <div id="tt-ratio" style="color:#e2e8f0;font-weight:600"></div>
-        <div id="tt-time" style="color:#94a3b8;font-size:10px;margin-top:2px"></div>
+        <div id="tt-ratio" style="color:#ffffff;font-weight:600"></div>
+        <div id="tt-time" style="color:#ffffff;font-size:10px;margin-top:2px"></div>
       </div>
     </div>
 
@@ -275,7 +281,7 @@
 
     <!-- Mobile toggle for extra sections -->
     <div class="mobile-toggle" style="display:none;margin-top:6px">
-      <button id="mobile-more-btn" style="width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;text-align:center">Show More ▼</button>
+      <button id="mobile-more-btn" style="width:100%;background:#222222;border:1px solid #333333;border-radius:8px;padding:10px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;text-align:center">Show More ▼</button>
     </div>
 
     <!-- Scanner then Sessions in left column -->
@@ -286,30 +292,30 @@
       <div class="stats-title mono" style="margin-bottom:8px">ALERTS</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
         <div style="display:flex;align-items:center;gap:4px">
-          <span class="mono" style="font-size:10px;color:#64748b">|z| ≥</span>
-          <input type="text" id="z-threshold-mobile" value="1.5" style="width:38px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
+          <span class="mono" style="font-size:10px;color:#ffffff">|z| ≥</span>
+          <input type="text" id="z-threshold-mobile" value="1.5" style="width:38px;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
         </div>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="font-size:9px;color:#94a3b8">Sound</span>
-          <button id="alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+          <span style="font-size:9px;color:#ffffff">Sound</span>
+          <button id="alert-toggle-mobile" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="font-size:9px;color:#94a3b8">Tab Flash</span>
-          <button id="title-alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+          <span style="font-size:9px;color:#ffffff">Tab Flash</span>
+          <button id="title-alert-toggle-mobile" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="font-size:9px;color:#94a3b8">Push</span>
-          <button id="push-alert-toggle-mobile" style="background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 8px;color:#64748b;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
+          <span style="font-size:9px;color:#ffffff">Push</span>
+          <button id="push-alert-toggle-mobile" style="background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 8px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;cursor:pointer">OFF</button>
         </div>
       </div>
-      <div id="mobile-alert-log" class="mono" style="font-size:9px;color:#475569;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
+      <div id="mobile-alert-log" class="mono" style="font-size:9px;color:#aaaaaa;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">No alerts yet</div>
     </div>
 
     <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:10px">
       <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span>MULTI-TIMEFRAME SCANNER</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#475569;letter-spacing:0">
-          <span style="display:inline-block;width:8px;height:8px;border:1.5px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite"></span>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#aaaaaa;letter-spacing:0">
+          <span style="display:inline-block;width:8px;height:8px;border:1.5px solid #333333;border-top-color:#ffffff;border-radius:50%;animation:spin 1s linear infinite"></span>
           <span id="scanner-status">Loading...</span>
         </span>
       </div>
@@ -321,21 +327,21 @@
       <!-- Volatility Card -->
       <div id="vol-regime-box" class="stats-box" style="flex:1;margin-bottom:0;padding:8px 10px;min-width:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span class="mono" style="font-size:8px;color:#64748b;letter-spacing:0.05em">VOLATILITY</span>
+          <span class="mono" style="font-size:8px;color:#ffffff;letter-spacing:0.05em">VOLATILITY</span>
           <span class="mono" id="vol-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#22c55e20;color:#22c55e">—</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:2px">
           <span class="mono" style="font-size:18px;font-weight:800" id="vol-ratio">—</span>
-          <span class="mono" style="font-size:9px;color:#64748b" id="vol-score-label">—</span>
+          <span class="mono" style="font-size:9px;color:#ffffff" id="vol-score-label">—</span>
         </div>
         <button id="vol-expand-btn" class="toggle-btn"><span class="toggle-tri" id="vol-expand-tri"></span>Details</button>
-        <div id="vol-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #1e293b">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#64748b">Recent Vol</span><span class="mono" style="font-size:9px;font-weight:600" id="vol-current">—</span></div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#64748b">Avg Vol</span><span class="mono" style="font-size:9px;font-weight:600" id="vol-avg">—</span></div>
+        <div id="vol-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #333333">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#ffffff">Recent Vol</span><span class="mono" style="font-size:9px;font-weight:600" id="vol-current">—</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#ffffff">Avg Vol</span><span class="mono" style="font-size:9px;font-weight:600" id="vol-avg">—</span></div>
           <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
-            <span class="mono" style="font-size:7px;color:#475569">LOW</span>
-            <div style="flex:1;height:4px;background:#1e293b;border-radius:2px;overflow:hidden"><div id="vol-bar" style="height:100%;width:0%;border-radius:2px;transition:width 0.6s,background 0.6s"></div></div>
-            <span class="mono" style="font-size:7px;color:#475569">HIGH</span>
+            <span class="mono" style="font-size:7px;color:#aaaaaa">LOW</span>
+            <div style="flex:1;height:4px;background:#333333;border-radius:2px;overflow:hidden"><div id="vol-bar" style="height:100%;width:0%;border-radius:2px;transition:width 0.6s,background 0.6s"></div></div>
+            <span class="mono" style="font-size:7px;color:#aaaaaa">HIGH</span>
           </div>
           <div id="vol-status" style="font-size:9px;font-weight:600;line-height:1.3" class="mono">—</div>
           <div id="vol-suggestion" style="display:none;margin-top:4px;padding:4px 6px;border-radius:3px;font-size:8px;line-height:1.4"></div>
@@ -347,17 +353,17 @@
       <!-- Correlation Card -->
       <div class="stats-box" style="flex:1;margin-bottom:0;padding:8px 10px;min-width:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span class="mono" style="font-size:8px;color:#64748b;letter-spacing:0.05em">CORRELATION</span>
-          <span class="mono" id="corr-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#1e293b;color:#64748b">—</span>
+          <span class="mono" style="font-size:8px;color:#ffffff;letter-spacing:0.05em">CORRELATION</span>
+          <span class="mono" id="corr-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#333333;color:#ffffff">—</span>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:2px">
-          <div><span class="mono" style="font-size:9px;color:#64748b">Full </span><span class="mono" style="font-size:14px;font-weight:800" id="corr-full">—</span></div>
-          <div><span class="mono" style="font-size:9px;color:#64748b">Recent </span><span class="mono" style="font-size:14px;font-weight:800" id="corr-recent">—</span></div>
+          <div><span class="mono" style="font-size:9px;color:#ffffff">Full </span><span class="mono" style="font-size:14px;font-weight:800" id="corr-full">—</span></div>
+          <div><span class="mono" style="font-size:9px;color:#ffffff">Recent </span><span class="mono" style="font-size:14px;font-weight:800" id="corr-recent">—</span></div>
         </div>
         <button id="corr-expand-btn" class="toggle-btn"><span class="toggle-tri" id="corr-expand-tri"></span>Details</button>
-        <div id="corr-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #1e293b">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#64748b">Change</span><span class="mono" style="font-size:9px;font-weight:700" id="corr-change">—</span></div>
-          <div class="mono" id="corr-status" style="font-size:9px;color:#94a3b8;line-height:1.3">Waiting...</div>
+        <div id="corr-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #333333">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="mono" style="font-size:9px;color:#ffffff">Change</span><span class="mono" style="font-size:9px;font-weight:700" id="corr-change">—</span></div>
+          <div class="mono" id="corr-status" style="font-size:9px;color:#ffffff;line-height:1.3">Waiting...</div>
           <div id="corr-warning" style="display:none;margin-top:4px;background:#ef444415;border:1px solid #ef444430;border-radius:4px;padding:4px 6px">
             <div class="mono" id="corr-warning-text" style="font-size:8px;color:#f87171;line-height:1.4"></div>
           </div>
@@ -366,31 +372,31 @@
       <!-- Momentum Card -->
       <div id="z-accel-box" class="stats-box" style="flex:1;margin-bottom:0;padding:8px 10px;min-width:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span class="mono" style="font-size:8px;color:#64748b;letter-spacing:0.05em">MOMENTUM</span>
-          <span class="mono" id="z-accel-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#1e293b;color:#64748b">—</span>
+          <span class="mono" style="font-size:8px;color:#ffffff;letter-spacing:0.05em">MOMENTUM</span>
+          <span class="mono" id="z-accel-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#333333;color:#ffffff">—</span>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:2px">
-          <div><span class="mono" style="font-size:9px;color:#64748b">Vel </span><span class="mono" style="font-size:14px;font-weight:800" id="z-accel-vel">—</span></div>
+          <div><span class="mono" style="font-size:9px;color:#ffffff">Vel </span><span class="mono" style="font-size:14px;font-weight:800" id="z-accel-vel">—</span></div>
           <div><span class="mono" style="font-size:14px;font-weight:800" id="z-accel-dir">—</span></div>
         </div>
         <button id="zmo-expand-btn" class="toggle-btn"><span class="toggle-tri" id="zmo-expand-tri"></span>Details</button>
-        <div id="zmo-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #1e293b">
-          <div class="mono" id="z-accel-text" style="font-size:9px;color:#94a3b8;line-height:1.3;margin-bottom:3px">Waiting for data...</div>
-          <div class="mono" id="z-accel-period" style="font-size:8px;color:#475569;margin-bottom:3px"></div>
+        <div id="zmo-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #333333">
+          <div class="mono" id="z-accel-text" style="font-size:9px;color:#ffffff;line-height:1.3;margin-bottom:3px">Waiting for data...</div>
+          <div class="mono" id="z-accel-period" style="font-size:8px;color:#aaaaaa;margin-bottom:3px"></div>
           <div style="display:flex;gap:8px;margin-bottom:6px">
-            <div><span class="mono" style="font-size:8px;color:#64748b">Accel </span><span class="mono" style="font-size:11px;font-weight:700" id="z-accel-acc">—</span></div>
-            <div><span class="mono" style="font-size:8px;color:#475569" id="z-accel-vel-unit">z/period</span></div>
+            <div><span class="mono" style="font-size:8px;color:#ffffff">Accel </span><span class="mono" style="font-size:11px;font-weight:700" id="z-accel-acc">—</span></div>
+            <div><span class="mono" style="font-size:8px;color:#aaaaaa" id="z-accel-vel-unit">z/period</span></div>
           </div>
-          <div style="padding-top:4px;border-top:1px solid #1e293b">
-            <div class="mono" style="font-size:8px;color:#64748b;margin-bottom:3px;letter-spacing:0.05em">STATES</div>
+          <div style="padding-top:4px;border-top:1px solid #333333">
+            <div class="mono" style="font-size:8px;color:#ffffff;margin-bottom:3px;letter-spacing:0.05em">STATES</div>
             <div style="display:flex;flex-direction:column;gap:2px;font-size:8px" class="mono">
-              <div><span style="color:#64748b;font-weight:700">FLAT</span><span style="color:#475569"> — Z-score stable, no strong movement in either direction.</span></div>
-              <div><span style="color:#22c55e;font-weight:700">REVERTING</span><span style="color:#475569"> — Moving toward mean. Favorable for reversion positions.</span></div>
-              <div><span style="color:#f59e0b;font-weight:700">CAUTION</span><span style="color:#475569"> — Drifting away from mean but not accelerating. Could be noise.</span></div>
-              <div><span style="color:#f59e0b;font-weight:700">▼ DRIFT / ▲ DRIFT</span><span style="color:#475569"> — Slowly moving away. Early trend or temporary.</span></div>
-              <div><span style="color:#ef4444;font-weight:700">DANGER</span><span style="color:#475569"> — Accelerating away from mean. Looks like a trend, not reversion. High liquidation risk.</span></div>
-              <div><span style="color:#22c55e;font-weight:700">▲ TOWARD / ▼ TOWARD</span><span style="color:#475569"> — Actively reverting toward zero. Good sign.</span></div>
-              <div><span style="color:#ef4444;font-weight:700">▲ AWAY / ▼ AWAY</span><span style="color:#475569"> — Accelerating away from zero. Worst state for reversion trades.</span></div>
+              <div><span style="color:#ffffff;font-weight:700">FLAT</span><span style="color:#aaaaaa"> — Z-score stable, no strong movement in either direction.</span></div>
+              <div><span style="color:#22c55e;font-weight:700">REVERTING</span><span style="color:#aaaaaa"> — Moving toward mean. Favorable for reversion positions.</span></div>
+              <div><span style="color:#f59e0b;font-weight:700">CAUTION</span><span style="color:#aaaaaa"> — Drifting away from mean but not accelerating. Could be noise.</span></div>
+              <div><span style="color:#f59e0b;font-weight:700">▼ DRIFT / ▲ DRIFT</span><span style="color:#aaaaaa"> — Slowly moving away. Early trend or temporary.</span></div>
+              <div><span style="color:#ef4444;font-weight:700">DANGER</span><span style="color:#aaaaaa"> — Accelerating away from mean. Looks like a trend, not reversion. High liquidation risk.</span></div>
+              <div><span style="color:#22c55e;font-weight:700">▲ TOWARD / ▼ TOWARD</span><span style="color:#aaaaaa"> — Actively reverting toward zero. Good sign.</span></div>
+              <div><span style="color:#ef4444;font-weight:700">▲ AWAY / ▼ AWAY</span><span style="color:#aaaaaa"> — Accelerating away from zero. Worst state for reversion trades.</span></div>
             </div>
           </div>
         </div>
@@ -404,8 +410,8 @@
     <div class="stats-box" style="margin-bottom:0;padding:8px 10px;margin-top:6px">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="display:flex;align-items:center;gap:6px">
-          <span class="mono" style="font-size:8px;color:#64748b;letter-spacing:0.05em">ECONOMIC CALENDAR</span>
-          <span class="mono" id="econ-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#1e293b;color:#64748b">—</span>
+          <span class="mono" style="font-size:8px;color:#ffffff;letter-spacing:0.05em">ECONOMIC CALENDAR</span>
+          <span class="mono" id="econ-badge" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:#333333;color:#ffffff">—</span>
         </div>
         <button id="econ-expand-btn" class="toggle-btn">
           <span class="toggle-tri" id="econ-expand-tri"></span>All events
@@ -414,10 +420,10 @@
       <div id="econ-warning" style="display:none;background:#f59e0b15;border:1px solid #f59e0b30;border-radius:4px;padding:4px 6px;margin-top:4px">
         <div class="mono" id="econ-warning-text" style="font-size:10px;color:#fbbf24;line-height:1.4"></div>
       </div>
-      <div id="econ-next-event" class="mono" style="margin-top:4px;font-size:11px;color:#94a3b8"></div>
-      <div id="econ-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #1e293b">
+      <div id="econ-next-event" class="mono" style="margin-top:4px;font-size:11px;color:#ffffff"></div>
+      <div id="econ-expand-body" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid #333333">
         <div id="econ-events" style="display:flex;flex-direction:column;gap:3px;max-height:240px;overflow-y:auto"></div>
-        <div class="mono" style="font-size:8px;color:#334155;margin-top:4px">Source: Official 2026 federal release schedule</div>
+        <div class="mono" style="font-size:8px;color:#444444;margin-top:4px">Source: Official 2026 federal release schedule</div>
       </div>
     </div>
 
@@ -428,54 +434,54 @@
     <div class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:10px">
       <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span>POSITION TRACKER</span>
-        <button id="pos-add-btn" class="mono" style="background:#22d3ee15;border:1px solid #22d3ee30;border-radius:4px;padding:2px 8px;font-size:9px;color:#22d3ee;cursor:pointer;font-weight:600">+ Add Entry</button>
+        <button id="pos-add-btn" class="mono" style="background:#ffffff15;border:1px solid #ffffff30;border-radius:4px;padding:2px 8px;font-size:9px;color:#ffffff;cursor:pointer;font-weight:600">+ Add Entry</button>
       </div>
-      <div style="font-size:9px;color:#64748b;margin-bottom:8px;line-height:1.4">Track entries at different z-scores. Input total notional (position size) — margin is calculated from leverage.</div>
+      <div style="font-size:9px;color:#ffffff;margin-bottom:8px;line-height:1.4">Track entries at different z-scores. Input total notional (position size) — margin is calculated from leverage.</div>
       <!-- Leverage input -->
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <span style="font-size:10px;color:#64748b">Leverage</span>
-        <input type="text" id="pos-leverage" value="25" style="width:36px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
-        <span style="font-size:10px;color:#64748b">x</span>
+        <span style="font-size:10px;color:#ffffff">Leverage</span>
+        <input type="text" id="pos-leverage" value="25" style="width:36px;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 5px;color:#f59e0b;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;outline:none;text-align:center" />
+        <span style="font-size:10px;color:#ffffff">x</span>
         <div style="flex:1"></div>
-        <button id="pos-clear-btn" class="mono" style="background:none;border:1px solid #1e293b;border-radius:4px;padding:2px 8px;font-size:8px;color:#475569;cursor:pointer">Clear All</button>
+        <button id="pos-clear-btn" class="mono" style="background:none;border:1px solid #333333;border-radius:4px;padding:2px 8px;font-size:8px;color:#aaaaaa;cursor:pointer">Clear All</button>
       </div>
       <!-- Entry list -->
       <div id="pos-entries" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"></div>
       <div id="pos-empty" style="display:none"></div>
       <!-- Summary (hidden when no entries) -->
-      <div id="pos-summary" style="display:none;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px;margin-top:4px">
+      <div id="pos-summary" style="display:none;background:#222222;border:1px solid #333333;border-radius:8px;padding:10px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:10px;color:#64748b">Blended Entry Z</span>
+          <span style="font-size:10px;color:#ffffff">Blended Entry Z</span>
           <span class="mono" style="font-size:13px;font-weight:700" id="pos-avg-z">—</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:10px;color:#64748b">Total Notional</span>
+          <span style="font-size:10px;color:#ffffff">Total Notional</span>
           <span class="mono" style="font-size:13px;font-weight:600" id="pos-total-notional">—</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:10px;color:#64748b">Margin (Notional ÷ Leverage)</span>
+          <span style="font-size:10px;color:#ffffff">Margin (Notional ÷ Leverage)</span>
           <span class="mono" style="font-size:13px;font-weight:600;color:#f59e0b" id="pos-margin">—</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-top:6px;border-top:1px solid #1e293b">
-          <span style="font-size:10px;color:#64748b">Current Z</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding-top:6px;border-top:1px solid #333333">
+          <span style="font-size:10px;color:#ffffff">Current Z</span>
           <span class="mono" style="font-size:13px;font-weight:700" id="pos-current-z">—</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <span style="font-size:10px;color:#64748b">Unrealized P&L</span>
+          <span style="font-size:10px;color:#ffffff">Unrealized P&L</span>
           <span class="mono" style="font-size:15px;font-weight:800" id="pos-pnl">—</span>
         </div>
         <!-- Drawdown table -->
-        <div style="padding-top:6px;border-top:1px solid #1e293b">
-          <div style="font-size:9px;color:#64748b;margin-bottom:4px;letter-spacing:0.05em" class="mono">DRAWDOWN SCENARIOS</div>
+        <div style="padding-top:6px;border-top:1px solid #333333">
+          <div style="font-size:9px;color:#ffffff;margin-bottom:4px;letter-spacing:0.05em" class="mono">DRAWDOWN SCENARIOS</div>
           <div id="pos-drawdown" style="display:flex;flex-direction:column;gap:2px"></div>
         </div>
         <!-- Liquidation estimate -->
-        <div style="padding-top:6px;margin-top:6px;border-top:1px solid #1e293b">
+        <div style="padding-top:6px;margin-top:6px;border-top:1px solid #333333">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="font-size:10px;color:#ef4444;font-weight:600">Est. Liquidation at Z</span>
             <span class="mono" style="font-size:13px;font-weight:800;color:#ef4444" id="pos-liq-z">—</span>
           </div>
-          <div style="font-size:8px;color:#475569;margin-top:2px">Based on ~90% margin loss at current leverage</div>
+          <div style="font-size:8px;color:#aaaaaa;margin-top:2px">Based on ~90% margin loss at current leverage</div>
         </div>
       </div>
     </div>
@@ -510,22 +516,22 @@
     <!-- Smart Entry Signal -->
     <div id="smart-entry" class="stats-box" style="margin-bottom:14px;padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">SMART ENTRY</span>
-        <span class="mono" id="se-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:#1e293b;color:#64748b">—</span>
+        <span class="mono" style="font-size:10px;color:#ffffff;letter-spacing:0.1em">SMART ENTRY</span>
+        <span class="mono" id="se-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:#333333;color:#ffffff">—</span>
       </div>
-      <div class="mono" id="se-direction" style="font-size:13px;font-weight:700;margin-bottom:4px;color:#64748b">—</div>
-      <div class="mono" id="se-text" style="font-size:10px;color:#94a3b8;line-height:1.5;margin-bottom:6px">Waiting for data...</div>
+      <div class="mono" id="se-direction" style="font-size:13px;font-weight:700;margin-bottom:4px;color:#ffffff">—</div>
+      <div class="mono" id="se-text" style="font-size:10px;color:#ffffff;line-height:1.5;margin-bottom:6px">Waiting for data...</div>
       <div style="display:flex;gap:6px">
-        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
-          <div class="mono" style="font-size:7px;color:#64748b">Z-SCORE</div>
+        <div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#ffffff">Z-SCORE</div>
           <div class="mono" style="font-size:11px;font-weight:700" id="se-z">—</div>
         </div>
-        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
-          <div class="mono" style="font-size:7px;color:#64748b">MOMENTUM</div>
+        <div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#ffffff">MOMENTUM</div>
           <div class="mono" style="font-size:11px;font-weight:700" id="se-mom">—</div>
         </div>
-        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
-          <div class="mono" style="font-size:7px;color:#64748b">VOLATILITY</div>
+        <div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#ffffff">VOLATILITY</div>
           <div class="mono" style="font-size:11px;font-weight:700" id="se-vol">—</div>
         </div>
       </div>
@@ -537,44 +543,44 @@
     <div class="mobile-collapse">
     <div class="stats-box">
       <div class="stats-title mono">EST. PNL CALCULATOR</div>
-      <div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">Est. profit if z-score reverts to 0 (mean)</div>
+      <div style="font-size:11px;color:#ffffff;margin-bottom:10px;line-height:1.5">Est. profit if z-score reverts to 0 (mean)</div>
       <div style="margin-bottom:10px">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px">TOTAL NOTIONAL (split 50/50 per leg)</div>
+        <div style="font-size:10px;color:#ffffff;margin-bottom:4px">TOTAL NOTIONAL (split 50/50 per leg)</div>
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="color:#64748b;font-size:14px">$</span>
-          <input type="text" id="notional-input" value="0" style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:8px 10px;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;outline:none;width:100%" />
+          <span style="color:#ffffff;font-size:14px">$</span>
+          <input type="text" id="notional-input" value="0" style="flex:1;background:#222222;border:1px solid #333333;border-radius:6px;padding:8px 10px;color:#ffffff;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;outline:none;width:100%" />
         </div>
       </div>
-      <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;margin-bottom:8px">
+      <div style="background:#222222;border:1px solid #333333;border-radius:8px;padding:12px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:10px;color:#64748b">Per Leg</span>
+          <span style="font-size:10px;color:#ffffff">Per Leg</span>
           <span class="mono" style="font-size:13px;font-weight:600" id="pc-per-leg">$0.00</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:10px;color:#64748b">Current Spread</span>
+          <span style="font-size:10px;color:#ffffff">Current Spread</span>
           <span class="mono" style="font-size:13px;font-weight:600" id="pc-spread">—</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-top:8px;border-top:1px solid #1e293b">
-          <span style="font-size:10px;color:#64748b">Direction</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-top:8px;border-top:1px solid #333333">
+          <span style="font-size:10px;color:#ffffff">Direction</span>
           <span class="mono" style="font-size:11px;font-weight:600" id="pc-direction">—</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #1e293b">
-          <span style="font-size:11px;color:#94a3b8;font-weight:600">Est. Profit at z → 0</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #333333">
+          <span style="font-size:11px;color:#ffffff;font-weight:600">Est. Profit at z → 0</span>
           <span class="mono" style="font-size:18px;font-weight:800" id="pc-profit">—</span>
         </div>
       </div>
-      <div style="font-size:9px;color:#475569;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
+      <div style="font-size:9px;color:#aaaaaa;line-height:1.5">Assumes ratio reverts fully to mean. Does not include fees, slippage, or funding rates. Actual P&L may vary.</div>
     </div>
     <!-- Compact price display -->
     <div id="price-box" class="stats-box" style="padding:10px 12px">
       <div style="display:flex;gap:10px">
         <div style="flex:1">
-          <div class="mono" style="font-size:8px;color:#64748b" id="price-lbl-a">ETH</div>
+          <div class="mono" style="font-size:8px;color:#ffffff" id="price-lbl-a">ETH</div>
           <div class="mono" style="font-size:14px;font-weight:700" id="price-val-a">—</div>
           <div class="mono" style="font-size:10px;font-weight:600" id="price-pct-a">—</div>
         </div>
         <div style="flex:1">
-          <div class="mono" style="font-size:8px;color:#64748b" id="price-lbl-b">BTC</div>
+          <div class="mono" style="font-size:8px;color:#ffffff" id="price-lbl-b">BTC</div>
           <div class="mono" style="font-size:14px;font-weight:700" id="price-val-b">—</div>
           <div class="mono" style="font-size:10px;font-weight:600" id="price-pct-b">—</div>
         </div>
@@ -700,8 +706,8 @@
   function showLoading() {
     $("chart-svg-box").innerHTML =
       '<div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column">' +
-      '<div class="spinner" style="width:28px;height:28px;border:3px solid #1e293b;border-top-color:#22d3ee;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>' +
-      '<span class="mono" style="font-size:11px;color:#64748b">Fetching data...</span></div>';
+      '<div class="spinner" style="width:28px;height:28px;border:3px solid #333333;border-top-color:#ffffff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px"></div>' +
+      '<span class="mono" style="font-size:11px;color:#ffffff">Fetching data...</span></div>';
     $("chart-tooltip").classList.remove("show");
   }
 
@@ -709,7 +715,7 @@
     $("chart-svg-box").innerHTML =
       '<div style="height:240px;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;text-align:center">' +
       '<span class="mono" style="color:#ef4444;font-size:12px;max-width:500px;line-height:1.5">' + msg + '</span>' +
-      '<span class="mono" style="color:#64748b;font-size:11px;margin-top:8px">Will retry automatically...</span></div>';
+      '<span class="mono" style="color:#ffffff;font-size:11px;margin-top:8px">Will retry automatically...</span></div>';
     $("live-dot").style.background = "#ef4444";
     $("live-dot").style.animation = "none";
   }
@@ -784,7 +790,12 @@
 
   function zColor(z) {
     var t = getThreshold();
-    return Math.abs(z) >= t * 1.67 ? "#ff3b5c" : Math.abs(z) >= t ? "#f59e0b" : "#22d3ee";
+    var az = Math.abs(z);
+    // Direction colors: negative z = yellow (Long ETH), positive z = purple (Short ETH)
+    if (az >= t) return z < 0 ? "#eab308" : "#a855f7";
+    // Below threshold: muted version of direction
+    if (az >= 0.3) return z < 0 ? "#eab30880" : "#a855f780";
+    return "#ffffff"; // near zero = neutral gray
   }
 
   function signalInfo(z) {
@@ -793,9 +804,9 @@
     var az = Math.abs(z);
     var longDir = "Long " + p.legA + " / Short " + p.legB;
     var shortDir = "Short " + p.legA + " / Long " + p.legB;
-    if (az >= t * 1.67) return { text: z > 0 ? "STRONG — " + p.legA + " extremely expensive vs " + p.legB + " → " + shortDir : "STRONG — " + p.legA + " extremely cheap vs " + p.legB + " → " + longDir, color:"#ff3b5c", bg:"#1a0008" };
-    if (az >= t) return { text: z > 0 ? p.legA + " expensive vs " + p.legB + " → " + shortDir : p.legA + " cheap vs " + p.legB + " → " + longDir, color:"#f59e0b", bg:"#1a1500" };
-    return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for |z| > " + t.toFixed(1), color:"#64748b", bg:"#0f172a" };
+    if (az >= t * 1.67) return { text: z > 0 ? "STRONG — " + p.legA + " extremely expensive vs " + p.legB + " → " + shortDir : "STRONG — " + p.legA + " extremely cheap vs " + p.legB + " → " + longDir, color: z < 0 ? "#eab308" : "#a855f7", bg: z < 0 ? "#eab30810" : "#a855f710" };
+    if (az >= t) return { text: z > 0 ? p.legA + " expensive vs " + p.legB + " → " + shortDir : p.legA + " cheap vs " + p.legB + " → " + longDir, color: z < 0 ? "#eab308" : "#a855f7", bg: z < 0 ? "#eab30810" : "#a855f710" };
+    return { text:"Near mean (z = " + z.toFixed(2) + ") — no strong signal. Wait for |z| > " + t.toFixed(1), color:"#bbbbbb", bg:"#222222" };
   }
 
   // ===== FETCH =====
@@ -1026,8 +1037,8 @@
     // Header stats
     if (isSolo) {
       $("hdr-ratio").textContent = last ? "$" + last.ethPrice.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : "—";
-      $("hdr-z").textContent = "—"; $("hdr-z").style.color = "#64748b";
-      $("hdr-spread").textContent = "—"; $("hdr-spread").style.color = "#64748b";
+      $("hdr-z").textContent = "—"; $("hdr-z").style.color = "#bbbbbb";
+      $("hdr-spread").textContent = "—"; $("hdr-spread").style.color = "#bbbbbb";
       $("hdr-mean").textContent = "—";
     } else {
       $("hdr-ratio").textContent = stats.current.toFixed(6);
@@ -1051,7 +1062,7 @@
         $("mobile-signal-short").style.color = sig.color;
       } else {
         $("mobile-signal-short").textContent = "No signal";
-        $("mobile-signal-short").style.color = "#64748b";
+        $("mobile-signal-short").style.color = "#bbbbbb";
       }
       $("mobile-ratio-lbl").textContent = "Ratio " + stats.current.toFixed(6);
       $("mobile-spread-lbl").textContent = "Spread " + stats.spread.toFixed(2) + "%";
@@ -1189,8 +1200,8 @@
       $("regime-badge").title = regime.desc || "";
     } else {
       $("regime-badge").textContent = p.legA + "/USDT";
-      $("regime-badge").style.color = "#94a3b8";
-      $("regime-badge").style.borderColor = "#1e293b";
+      $("regime-badge").style.color = "#ffffff";
+      $("regime-badge").style.borderColor = "#333333";
     }
 
     drawChart(stats);
@@ -1230,7 +1241,7 @@
       $("pc-direction").style.color = "#ef4444";
     } else {
       $("pc-direction").textContent = "No signal (|z| < " + t.toFixed(1) + ")";
-      $("pc-direction").style.color = "#64748b";
+      $("pc-direction").style.color = "#bbbbbb";
     }
 
     // Profit estimate:
@@ -1240,7 +1251,7 @@
     var estProfit = perLeg * spreadPct;
 
     $("pc-profit").textContent = formatUSD(estProfit);
-    $("pc-profit").style.color = estProfit > 0 ? "#22c55e" : "#64748b";
+    $("pc-profit").style.color = estProfit > 0 ? "#22c55e" : "#bbbbbb";
   }
 
   // Format input with commas as user types
@@ -1293,11 +1304,11 @@
     if (!hasSignal) {
       panel.style.display = "block";
       $("mtf-score-badge").textContent = "NO SIGNAL";
-      $("mtf-score-badge").style.background = "#1e293b";
-      $("mtf-score-badge").style.color = "#64748b";
+      $("mtf-score-badge").style.background = "#333333";
+      $("mtf-score-badge").style.color = "#bbbbbb";
       $("mtf-warning").style.display = "none";
       $("mtf-bar").style.width = "50%";
-      $("mtf-bar").style.background = "#64748b";
+      $("mtf-bar").style.background = "#bbbbbb";
       renderMTFAnchors(currentZ, null);
       // Sync to mobile
       var mobileMtf = $("mtf-filter-mobile");
@@ -1414,12 +1425,12 @@
       var html = "";
       for (var i = 0; i < MTF_ANCHORS.length; i++) {
         var a = MTF_ANCHORS[i];
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:#0f172a;border-radius:4px;border:1px solid #1e293b">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:#222222;border-radius:4px;border:1px solid #333333">';
         html += '<div style="display:flex;align-items:center;gap:6px">';
-        html += '<span class="mono" style="font-size:10px;color:#64748b;min-width:24px">' + a.label + '</span>';
-        html += '<span class="mono" style="font-size:9px;color:#334155">wt:' + a.weight + '</span>';
+        html += '<span class="mono" style="font-size:10px;color:#ffffff;min-width:24px">' + a.label + '</span>';
+        html += '<span class="mono" style="font-size:9px;color:#444444">wt:' + a.weight + '</span>';
         html += '</div>';
-        html += '<span class="mono" style="font-size:10px;color:#334155">scanning...</span>';
+        html += '<span class="mono" style="font-size:10px;color:#444444">scanning...</span>';
         html += '</div>';
       }
       container.innerHTML = html;
@@ -1434,15 +1445,15 @@
       if (a.vote === "pending") {
         zText = "—";
         statusText = "scanning...";
-        statusColor = "#334155";
-        borderColor = "#1e293b";
-        bgColor = "#0f172a";
+        statusColor = "#444444";
+        borderColor = "#333333";
+        bgColor = "#222222";
       } else if (a.vote === "neutral") {
         zText = (a.z >= 0 ? "+" : "") + a.z.toFixed(2);
         statusText = "NEUTRAL";
-        statusColor = "#64748b";
-        borderColor = "#1e293b";
-        bgColor = "#0f172a";
+        statusColor = "#bbbbbb";
+        borderColor = "#333333";
+        bgColor = "#222222";
       } else if (a.vote === "agree") {
         zText = (a.z >= 0 ? "+" : "") + a.z.toFixed(2);
         statusText = "✓ AGREES";
@@ -1459,8 +1470,8 @@
 
       html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:' + bgColor + ';border-radius:4px;border:1px solid ' + borderColor + '">';
       html += '<div style="display:flex;align-items:center;gap:6px">';
-      html += '<span class="mono" style="font-size:10px;color:#94a3b8;min-width:24px;font-weight:600">' + a.label + '</span>';
-      html += '<span class="mono" style="font-size:9px;color:#475569">wt:' + a.weight + '</span>';
+      html += '<span class="mono" style="font-size:10px;color:#ffffff;min-width:24px;font-weight:600">' + a.label + '</span>';
+      html += '<span class="mono" style="font-size:9px;color:#aaaaaa">wt:' + a.weight + '</span>';
       html += '<span class="mono" style="font-size:11px;font-weight:700;color:' + statusColor + '">' + zText + '</span>';
       html += '</div>';
       html += '<span class="mono" style="font-size:9px;font-weight:600;color:' + statusColor + '">' + statusText + '</span>';
@@ -1549,9 +1560,9 @@
 
     if (absZ < t) {
       // No signal
-      badge = "NO SIGNAL"; badgeColor = "#64748b"; badgeBg = "#1e293b";
+      badge = "NO SIGNAL"; badgeColor = "#bbbbbb"; badgeBg = "#333333";
       text = "Z-score is below threshold (|z| < " + t.toFixed(1) + "). No trade setup.";
-      borderColor = "#1e293b";
+      borderColor = "#333333";
     } else if (totalScore >= 2) {
       // GOOD ENTRY: momentum reverting or flat, vol normal
       badge = "GOOD ENTRY"; badgeColor = "#22c55e"; badgeBg = "#22c55e20";
@@ -1582,10 +1593,10 @@
     $("se-badge").style.color = badgeColor;
     $("se-badge").style.background = badgeBg;
     $("se-direction").textContent = dirText;
-    $("se-direction").style.color = absZ >= t ? badgeColor : "#64748b";
+    $("se-direction").style.color = absZ >= t ? badgeColor : "#bbbbbb";
     $("se-text").textContent = text;
     $("se-z").textContent = (currentZ >= 0 ? "+" : "") + currentZ.toFixed(2);
-    $("se-z").style.color = absZ >= t ? (absZ >= t * 1.67 ? "#ff3b5c" : "#f59e0b") : "#22d3ee";
+    $("se-z").style.color = absZ >= t ? (currentZ < 0 ? "#eab308" : "#a855f7") : "#ffffff";
     $("se-mom").textContent = momLabel;
     $("se-mom").style.color = momScore >= 1 ? "#22c55e" : momScore <= -1 ? "#ef4444" : "#f59e0b";
     $("se-vol").textContent = volLabel;
@@ -1639,12 +1650,12 @@
     var html = "";
     for (var i = 0; i < posEntries.length; i++) {
       var e = posEntries[i];
-      html += '<div style="display:flex;align-items:center;gap:4px;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:4px 6px" data-pos-id="' + e.id + '">';
-      html += '<span class="mono" style="font-size:9px;color:#64748b;min-width:12px">' + (i+1) + '.</span>';
-      html += '<span style="font-size:9px;color:#64748b">z=</span>';
-      html += '<input type="text" class="pos-z-input mono" data-id="' + e.id + '" value="' + e.zScore + '" style="width:44px;background:#0c1221;border:1px solid #1e293b;border-radius:3px;padding:2px 4px;color:#22d3ee;font-size:11px;font-weight:600;outline:none;text-align:center" />';
-      html += '<span style="font-size:9px;color:#64748b">$</span>';
-      html += '<input type="text" class="pos-n-input mono" data-id="' + e.id + '" value="' + (e.notional > 0 ? e.notional.toLocaleString() : "0") + '" style="flex:1;min-width:0;background:#0c1221;border:1px solid #1e293b;border-radius:3px;padding:2px 4px;color:#e2e8f0;font-size:11px;font-weight:600;outline:none" />';
+      html += '<div style="display:flex;align-items:center;gap:4px;background:#222222;border:1px solid #333333;border-radius:4px;padding:4px 6px" data-pos-id="' + e.id + '">';
+      html += '<span class="mono" style="font-size:9px;color:#ffffff;min-width:12px">' + (i+1) + '.</span>';
+      html += '<span style="font-size:9px;color:#ffffff">z=</span>';
+      html += '<input type="text" class="pos-z-input mono" data-id="' + e.id + '" value="' + e.zScore + '" style="width:44px;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none;text-align:center" />';
+      html += '<span style="font-size:9px;color:#ffffff">$</span>';
+      html += '<input type="text" class="pos-n-input mono" data-id="' + e.id + '" value="' + (e.notional > 0 ? e.notional.toLocaleString() : "0") + '" style="flex:1;min-width:0;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none" />';
       html += '<button class="pos-del-btn mono" data-id="' + e.id + '" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;padding:0 2px;opacity:0.6" title="Remove">✕</button>';
       html += '</div>';
     }
@@ -1776,10 +1787,10 @@
       var scColor = scPnl >= 0 ? "#22c55e" : "#ef4444";
       var marginPct = margin > 0 ? " (" + ((scPnl / margin) * 100).toFixed(0) + "% of margin)" : "";
       var rowBg = sc.highlight ? "background:#f59e0b10;border-radius:3px;padding:3px 4px;margin:2px -4px;" : "padding:2px 0;";
-      var labelColor = sc.highlight ? "#f59e0b" : "#64748b";
+      var labelColor = sc.highlight ? "#f59e0b" : "#bbbbbb";
       ddHtml += '<div style="display:flex;justify-content:space-between;align-items:center;' + rowBg + '">';
       ddHtml += '<span class="mono" style="font-size:9px;color:' + labelColor + '">' + sc.label + '</span>';
-      ddHtml += '<span class="mono" style="font-size:10px;font-weight:700;color:' + scColor + '">' + (scPnl >= 0 ? "+" : "") + formatUSD(scPnl) + '<span style="font-size:8px;color:#475569">' + marginPct + '</span></span>';
+      ddHtml += '<span class="mono" style="font-size:10px;font-weight:700;color:' + scColor + '">' + (scPnl >= 0 ? "+" : "") + formatUSD(scPnl) + '<span style="font-size:8px;color:#aaaaaa">' + marginPct + '</span></span>';
       ddHtml += '</div>';
     }
     $("pos-drawdown").innerHTML = ddHtml;
@@ -1944,14 +1955,14 @@
     if (data.length < 30) {
       $("z-accel-text").textContent = "Need more data points for momentum analysis.";
       badge.textContent = "WAITING";
-      badge.style.background = "#1e293b";
-      badge.style.color = "#64748b";
+      badge.style.background = "#333333";
+      badge.style.color = "#bbbbbb";
       $("z-accel-vel").textContent = "—";
       $("z-accel-acc").textContent = "—";
       $("z-accel-dir").textContent = "—";
-      $("z-accel-vel").style.color = "#64748b";
-      $("z-accel-acc").style.color = "#64748b";
-      $("z-accel-dir").style.color = "#64748b";
+      $("z-accel-vel").style.color = "#bbbbbb";
+      $("z-accel-acc").style.color = "#bbbbbb";
+      $("z-accel-dir").style.color = "#bbbbbb";
       return;
     }
 
@@ -1962,7 +1973,7 @@
 
     if (len < lookback2 + 1) {
       $("z-accel-text").textContent = "Insufficient lookback range.";
-      badge.textContent = "WAITING"; badge.style.background = "#1e293b"; badge.style.color = "#64748b";
+      badge.textContent = "WAITING"; badge.style.background = "#333333"; badge.style.color = "#bbbbbb";
       return;
     }
 
@@ -2016,7 +2027,7 @@
         "Could be noise or early trend — watch closely.";
       $("z-accel-text").style.color = "#fbbf24";
       $("z-accel-vel").style.color = "#f59e0b";
-      $("z-accel-acc").style.color = "#64748b";
+      $("z-accel-acc").style.color = "#bbbbbb";
       $("z-accel-dir").textContent = currentZ > 0 ? "▲ DRIFT" : "▼ DRIFT";
       $("z-accel-dir").style.color = "#f59e0b";
     } else if (movingToward) {
@@ -2028,19 +2039,19 @@
         "Favorable for existing reversion positions.";
       $("z-accel-text").style.color = "#86efac";
       $("z-accel-vel").style.color = "#22c55e";
-      $("z-accel-acc").style.color = "#64748b";
+      $("z-accel-acc").style.color = "#bbbbbb";
       $("z-accel-dir").textContent = currentZ > 0 ? "▼ TOWARD" : "▲ TOWARD";
       $("z-accel-dir").style.color = "#22c55e";
     } else {
       // FLAT: not much movement
-      badge.textContent = "FLAT"; badge.style.background = "#1e293b"; badge.style.color = "#94a3b8";
-      box.style.borderColor = "#1e293b";
+      badge.textContent = "FLAT"; badge.style.background = "#333333"; badge.style.color = "#ffffff";
+      box.style.borderColor = "#333333";
       $("z-accel-text").textContent = "Z-score relatively stable — no strong directional momentum.";
-      $("z-accel-text").style.color = "#94a3b8";
-      $("z-accel-vel").style.color = "#64748b";
-      $("z-accel-acc").style.color = "#64748b";
+      $("z-accel-text").style.color = "#ffffff";
+      $("z-accel-vel").style.color = "#bbbbbb";
+      $("z-accel-acc").style.color = "#bbbbbb";
       $("z-accel-dir").textContent = "▸ FLAT";
-      $("z-accel-dir").style.color = "#64748b";
+      $("z-accel-dir").style.color = "#bbbbbb";
     }
   }
 
@@ -2184,12 +2195,12 @@
       var isHot = vol > allAvg * 1.5 && allAvg > 0;
       var isBlack = BLACKOUT_DAYS.indexOf(d) !== -1;
       var isToday = d === today;
-      var color = isBlack ? "#ef4444" : isHot ? "#f59e0b" : isToday ? "#22d3ee" : "#334155";
+      var color = isBlack ? "#ef4444" : isHot ? "#f59e0b" : isToday ? "#ffffff" : "#444444";
       var opacity = vol > 0 ? (isBlack || isHot || isToday ? "1" : "0.6") : "0.2";
       html += '<div style="flex:1;background:' + color + ';height:' + Math.max(2, pct) + '%;border-radius:1px;opacity:' + opacity + '" title="Day ' + d + ': ' + (vol * 100).toFixed(3) + '%"></div>';
       // Only show labels every 5 days + day 1
       if (d === 1 || d % 5 === 0) {
-        lblHtml += '<div style="flex:1;text-align:center" class="mono"><span style="font-size:6px;color:' + (isToday ? '#22d3ee' : '#475569') + '">' + d + '</span></div>';
+        lblHtml += '<div style="flex:1;text-align:center" class="mono"><span style="font-size:6px;color:' + (isToday ? '#ffffff' : '#aaaaaa') + '">' + d + '</span></div>';
       } else {
         lblHtml += '<div style="flex:1"></div>';
       }
@@ -2345,12 +2356,12 @@
 
     // Render upcoming events
     var html = "";
-    var typeColors = { FOMC: "#22d3ee", CPI: "#f59e0b", NFP: "#ef4444", PPI: "#a78bfa", GDP: "#22c55e", RETAIL: "#94a3b8", HVOL: "#f97316" };
+    var typeColors = { FOMC: "#ffffff", CPI: "#f59e0b", NFP: "#ef4444", PPI: "#a78bfa", GDP: "#22c55e", RETAIL: "#ffffff", HVOL: "#f97316" };
     for (var j = 0; j < Math.min(upcoming.length, 20); j++) {
       var ev = upcoming[j];
       var isToday = ev.date === todayStr;
       var isPast = ev.diffHours < -2;
-      var col = typeColors[ev.type] || "#64748b";
+      var col = typeColors[ev.type] || "#bbbbbb";
       var timeLabel;
       if (isToday) timeLabel = "TODAY";
       else if (ev.diffDays < 1 && ev.diffHours > 0) timeLabel = Math.round(ev.diffHours) + "h";
@@ -2362,18 +2373,18 @@
       var dateLabel = (evDateObj.getMonth()+1) + "/" + evDateObj.getDate();
       var evTime = ECON_TIMES[ev.type];
       var timeInfo = evTime ? evTime.window : "";
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#0f172a;border:1px solid ' + (isToday ? col + '40' : '#1e293b') + ';border-radius:4px;opacity:' + opacity + '">';
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:#222222;border:1px solid ' + (isToday ? col + '40' : '#333333') + ';border-radius:4px;opacity:' + opacity + '">';
       html += '<span class="mono" style="font-size:11px;color:' + col + ';min-width:44px;font-weight:700">' + ev.type + '</span>';
-      html += '<span class="mono" style="font-size:11px;color:#475569;min-width:32px">' + dateLabel + '</span>';
+      html += '<span class="mono" style="font-size:11px;color:#aaaaaa;min-width:32px">' + dateLabel + '</span>';
       html += '<div style="flex:1;display:flex;flex-direction:column;gap:1px">';
-      html += '<span class="mono" style="font-size:12px;color:#e2e8f0">' + ev.name + '</span>';
-      html += '<span class="mono" style="font-size:9px;color:#64748b">' + timeInfo + '</span>';
+      html += '<span class="mono" style="font-size:12px;color:#ffffff">' + ev.name + '</span>';
+      html += '<span class="mono" style="font-size:9px;color:#ffffff">' + timeInfo + '</span>';
       html += '</div>';
-      html += '<span class="mono" style="font-size:11px;color:' + (isToday ? col : '#475569') + ';font-weight:' + (isToday ? '700' : '400') + '">' + timeLabel + '</span>';
+      html += '<span class="mono" style="font-size:11px;color:' + (isToday ? col : '#aaaaaa') + ';font-weight:' + (isToday ? '700' : '400') + '">' + timeLabel + '</span>';
       html += '</div>';
     }
     if (upcoming.length === 0) {
-      html = '<div class="mono" style="font-size:12px;color:#334155;text-align:center;padding:8px 0">No events in the next 30 days</div>';
+      html = '<div class="mono" style="font-size:12px;color:#444444;text-align:center;padding:8px 0">No events in the next 30 days</div>';
     }
     container.innerHTML = html;
 
@@ -2387,7 +2398,7 @@
         var neDateStr = (neDate.getMonth()+1) + "/" + neDate.getDate();
         var neTime = ECON_TIMES[ne.type];
         var neTimeStr = neTime ? " · " + neTime.release : "";
-        var neColor = typeColors[ne.type] || "#64748b";
+        var neColor = typeColors[ne.type] || "#bbbbbb";
         var neCountdown = ne.date === todayStr ? "TODAY" : Math.ceil(ne.diffDays) + "d";
         nextEvEl.innerHTML = '<span style="color:' + neColor + ';font-weight:700">' + ne.type + '</span> ' + ne.name + ' · ' + neDateStr + neTimeStr + ' · <span style="color:' + neColor + ';font-weight:700">' + neCountdown + '</span>';
       } else {
@@ -2480,18 +2491,19 @@
     function yP(v) { return pad.top + (1 - (v - yMin) / yRange) * h; }
 
     var s = [];
+    // Chart line color for crosshair dot and solo mode
+    var chartLineColor = isSoloChart ? "#ffffff" : "#ffffff";
     s.push('<defs>');
-    s.push('<linearGradient id="aG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22d3ee" stop-opacity="0.25"/><stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/></linearGradient>');
-    s.push('<linearGradient id="lG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>');
+    s.push('<linearGradient id="aG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></linearGradient>');
     s.push('</defs>');
 
     var gc = 5, gs = yRange / gc;
     for (var i = 0; i <= gc; i++) {
       var val = yMin + gs * i, yp = yP(val);
-      s.push('<line x1="'+pad.left+'" y1="'+yp+'" x2="'+(pad.left+w)+'" y2="'+yp+'" stroke="#1e293b" stroke-width="1"/>');
+      s.push('<line x1="'+pad.left+'" y1="'+yp+'" x2="'+(pad.left+w)+'" y2="'+yp+'" stroke="#333333" stroke-width="1"/>');
       var yLabel = isSoloChart ? "$" + val.toFixed(val >= 100 ? 0 : 2) : val.toFixed(5);
       var yFontSize = width < 500 ? "8" : "10";
-      s.push('<text x="'+(pad.left-8)+'" y="'+(yp+4)+'" text-anchor="end" fill="#64748b" font-size="'+yFontSize+'" font-family="\'JetBrains Mono\',monospace">'+yLabel+'</text>');
+      s.push('<text x="'+(pad.left-8)+'" y="'+(yp+4)+'" text-anchor="end" fill="#bbbbbb" font-size="'+yFontSize+'" font-family="\'JetBrains Mono\',monospace">'+yLabel+'</text>');
     }
 
     var isMobile = width < 500;
@@ -2502,14 +2514,14 @@
       var lbl = isMobile
         ? (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")
         : (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-      s.push('<text x="'+xP(idx)+'" y="'+(pad.top+h+20)+'" text-anchor="middle" fill="#64748b" font-size="'+(isMobile?'8':'9')+'" font-family="\'JetBrains Mono\',monospace">'+lbl+'</text>');
+      s.push('<text x="'+xP(idx)+'" y="'+(pad.top+h+20)+'" text-anchor="middle" fill="#bbbbbb" font-size="'+(isMobile?'8':'9')+'" font-family="\'JetBrains Mono\',monospace">'+lbl+'</text>');
     }
 
     if (!isSoloChart) {
     var meanY = yP(stats.mean);
     if (meanY >= pad.top-5 && meanY <= pad.top+h+5) {
-      s.push('<line x1="'+pad.left+'" y1="'+meanY+'" x2="'+(pad.left+w)+'" y2="'+meanY+'" stroke="#f59e0b" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(meanY+3)+'" fill="#f59e0b" font-size="9" font-family="\'JetBrains Mono\',monospace">μ</text>');
+      s.push('<line x1="'+pad.left+'" y1="'+meanY+'" x2="'+(pad.left+w)+'" y2="'+meanY+'" stroke="#3b82f6" stroke-width="1" stroke-dasharray="6 3" opacity="0.6"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(meanY+3)+'" fill="#3b82f6" font-size="9" font-family="\'JetBrains Mono\',monospace">μ</text>');
     }
 
     var chartThreshold = getThreshold();
@@ -2518,23 +2530,23 @@
     var sUpperY = yP(stats.mean + strongThreshold * stats.std);
     var sLowerY = yP(stats.mean - strongThreshold * stats.std);
     if (sUpperY >= pad.top-5 && sUpperY <= pad.top+h+5) {
-      s.push('<line x1="'+pad.left+'" y1="'+sUpperY+'" x2="'+(pad.left+w)+'" y2="'+sUpperY+'" stroke="#ff3b5c" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sUpperY+3)+'" fill="#ff3b5c" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">+'+strongThreshold.toFixed(1)+'σ</text>');
+      s.push('<line x1="'+pad.left+'" y1="'+sUpperY+'" x2="'+(pad.left+w)+'" y2="'+sUpperY+'" stroke="#a855f7" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sUpperY+3)+'" fill="#a855f7" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">+'+strongThreshold.toFixed(1)+'σ</text>');
     }
     if (sLowerY >= pad.top-5 && sLowerY <= pad.top+h+5) {
-      s.push('<line x1="'+pad.left+'" y1="'+sLowerY+'" x2="'+(pad.left+w)+'" y2="'+sLowerY+'" stroke="#ff3b5c" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sLowerY+3)+'" fill="#ff3b5c" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">-'+strongThreshold.toFixed(1)+'σ</text>');
+      s.push('<line x1="'+pad.left+'" y1="'+sLowerY+'" x2="'+(pad.left+w)+'" y2="'+sLowerY+'" stroke="#eab308" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(sLowerY+3)+'" fill="#eab308" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.7">-'+strongThreshold.toFixed(1)+'σ</text>');
     }
 
     var upperY = yP(stats.mean + chartThreshold * stats.std);
     var lowerY = yP(stats.mean - chartThreshold * stats.std);
     if (upperY >= pad.top-5 && upperY <= pad.top+h+5) {
-      s.push('<line x1="'+pad.left+'" y1="'+upperY+'" x2="'+(pad.left+w)+'" y2="'+upperY+'" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(upperY+3)+'" fill="#ef4444" font-size="8" font-family="\'JetBrains Mono\',monospace">+'+chartThreshold+'σ</text>');
+      s.push('<line x1="'+pad.left+'" y1="'+upperY+'" x2="'+(pad.left+w)+'" y2="'+upperY+'" stroke="#a855f7" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(upperY+3)+'" fill="#a855f7" font-size="8" font-family="\'JetBrains Mono\',monospace">+'+chartThreshold+'σ</text>');
     }
     if (lowerY >= pad.top-5 && lowerY <= pad.top+h+5) {
-      s.push('<line x1="'+pad.left+'" y1="'+lowerY+'" x2="'+(pad.left+w)+'" y2="'+lowerY+'" stroke="#22c55e" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
-      s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#22c55e" font-size="8" font-family="\'JetBrains Mono\',monospace">-'+chartThreshold+'σ</text>');
+      s.push('<line x1="'+pad.left+'" y1="'+lowerY+'" x2="'+(pad.left+w)+'" y2="'+lowerY+'" stroke="#eab308" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"/>');
+      s.push('<text x="'+(pad.left+w+4)+'" y="'+(lowerY+3)+'" fill="#eab308" font-size="8" font-family="\'JetBrains Mono\',monospace">-'+chartThreshold+'σ</text>');
     }
     } // end !isSoloChart
 
@@ -2558,23 +2570,78 @@
       }
       // Last price dot
       var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
-      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="5" fill="#22d3ee" opacity="0.2"/>');
-      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="2.5" fill="#22d3ee"/>');
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="5" fill="'+chartLineColor+'" opacity="0.2"/>');
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="2.5" fill="'+chartLineColor+'"/>');
     } else {
-      // Line chart (pairs mode)
+      // Line chart (pairs mode) — segments colored by threshold zone
+      // White between thresholds, purple above +threshold, yellow below -threshold
+      // Interpolate at exact threshold crossings so only the portion past threshold is colored
+      var upperThresh = stats.mean + getThreshold() * stats.std;
+      var lowerThresh = stats.mean - getThreshold() * stats.std;
+
+      // Area fill (neutral white, subtle)
       var pp = [];
       for (var i = 0; i < chartData.length; i++) {
         pp.push((i===0?"M":"L")+xP(i).toFixed(1)+","+yP(chartData[i].ratio).toFixed(1));
       }
       var pathD = pp.join(" ");
       var areaD = pathD+" L"+xP(chartData.length-1).toFixed(1)+","+(pad.top+h).toFixed(1)+" L"+pad.left.toFixed(1)+","+(pad.top+h).toFixed(1)+" Z";
-
       s.push('<path d="'+areaD+'" fill="url(#aG)"/>');
-      s.push('<path d="'+pathD+'" fill="none" stroke="url(#lG)" stroke-width="1.8" stroke-linejoin="round"/>');
 
-      var lx = xP(chartData.length-1), ly = yP(chartData[chartData.length-1].ratio);
-      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="7" fill="#22d3ee" opacity="0.2"/>');
-      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="3.5" fill="#22d3ee"/>');
+      // Draw line with precise threshold-crossing interpolation
+      function zoneColor(ratio) {
+        if (ratio > upperThresh) return "#a855f7";
+        if (ratio < lowerThresh) return "#eab308";
+        return "#ffffff";
+      }
+      // Interpolate x position where line crosses a threshold between two data points
+      function interpX(i0, i1, r0, r1, thresh) {
+        var t = (thresh - r0) / (r1 - r0);
+        var px0 = xP(i0), px1 = xP(i1);
+        return px0 + t * (px1 - px0);
+      }
+
+      for (var i = 1; i < chartData.length; i++) {
+        var r0 = chartData[i-1].ratio, r1 = chartData[i].ratio;
+        var px0 = xP(i-1), py0 = yP(r0);
+        var px1 = xP(i), py1 = yP(r1);
+
+        // Find all threshold crossings in this segment
+        var crossings = []; // {t: 0-1, thresh: value}
+        var thresholds = [upperThresh, lowerThresh];
+        for (var ti = 0; ti < thresholds.length; ti++) {
+          var th = thresholds[ti];
+          if ((r0 < th && r1 > th) || (r0 > th && r1 < th)) {
+            var t = (th - r0) / (r1 - r0);
+            crossings.push(t);
+          }
+        }
+        crossings.sort(function(a, b) { return a - b; });
+
+        // Build sub-segments: start, crossing1, crossing2, ..., end
+        var points = [0]; // t values along segment
+        for (var ci = 0; ci < crossings.length; ci++) points.push(crossings[ci]);
+        points.push(1);
+
+        for (var pi = 0; pi < points.length - 1; pi++) {
+          var t0 = points[pi], t1 = points[pi + 1];
+          var sx0 = (px0 + t0 * (px1 - px0)).toFixed(1);
+          var sy0 = (py0 + t0 * (py1 - py0)).toFixed(1);
+          var sx1 = (px0 + t1 * (px1 - px0)).toFixed(1);
+          var sy1 = (py0 + t1 * (py1 - py0)).toFixed(1);
+          // Color based on midpoint of sub-segment
+          var midRatio = r0 + ((t0 + t1) / 2) * (r1 - r0);
+          var col = zoneColor(midRatio);
+          s.push('<line x1="'+sx0+'" y1="'+sy0+'" x2="'+sx1+'" y2="'+sy1+'" stroke="'+col+'" stroke-width="1.8" stroke-linecap="round"/>');
+        }
+      }
+
+      // Endpoint dot colored by current zone
+      var lastRatio = chartData[chartData.length-1].ratio;
+      var dotColor = zoneColor(lastRatio);
+      var lx = xP(chartData.length-1), ly = yP(lastRatio);
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="7" fill="'+dotColor+'" opacity="0.2"/>');
+      s.push('<circle cx="'+lx+'" cy="'+ly+'" r="3.5" fill="'+dotColor+'"/>');
     }
     // New York session overlay (13:00-22:00 UTC = 9am-4pm ET extended)
     // Only show on shorter timeframes (1H through 1W, indices 0-5)
@@ -2603,11 +2670,11 @@
           var bx2 = xP(endIdx);
           var bw = bx2 - bx1;
           if (bw > 2) {
-            s.push('<rect x="'+bx1.toFixed(1)+'" y="'+pad.top+'" width="'+bw.toFixed(1)+'" height="'+h+'" fill="#f97316" opacity="0.02" pointer-events="none"/>');
+            s.push('<rect x="'+bx1.toFixed(1)+'" y="'+pad.top+'" width="'+bw.toFixed(1)+'" height="'+h+'" fill="#3b82f6" opacity="0.02" pointer-events="none"/>');
             // Label at bottom of band
             var labelX = bx1 + bw / 2;
             if (bw > 30) {
-              s.push('<text x="'+labelX.toFixed(1)+'" y="'+(pad.top + h - 4)+'" text-anchor="middle" fill="#f97316" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.35" pointer-events="none">NY</text>');
+              s.push('<text x="'+labelX.toFixed(1)+'" y="'+(pad.top + h - 4)+'" text-anchor="middle" fill="#3b82f6" font-size="7" font-family="\'JetBrains Mono\',monospace" opacity="0.35" pointer-events="none">NY</text>');
             }
           }
         }
@@ -2618,7 +2685,7 @@
     if (chartData.length > 1 && typeof ECON_EVENTS_2026 !== "undefined") {
       var chartStartMs = chartData[0].time;
       var chartEndMs = chartData[chartData.length - 1].time;
-      var typeColors = { FOMC: "#22d3ee", CPI: "#f59e0b", NFP: "#ef4444", PPI: "#a78bfa", GDP: "#22c55e", RETAIL: "#94a3b8", HVOL: "#f97316" };
+      var typeColors = { FOMC: "#ffffff", CPI: "#f59e0b", NFP: "#ef4444", PPI: "#a78bfa", GDP: "#22c55e", RETAIL: "#ffffff", HVOL: "#f97316" };
       for (var ei = 0; ei < ECON_EVENTS_2026.length; ei++) {
         var ev = ECON_EVENTS_2026[ei];
         var evMs = new Date(ev.date + "T08:30:00").getTime();
@@ -2630,7 +2697,7 @@
             if (Math.abs(chartData[di].time - evMs) < Math.abs(chartData[evIdx].time - evMs)) evIdx = di;
           }
           var evX = xP(evIdx);
-          var evCol = typeColors[ev.type] || "#64748b";
+          var evCol = typeColors[ev.type] || "#bbbbbb";
           // Shaded band (thin rectangle)
           s.push('<rect x="'+(evX-2).toFixed(1)+'" y="'+pad.top+'" width="4" height="'+h+'" fill="'+evCol+'" opacity="0.08" pointer-events="none"/>');
           s.push('<line x1="'+evX.toFixed(1)+'" y1="'+pad.top+'" x2="'+evX.toFixed(1)+'" y2="'+(pad.top+h)+'" stroke="'+evCol+'" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35" pointer-events="none"/>');
@@ -2640,12 +2707,12 @@
       }
     }
     // Crosshair elements (hidden by default)
-    s.push('<line id="ch-v" x1="0" y1="'+pad.top+'" x2="0" y2="'+(pad.top+h)+'" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
-    s.push('<line id="ch-h" x1="'+pad.left+'" y1="0" x2="'+(pad.left+w)+'" y2="0" stroke="#94a3b8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
-    s.push('<circle id="ch-dot" cx="0" cy="0" r="4" fill="#22d3ee" stroke="#070b14" stroke-width="1.5" opacity="0" pointer-events="none"/>');
+    s.push('<line id="ch-v" x1="0" y1="'+pad.top+'" x2="0" y2="'+(pad.top+h)+'" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
+    s.push('<line id="ch-h" x1="'+pad.left+'" y1="0" x2="'+(pad.left+w)+'" y2="0" stroke="#ffffff" stroke-width="0.8" stroke-dasharray="3 3" opacity="0" pointer-events="none"/>');
+    s.push('<circle id="ch-dot" cx="0" cy="0" r="4" fill="'+chartLineColor+'" stroke="#111111" stroke-width="1.5" opacity="0" pointer-events="none"/>');
     // Y-axis label background + text
-    s.push('<rect id="ch-ylbl-bg" x="0" y="0" width="55" height="14" rx="3" fill="#22d3ee" opacity="0" pointer-events="none"/>');
-    s.push('<text id="ch-ylbl" x="0" y="0" fill="#070b14" font-size="9" font-weight="600" font-family="\'JetBrains Mono\',monospace" text-anchor="middle" opacity="0" pointer-events="none"></text>');
+    s.push('<rect id="ch-ylbl-bg" x="0" y="0" width="55" height="14" rx="3" fill="'+chartLineColor+'" opacity="0" pointer-events="none"/>');
+    s.push('<text id="ch-ylbl" x="0" y="0" fill="#111111" font-size="9" font-weight="600" font-family="\'JetBrains Mono\',monospace" text-anchor="middle" opacity="0" pointer-events="none"></text>');
 
     s.push('<rect x="'+pad.left+'" y="'+pad.top+'" width="'+w+'" height="'+h+'" fill="transparent"/>');
 
@@ -2722,17 +2789,17 @@
   $("alert-toggle").addEventListener("click", function() {
     soundAlertOn = !soundAlertOn;
     this.textContent = soundAlertOn ? "ON" : "OFF";
-    this.style.background = soundAlertOn ? "#22c55e20" : "#0f172a";
-    this.style.color = soundAlertOn ? "#22c55e" : "#64748b";
-    this.style.borderColor = soundAlertOn ? "#22c55e40" : "#1e293b";
+    this.style.background = soundAlertOn ? "#22c55e20" : "#222222";
+    this.style.color = soundAlertOn ? "#22c55e" : "#bbbbbb";
+    this.style.borderColor = soundAlertOn ? "#22c55e40" : "#333333";
   });
 
   $("title-alert-toggle").addEventListener("click", function() {
     titleAlertOn = !titleAlertOn;
     this.textContent = titleAlertOn ? "ON" : "OFF";
-    this.style.background = titleAlertOn ? "#22c55e20" : "#0f172a";
-    this.style.color = titleAlertOn ? "#22c55e" : "#64748b";
-    this.style.borderColor = titleAlertOn ? "#22c55e40" : "#1e293b";
+    this.style.background = titleAlertOn ? "#22c55e20" : "#222222";
+    this.style.color = titleAlertOn ? "#22c55e" : "#bbbbbb";
+    this.style.borderColor = titleAlertOn ? "#22c55e40" : "#333333";
     if (!titleAlertOn) {
       clearInterval(titleFlashTimer);
       document.title = originalTitle;
@@ -2752,13 +2819,13 @@
     pushPermission = Notification.permission;
     if (pushPermission === "granted") {
       $("push-status").textContent = pushAlertOn ? "Enabled" : "Permitted";
-      $("push-status").style.color = pushAlertOn ? "#22c55e" : "#475569";
+      $("push-status").style.color = pushAlertOn ? "#22c55e" : "#aaaaaa";
     } else if (pushPermission === "denied") {
       $("push-status").textContent = "Blocked — check browser settings";
       $("push-status").style.color = "#ef4444";
     } else {
       $("push-status").textContent = "Click ON to enable";
-      $("push-status").style.color = "#475569";
+      $("push-status").style.color = "#aaaaaa";
     }
   }
 
@@ -2783,7 +2850,7 @@
     try {
       var n = new Notification(title, {
         body: body,
-        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23070b14'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2322d3ee' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2322d3ee'/></svg>",
+        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111111'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2394a3b8' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2394a3b8'/></svg>",
         tag: "pairs-signal",
         renotify: true
       });
@@ -2796,9 +2863,9 @@
     if (pushAlertOn) {
       pushAlertOn = false;
       btn.textContent = "OFF";
-      btn.style.background = "#0f172a";
-      btn.style.color = "#64748b";
-      btn.style.borderColor = "#1e293b";
+      btn.style.background = "#222222";
+      btn.style.color = "#bbbbbb";
+      btn.style.borderColor = "#333333";
       updatePushStatus();
     } else {
       requestPushPermission(function(granted) {
@@ -2971,13 +3038,13 @@
       var r = results[i];
       var z = r.z;
       var t = getThreshold();
-      var col = z === null ? "#64748b" : (Math.abs(z) >= t * 1.67 ? "#ff3b5c" : Math.abs(z) >= t ? "#f59e0b" : "#22d3ee");
-      var bg = z !== null && Math.abs(z) >= t ? (z > 0 ? "#ef444415" : "#22c55e15") : "#0f172a";
-      var border = z !== null && Math.abs(z) >= t ? col + "40" : "#1e293b";
+      var col = z === null ? "#bbbbbb" : (z < 0 ? "#eab308" : "#a855f7");
+      var bg = z !== null && Math.abs(z) >= t ? (z < 0 ? "#eab30815" : "#a855f715") : "#222222";
+      var border = z !== null && Math.abs(z) >= t ? col + "40" : "#333333";
       var zText = z === null ? "—" : (z >= 0 ? "+" : "") + z.toFixed(2);
       var wIdx = scannerToWindowIdx[i];
       var isActive = wIdx === currentWindow;
-      var activeBorder = isActive ? "#22d3ee" : border;
+      var activeBorder = isActive ? "#ffffff" : border;
 
       // MTF agreement dot
       var dotHtml = "";
@@ -2987,11 +3054,11 @@
         var dotCol = agrees ? "#22c55e" : "#ef4444";
         dotHtml = '<div style="width:5px;height:5px;border-radius:50%;background:' + dotCol + ';margin:2px auto 0;opacity:0.8"></div>';
       } else if (currentSignalDir !== 0 && z !== null) {
-        dotHtml = '<div style="width:5px;height:5px;border-radius:50%;background:#475569;margin:2px auto 0;opacity:0.5"></div>';
+        dotHtml = '<div style="width:5px;height:5px;border-radius:50%;background:#aaaaaa;margin:2px auto 0;opacity:0.5"></div>';
       }
 
-      html += '<div data-widx="' + wIdx + '" style="background:' + bg + ';border:1px solid ' + activeBorder + ';border-radius:4px;padding:3px 4px;text-align:center;flex:1 1 0;min-width:0;cursor:pointer;transition:all .15s' + (isActive ? ';box-shadow:0 0 6px #22d3ee30' : '') + '">';
-      html += '<div class="mono" style="font-size:8px;color:' + (isActive ? '#22d3ee' : '#64748b') + '">' + r.label + '</div>';
+      html += '<div data-widx="' + wIdx + '" style="background:' + bg + ';border:1px solid ' + activeBorder + ';border-radius:4px;padding:3px 4px;text-align:center;flex:1 1 0;min-width:0;cursor:pointer;transition:all .15s' + (isActive ? ';box-shadow:0 0 6px #ffffff30' : '') + '">';
+      html += '<div class="mono" style="font-size:8px;color:' + (isActive ? '#ffffff' : '#bbbbbb') + '">' + r.label + '</div>';
       html += '<div class="mono" style="font-size:12px;font-weight:700;color:' + col + '">' + zText + '</div>';
       html += dotHtml;
       html += '</div>';
@@ -3093,12 +3160,12 @@
 
     var openSessions = SESSIONS.filter(isOpen).map(function(s) { return s.name; });
     $("session-status").textContent = openSessions.length ? openSessions.join(" + ") + " Open" : "Between sessions";
-    $("session-status").style.color = openSessions.length ? "#22c55e" : "#64748b";
+    $("session-status").style.color = openSessions.length ? "#22c55e" : "#bbbbbb";
 
     var utcH = now.getUTCHours();
     var volLevel = VOLUME_CURVE[utcH];
     var volText = volLevel >= 0.7 ? "High" : volLevel >= 0.4 ? "Medium" : "Low";
-    var volColor = volLevel >= 0.7 ? "#22c55e" : volLevel >= 0.4 ? "#f59e0b" : "#64748b";
+    var volColor = volLevel >= 0.7 ? "#22c55e" : volLevel >= 0.4 ? "#f59e0b" : "#bbbbbb";
 
     var nowPct = (ptFrac / 24) * 100;
     var labelW = 52;
@@ -3110,16 +3177,16 @@
     html += '<span style="min-width:' + labelW + 'px"></span>';
     html += '<div style="flex:1;position:relative;height:16px">';
     // Now line on tick row
-    html += '<div style="position:absolute;left:' + nowPct + '%;top:0;bottom:0;width:1.5px;background:#e2e8f0;z-index:2"></div>';
+    html += '<div style="position:absolute;left:' + nowPct + '%;top:0;bottom:0;width:1.5px;background:#ffffff;z-index:2"></div>';
     for (var h = 0; h < 24; h++) {
       var xPct = (h / 24) * 100;
       var showLabel = (h % 3 === 0);
       var label12 = h === 0 ? "12a" : h < 12 ? (h + "a") : h === 12 ? "12p" : ((h - 12) + "p");
       html += '<div style="position:absolute;left:' + xPct + '%;bottom:0;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%)">';
       if (showLabel) {
-        html += '<span class="mono" style="font-size:7px;color:#475569;white-space:nowrap">' + label12 + '</span>';
+        html += '<span class="mono" style="font-size:7px;color:#aaaaaa;white-space:nowrap">' + label12 + '</span>';
       }
-      html += '<div style="width:1px;height:' + (showLabel ? '4' : '3') + 'px;background:#334155"></div>';
+      html += '<div style="width:1px;height:' + (showLabel ? '4' : '3') + 'px;background:#444444"></div>';
       html += '</div>';
     }
     html += '</div>';
@@ -3133,16 +3200,16 @@
       var bars = barPosPt(s);
       var opacity = open ? "0.8" : "0.25";
       html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
-      html += '<span class="mono" style="font-size:9px;color:' + (open ? s.color : '#475569') + ';min-width:' + labelW + 'px;text-align:right">' + s.name + '</span>';
-      html += '<div style="flex:1;height:8px;background:#0f172a;border-radius:4px;position:relative;overflow:hidden">';
+      html += '<span class="mono" style="font-size:9px;color:' + (open ? s.color : '#aaaaaa') + ';min-width:' + labelW + 'px;text-align:right">' + s.name + '</span>';
+      html += '<div style="flex:1;height:8px;background:#222222;border-radius:4px;position:relative;overflow:hidden">';
       for (var b = 0; b < bars.length; b++) {
         var br = bars[b].left === 0 ? '0 4px 4px 0' : (bars[b].left + bars[b].width >= 99.5 ? '4px 0 0 4px' : '4px');
         html += '<div style="position:absolute;left:' + bars[b].left + '%;width:' + bars[b].width + '%;height:100%;background:' + s.color + ';opacity:' + opacity + ';border-radius:' + br + '"></div>';
       }
       // Now line inside bar
-      html += '<div style="position:absolute;left:' + nowPct + '%;top:-1px;bottom:-1px;width:1.5px;background:#e2e8f0;z-index:2"></div>';
+      html += '<div style="position:absolute;left:' + nowPct + '%;top:-1px;bottom:-1px;width:1.5px;background:#ffffff;z-index:2"></div>';
       html += '</div>';
-      html += '<span class="mono" style="font-size:8px;color:' + (open ? '#22c55e' : '#475569') + ';min-width:' + statusW + 'px">' + (open ? 'OPEN' : 'CLOSED') + '</span>';
+      html += '<span class="mono" style="font-size:8px;color:' + (open ? '#22c55e' : '#aaaaaa') + ';min-width:' + statusW + 'px">' + (open ? 'OPEN' : 'CLOSED') + '</span>';
       html += '</div>';
     }
 
@@ -3164,13 +3231,13 @@
     var nowVolY = svgH - nowVolUtc * (svgH - 2) - 1;
 
     html += '<div style="display:flex;align-items:center;gap:6px;margin-top:10px">';
-    html += '<span class="mono" style="min-width:' + labelW + 'px;font-size:9px;color:#475569;text-align:right">Volume</span>';
+    html += '<span class="mono" style="min-width:' + labelW + 'px;font-size:9px;color:#aaaaaa;text-align:right">Volume</span>';
     html += '<div style="flex:1;position:relative">';
     html += '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;height:28px;display:block">';
     html += '<defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="' + volColor + '" stop-opacity="0.3"/><stop offset="100%" stop-color="' + volColor + '" stop-opacity="0.02"/></linearGradient></defs>';
     html += '<path d="' + areaD + '" fill="url(#vg)"/>';
     html += '<path d="' + lineD + '" fill="none" stroke="' + volColor + '" stroke-width="1.5" opacity="0.6"/>';
-    html += '<line x1="' + nowSvgX + '" y1="0" x2="' + nowSvgX + '" y2="' + svgH + '" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>';
+    html += '<line x1="' + nowSvgX + '" y1="0" x2="' + nowSvgX + '" y2="' + svgH + '" stroke="#ffffff" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>';
     html += '<circle cx="' + nowSvgX + '" cy="' + nowVolY + '" r="3" fill="' + volColor + '"/>';
     html += '</svg>';
     html += '</div>';
@@ -3179,8 +3246,8 @@
 
     // Timezone label
     html += '<div style="display:flex;justify-content:space-between;margin-top:3px;padding-left:' + (labelW + 6) + 'px;padding-right:' + (statusW + 6) + 'px">';
-    html += '<span class="mono" style="font-size:7px;color:#475569">Pacific Time (PT)</span>';
-    html += '<span class="mono" style="font-size:7px;color:#475569">' + ptH + ':' + String(ptM).padStart(2,"0") + ' PT</span>';
+    html += '<span class="mono" style="font-size:7px;color:#aaaaaa">Pacific Time (PT)</span>';
+    html += '<span class="mono" style="font-size:7px;color:#aaaaaa">' + ptH + ':' + String(ptM).padStart(2,"0") + ' PT</span>';
     html += '</div>';
 
     container.innerHTML = html;
@@ -3299,9 +3366,9 @@
 
   $("annotate-btn").addEventListener("click", function() {
     annotateMode = !annotateMode;
-    this.style.background = annotateMode ? "#f59e0b20" : "#0f172a";
-    this.style.color = annotateMode ? "#f59e0b" : "#64748b";
-    this.style.borderColor = annotateMode ? "#f59e0b40" : "#1e293b";
+    this.style.background = annotateMode ? "#f59e0b20" : "#222222";
+    this.style.color = annotateMode ? "#f59e0b" : "#bbbbbb";
+    this.style.borderColor = annotateMode ? "#f59e0b40" : "#333333";
     if (annotateMode) {
       // Add click listener to chart
       var svgBox = $("chart-svg-box");
@@ -3333,9 +3400,9 @@
 
     // Exit annotate mode
     annotateMode = false;
-    $("annotate-btn").style.background = "#0f172a";
-    $("annotate-btn").style.color = "#64748b";
-    $("annotate-btn").style.borderColor = "#1e293b";
+    $("annotate-btn").style.background = "#222222";
+    $("annotate-btn").style.color = "#bbbbbb";
+    $("annotate-btn").style.borderColor = "#333333";
     svgBox.style.cursor = "";
     svgBox.dataset.annotating = "";
   });
@@ -3372,7 +3439,7 @@
 
   // ===== REGIME DETECTION =====
   function detectRegime(data) {
-    if (data.length < 30) return { regime: "Unknown", color: "#64748b" };
+    if (data.length < 30) return { regime: "Unknown", color: "#bbbbbb" };
     var ratios = data.map(function(d) { return d.ratio; });
     var n = ratios.length;
 
@@ -3414,6 +3481,17 @@
     });
     $("z-threshold").addEventListener("input", function() {
       $("z-threshold-mobile").value = this.value;
+      // Immediately refresh smart entry with new threshold (setTimeout ensures value is committed)
+      setTimeout(function() {
+        if (chartData.length > 0) {
+          var ratios = [];
+          for (var ri = 0; ri < chartData.length; ri++) ratios.push(chartData[ri].ratio);
+          var st = calcStats(ratios);
+          updateSmartEntry(chartData, st);
+          // Also update PnL calculator direction which uses threshold
+          updateProfitCalc(st);
+        }
+      }, 50);
     });
   }
   // Mirror toggle buttons
