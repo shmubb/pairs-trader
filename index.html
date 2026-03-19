@@ -122,8 +122,9 @@
     #smart-entry{display:none !important}
     #smart-entry-mobile{max-width:100%;overflow:hidden}
     .right-panel{display:none !important}
-    body{overflow-x:hidden;max-width:100vw}
-    html{overflow-x:hidden}
+    html,body{overflow-x:hidden !important;max-width:100vw !important;width:100% !important}
+    .main,.chart-area,.header,.window-bar,#mobile-extra,#alerts-bar{max-width:100vw !important;overflow-x:hidden !important}
+    .window-bar{overflow-x:auto !important;-webkit-overflow-scrolling:touch}
     .chart-area{padding:8px 10px 4px 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
     .right-panel .stats-box{margin-bottom:6px !important}
@@ -1601,26 +1602,19 @@
     $("se-vol").style.color = volScore >= 1 ? "#22c55e" : volScore <= -1 ? "#ef4444" : "#f59e0b";
     se.style.borderColor = borderColor;
 
-    // Sync to mobile — build a compact mobile-specific layout
+    // Sync to mobile — compact two-line layout
     if (seMobile) {
+      var shortMom = momLabel.replace("✓ ","").replace("— ","").replace("~ ","").replace("↗ ","").replace("⚠ ","");
+      var shortVol = volLabel.replace("✓ ","").replace("~ ","").replace("⚠ ","");
       seMobile.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
-          '<div style="display:flex;align-items:center;gap:6px">' +
-            '<span class="mono" style="font-size:9px;color:#ffffff;letter-spacing:0.08em">SMART ENTRY</span>' +
-            '<span class="mono" style="font-size:8px;padding:2px 5px;border-radius:3px;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + '">' + badge + '</span>' +
-          '</div>' +
-          '<span class="mono" style="font-size:9px;font-weight:700;color:' + (absZ >= t ? badgeColor : "#bbbbbb") + '">' + dirText + '</span>' +
-        '</div>' +
-        '<div style="display:flex;gap:4px">' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center;min-width:0">' +
-            '<span class="mono" style="font-size:10px;font-weight:700;color:' + $("se-z").style.color + '">' + $("se-z").textContent + '</span>' +
-          '</div>' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center;min-width:0">' +
-            '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-mom").style.color + '">' + momLabel.replace("✓ ","").replace("— ","").replace("~ ","").replace("↗ ","").replace("⚠ ","") + '</span>' +
-          '</div>' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center;min-width:0">' +
-            '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-vol").style.color + '">' + volLabel.replace("✓ ","").replace("~ ","").replace("⚠ ","") + '</span>' +
-          '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+          '<span class="mono" style="font-size:9px;color:#ffffff">SMART ENTRY</span>' +
+          '<span class="mono" style="font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + '">' + badge + '</span>' +
+          '<span class="mono" style="font-size:9px;font-weight:600;color:' + (absZ >= t ? badgeColor : "#bbbbbb") + '">' + dirText + '</span>' +
+          '<span style="flex:1"></span>' +
+          '<span class="mono" style="font-size:10px;font-weight:700;color:' + $("se-z").style.color + '">' + $("se-z").textContent + '</span>' +
+          '<span class="mono" style="font-size:8px;font-weight:700;color:' + $("se-mom").style.color + '">' + shortMom + '</span>' +
+          '<span class="mono" style="font-size:8px;font-weight:700;color:' + $("se-vol").style.color + '">' + shortVol + '</span>' +
         '</div>';
     }
   }
