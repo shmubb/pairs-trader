@@ -108,7 +108,7 @@
     #scanner-grid{flex-wrap:wrap}
     #scanner-grid > div{min-width:17%;flex:1 1 17%;padding:2px 3px !important}
     #scanner-grid > div .mono:first-child{font-size:7px !important}
-    #scanner-grid > div .mono:last-child{font-size:10px !important}
+    #scanner-grid > div .mono:last-child{font-size:8px !important}
     .chart-tooltip{top:8px;right:8px;padding:4px 8px}
     #regime-badge{font-size:7px !important;padding:2px 4px !important}
     #annotate-btn{font-size:7px !important;padding:2px 4px !important}
@@ -119,6 +119,7 @@
     #risk-cards-row > div{flex:1 1 100% !important}
     #src-hl,#src-bin{padding:3px 6px !important;font-size:8px !important}
     #z-display-section{display:none !important}
+    #smart-entry{display:none !important}
     .chart-area{padding:8px 10px 0 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
     .right-panel .stats-box{margin-bottom:6px !important}
@@ -268,6 +269,9 @@
       <span id="lbl-leg-b"></span><span id="btc-price"></span><span id="btc-pct"></span>
       <span id="data-points"></span><span id="z-velocity"></span>
     </div>
+
+    <!-- Smart Entry Signal (mobile: above Show More, desktop: in right panel) -->
+    <div id="smart-entry-mobile" class="mobile-toggle stats-box" style="display:none;margin-top:8px;padding:10px;margin-bottom:0"></div>
 
     <!-- Mobile toggle for extra sections -->
     <div class="mobile-toggle" style="display:none;margin-top:6px">
@@ -503,56 +507,32 @@
       <div class="gauge-labels mono"><span id="gauge-cheap">ETH cheap vs BTC</span><span id="gauge-expensive">ETH expensive vs BTC</span></div>
     </div>
 
-    <!-- Multi-Timeframe Agreement Filter -->
-    <div id="mtf-filter" class="stats-box" style="margin-bottom:18px;padding:12px;display:none">
-      <div class="stats-title mono" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span>TIMEFRAME AGREEMENT</span>
-        <span class="mono" id="mtf-score-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700">—</span>
+    <!-- Smart Entry Signal -->
+    <div id="smart-entry" class="stats-box" style="margin-bottom:14px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="mono" style="font-size:10px;color:#64748b;letter-spacing:0.1em">SMART ENTRY</span>
+        <span class="mono" id="se-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;background:#1e293b;color:#64748b">—</span>
       </div>
-      <!-- Warning banner (hidden by default) -->
-      <div id="mtf-warning" style="display:none;background:#ef444415;border:1px solid #ef444440;border-radius:6px;padding:8px 10px;margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-          <span style="font-size:14px">⚠️</span>
-          <span class="mono" style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:0.05em">CONFLICT DETECTED</span>
+      <div class="mono" id="se-direction" style="font-size:13px;font-weight:700;margin-bottom:4px;color:#64748b">—</div>
+      <div class="mono" id="se-text" style="font-size:10px;color:#94a3b8;line-height:1.5;margin-bottom:6px">Waiting for data...</div>
+      <div style="display:flex;gap:6px">
+        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#64748b">Z-SCORE</div>
+          <div class="mono" style="font-size:11px;font-weight:700" id="se-z">—</div>
         </div>
-        <div class="mono" id="mtf-warning-text" style="font-size:10px;color:#f87171;line-height:1.5"></div>
-      </div>
-      <!-- Anchor timeframe breakdown -->
-      <div id="mtf-anchors" style="display:flex;flex-direction:column;gap:3px"></div>
-      <!-- Agreement bar -->
-      <div style="margin-top:8px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-          <span class="mono" style="font-size:8px;color:#64748b">DISAGREE</span>
-          <span class="mono" style="font-size:8px;color:#64748b">AGREE</span>
+        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#64748b">MOMENTUM</div>
+          <div class="mono" style="font-size:11px;font-weight:700" id="se-mom">—</div>
         </div>
-        <div style="height:6px;background:#1e293b;border-radius:3px;overflow:hidden">
-          <div id="mtf-bar" style="height:100%;width:50%;border-radius:3px;transition:width 0.6s,background 0.6s"></div>
-        </div>
-      </div>
-      <!-- Expandable explanation -->
-      <div style="margin-top:8px">
-        <button id="mtf-how-btn" class="toggle-btn">
-          <span class="toggle-tri" id="mtf-how-tri"></span>How this works
-        </button>
-        <div id="mtf-how-body" style="display:none;margin-top:6px;padding:8px;background:#0a0f1a;border:1px solid #1e293b;border-radius:6px">
-          <div style="font-size:9px;color:#94a3b8;line-height:1.6">
-            <div style="margin-bottom:6px;color:#e2e8f0;font-weight:600">Weighted Timeframe Agreement</div>
-            This filter checks whether longer timeframes agree with your current signal direction. Each anchor timeframe votes on direction based on its z-score sign, weighted by importance:<br><br>
-            <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:6px">
-              <span><span style="color:#22d3ee">1W</span> — weight <span style="color:#e2e8f0">1</span> (short-term context)</span>
-              <span><span style="color:#22d3ee">1M</span> — weight <span style="color:#e2e8f0">2</span> (medium-term trend)</span>
-              <span><span style="color:#22d3ee">3M</span> — weight <span style="color:#e2e8f0">3</span> (structural trend)</span>
-              <span><span style="color:#22d3ee">1Y</span> — weight <span style="color:#e2e8f0">4</span> (macro regime)</span>
-            </div>
-            <div style="margin-bottom:6px">Total possible = 10 points. If an anchor's z-score sign matches your signal direction, its weight is added. If it opposes, its weight is subtracted.</div>
-            <div style="margin-bottom:6px"><span style="color:#22c55e">Strong agreement (70%+)</span>: Most anchors confirm your signal — favorable trade setup.</div>
-            <div style="margin-bottom:6px"><span style="color:#f59e0b">Mixed (40-70%)</span>: Some conflict — proceed with caution, consider smaller size.</div>
-            <div style="margin-bottom:6px"><span style="color:#ef4444">Disagreement (&lt;40%)</span>: Longer timeframes oppose your signal — high risk of trending against you. This is the exact scenario that causes liquidations on leveraged pairs trades.</div>
-            <div style="color:#475569;font-style:italic">Anchors with |z| &lt; 0.3 are treated as neutral (no vote) since they're too close to the mean to indicate direction.</div>
-          </div>
+        <div style="flex:1;background:#0f172a;border:1px solid #1e293b;border-radius:4px;padding:3px 6px;text-align:center">
+          <div class="mono" style="font-size:7px;color:#64748b">VOLATILITY</div>
+          <div class="mono" style="font-size:11px;font-weight:700" id="se-vol">—</div>
         </div>
       </div>
     </div>
+
+    <!-- Hidden MTF elements for JS compat -->
+    <div style="display:none"><span id="mtf-filter"></span><span id="mtf-score-badge"></span><span id="mtf-warning"></span><span id="mtf-warning-text"></span><span id="mtf-anchors"></span><span id="mtf-bar"></span><span id="mtf-how-body"></span><span id="mtf-how-tri"></span></div>
 
     <div class="mobile-collapse">
     <div class="stats-box">
@@ -1180,6 +1160,9 @@
       // Multi-timeframe agreement filter
       updateMTFFilter(stats);
 
+      // Smart entry signal
+      updateSmartEntry(chartData, stats);
+
       // Volatility regime filter
       updateVolatilityRegime(chartData, stats);
 
@@ -1297,6 +1280,8 @@
     var p = getPair();
     if (!panel || p.solo || p.alertsDisabled) {
       if (panel) panel.style.display = "none";
+      var mobileMtf = $("mtf-filter-mobile");
+      if (mobileMtf) mobileMtf.innerHTML = "";
       return;
     }
 
@@ -1314,6 +1299,9 @@
       $("mtf-bar").style.width = "50%";
       $("mtf-bar").style.background = "#64748b";
       renderMTFAnchors(currentZ, null);
+      // Sync to mobile
+      var mobileMtf = $("mtf-filter-mobile");
+      if (mobileMtf && panel) mobileMtf.innerHTML = panel.innerHTML;
       return;
     }
 
@@ -1407,6 +1395,14 @@
     $("mtf-bar").style.background = agreePct >= 70 ? "#22c55e" : agreePct >= 40 ? "#f59e0b" : "#ef4444";
 
     renderMTFAnchors(currentZ, anchorsData);
+
+    // Sync to mobile-only MTF
+    var mobileMtf = $("mtf-filter-mobile");
+    var desktopMtf = $("mtf-filter");
+    if (mobileMtf && desktopMtf) {
+      mobileMtf.innerHTML = desktopMtf.innerHTML;
+      mobileMtf.style.display = "";
+    }
   }
 
   function renderMTFAnchors(currentZ, anchorsData) {
@@ -1471,6 +1467,133 @@
       html += '</div>';
     }
     container.innerHTML = html;
+  }
+
+  // ===== SMART ENTRY SIGNAL =====
+  // Combines z-score, momentum, and volatility into a single entry recommendation
+  function updateSmartEntry(data, stats) {
+    var se = $("smart-entry");
+    var seMobile = $("smart-entry-mobile");
+    if (!se) return;
+
+    var p = getPair();
+    if (p.solo || p.alertsDisabled) {
+      se.style.display = "none";
+      if (seMobile) seMobile.innerHTML = "";
+      return;
+    }
+
+    var t = getThreshold();
+    var currentZ = stats.zScore;
+    var absZ = Math.abs(currentZ);
+
+    // Get momentum data
+    var velocity = 0, acceleration = 0;
+    var len = data.length;
+    var lookback = Math.max(5, Math.floor(len * 0.1));
+    if (len >= lookback * 2 + 1 && stats.std > 0) {
+      var z0 = currentZ;
+      var z1 = (data[len - 1 - lookback].ratio - stats.mean) / stats.std;
+      var z2 = (data[len - 1 - lookback * 2].ratio - stats.mean) / stats.std;
+      velocity = z0 - z1;
+      acceleration = velocity - (z1 - z2);
+    }
+
+    // Get volatility ratio
+    var volRatio = 1;
+    if (data.length >= 30) {
+      var returns = [];
+      for (var i = 1; i < data.length; i++) returns.push((data[i].ratio - data[i-1].ratio) / data[i-1].ratio);
+      var recentWindow = Math.max(10, Math.floor(returns.length * 0.2));
+      var recentReturns = returns.slice(-recentWindow);
+      var fullMean = returns.reduce(function(a,b){return a+b;}, 0) / returns.length;
+      var fullVar = returns.reduce(function(s,r){return s + (r-fullMean)*(r-fullMean);}, 0) / returns.length;
+      var recentMean = recentReturns.reduce(function(a,b){return a+b;}, 0) / recentReturns.length;
+      var recentVar = recentReturns.reduce(function(s,r){return s + (r-recentMean)*(r-recentMean);}, 0) / recentReturns.length;
+      var fullVol = Math.sqrt(fullVar);
+      var recentVol = Math.sqrt(recentVar);
+      volRatio = fullVol > 0 ? recentVol / fullVol : 1;
+    }
+
+    // Momentum classification
+    var movingAway = (currentZ > 0 && velocity > 0) || (currentZ < 0 && velocity < 0);
+    var movingToward = (currentZ > 0 && velocity < 0) || (currentZ < 0 && velocity > 0);
+    var acceleratingAway = (currentZ > 0 && acceleration > 0.02) || (currentZ < 0 && acceleration < -0.02);
+    var velMag = Math.abs(velocity);
+
+    // Direction text
+    var dirText = absZ >= t
+      ? (currentZ > 0 ? "Short " + p.legA + " / Long " + p.legB : "Long " + p.legA + " / Short " + p.legB)
+      : "No trade direction";
+
+    // Momentum score: +2 reverting, +1 flat/slow drift, 0 moderate drift, -1 fast drift, -2 accelerating away
+    var momScore = 0;
+    var momLabel = "";
+    if (movingToward) { momScore = 2; momLabel = "✓ REVERTING"; }
+    else if (velMag < 0.05) { momScore = 1; momLabel = "— FLAT"; }
+    else if (movingAway && velMag < 0.1) { momScore = 1; momLabel = "~ SLOW DRIFT"; }
+    else if (movingAway && !acceleratingAway) { momScore = 0; momLabel = "↗ DRIFTING"; }
+    else if (movingAway && acceleratingAway) { momScore = -2; momLabel = "⚠ ACCELERATING"; }
+    else { momScore = 0; momLabel = "— NEUTRAL"; }
+
+    // Vol score: +1 normal, 0 elevated, -1 extreme
+    var volScore = 0;
+    var volLabel = "";
+    if (volRatio < 1.5) { volScore = 1; volLabel = "✓ NORMAL"; }
+    else if (volRatio < 2.0) { volScore = 0; volLabel = "~ ELEVATED"; }
+    else { volScore = -1; volLabel = "⚠ EXTREME"; }
+
+    // Combined decision
+    var badge, badgeColor, badgeBg, text, borderColor;
+    var totalScore = momScore + volScore; // range: -3 to +3
+
+    if (absZ < t) {
+      // No signal
+      badge = "NO SIGNAL"; badgeColor = "#64748b"; badgeBg = "#1e293b";
+      text = "Z-score is below threshold (|z| < " + t.toFixed(1) + "). No trade setup.";
+      borderColor = "#1e293b";
+    } else if (totalScore >= 2) {
+      // GOOD ENTRY: momentum reverting or flat, vol normal
+      badge = "GOOD ENTRY"; badgeColor = "#22c55e"; badgeBg = "#22c55e20";
+      text = dirText + " — Z-score above threshold, momentum is " + (movingToward ? "reverting toward mean" : "stable") + ", and volatility is normal. Favorable conditions for entry.";
+      borderColor = "#22c55e40";
+    } else if (totalScore >= 0) {
+      // CAUTION: mixed conditions
+      badge = "CAUTION"; badgeColor = "#f59e0b"; badgeBg = "#f59e0b20";
+      var reasons = [];
+      if (momScore <= 0 && movingAway) reasons.push("momentum still drifting away");
+      if (volScore <= 0) reasons.push("volatility is " + (volRatio >= 2 ? "extreme" : "elevated"));
+      text = dirText + " — Z-score above threshold but " + (reasons.join(" and ") || "conditions are mixed") + ". Consider smaller size or wait for better conditions.";
+      borderColor = "#f59e0b40";
+    } else if (totalScore >= -1) {
+      // WAIT: conditions not ready
+      badge = "WAIT"; badgeColor = "#f59e0b"; badgeBg = "#f59e0b15";
+      text = dirText + " — Z-score crossed threshold but " + (acceleratingAway ? "z-score is accelerating away from mean (trending)" : "conditions are unfavorable") + ". Wait for momentum to slow or reverse before entering.";
+      borderColor = "#f59e0b30";
+    } else {
+      // AVOID: dangerous conditions
+      badge = "AVOID"; badgeColor = "#ef4444"; badgeBg = "#ef444420";
+      text = dirText + " — Z-score above threshold but momentum is accelerating away" + (volRatio >= 2 ? " AND volatility is extreme" : "") + ". This looks like a trend, not mean reversion. Do not enter.";
+      borderColor = "#ef444440";
+    }
+
+    // Update display
+    $("se-badge").textContent = badge;
+    $("se-badge").style.color = badgeColor;
+    $("se-badge").style.background = badgeBg;
+    $("se-direction").textContent = dirText;
+    $("se-direction").style.color = absZ >= t ? badgeColor : "#64748b";
+    $("se-text").textContent = text;
+    $("se-z").textContent = (currentZ >= 0 ? "+" : "") + currentZ.toFixed(2);
+    $("se-z").style.color = absZ >= t ? (absZ >= t * 1.67 ? "#ff3b5c" : "#f59e0b") : "#22d3ee";
+    $("se-mom").textContent = momLabel;
+    $("se-mom").style.color = momScore >= 1 ? "#22c55e" : momScore <= -1 ? "#ef4444" : "#f59e0b";
+    $("se-vol").textContent = volLabel;
+    $("se-vol").style.color = volScore >= 1 ? "#22c55e" : volScore <= -1 ? "#ef4444" : "#f59e0b";
+    se.style.borderColor = borderColor;
+
+    // Sync to mobile
+    if (seMobile) seMobile.innerHTML = se.innerHTML;
   }
 
   // ===== POSITION TRACKER / MAX DRAWDOWN =====
