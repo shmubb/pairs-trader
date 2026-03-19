@@ -347,6 +347,22 @@
           <div id="vol-threshold-suggest" style="display:none;margin-top:3px">
             <button id="vol-apply-btn" class="mono" style="background:#f59e0b15;border:1px solid #f59e0b30;border-radius:3px;padding:3px 8px;font-size:9px;color:#f59e0b;cursor:pointer;font-weight:600"></button>
           </div>
+          <div style="padding-top:6px;margin-top:6px;border-top:1px solid #333333">
+            <div class="mono" style="font-size:8px;color:#ffffff;margin-bottom:4px;letter-spacing:0.05em">SCORE GUIDE</div>
+            <div style="display:flex;flex-direction:column;gap:1px;font-size:8px" class="mono">
+              <div style="color:#aaaaaa">Score = volRatio × 5, clamped 1–10</div>
+              <div><span style="color:#22c55e">0.0x–0.2x</span><span style="color:#aaaaaa"> → 1/10 (very quiet)</span></div>
+              <div><span style="color:#22c55e">0.2x–0.6x</span><span style="color:#aaaaaa"> → 1–3/10 (below average)</span></div>
+              <div><span style="color:#22c55e">0.6x–1.0x</span><span style="color:#aaaaaa"> → 3–5/10 (normal)</span></div>
+              <div><span style="color:#ffffff">1.0x–1.5x</span><span style="color:#aaaaaa"> → 5–7/10 (above average)</span></div>
+              <div><span style="color:#f59e0b">1.5x–2.0x</span><span style="color:#aaaaaa"> → 8–10/10 (ELEVATED)</span></div>
+              <div><span style="color:#ef4444">2.0x+</span><span style="color:#aaaaaa"> → 10/10 (EXTREME)</span></div>
+            </div>
+            <div style="margin-top:4px;color:#aaaaaa;font-size:8px;line-height:1.4">
+              volRatio = recent volatility ÷ full-window average volatility.<br>
+              Recent window = last 20% of candles. A ratio of 0.72x means recent vol is 72% of the window average — quieter than normal.
+            </div>
+          </div>
         </div>
       </div>
       <!-- Correlation Card -->
@@ -385,6 +401,16 @@
           <div style="display:flex;gap:8px;margin-bottom:6px">
             <div><span class="mono" style="font-size:8px;color:#ffffff">Accel </span><span class="mono" style="font-size:11px;font-weight:700" id="z-accel-acc">—</span></div>
             <div><span class="mono" style="font-size:8px;color:#aaaaaa" id="z-accel-vel-unit">z/period</span></div>
+          </div>
+          <div style="padding-top:4px;border-top:1px solid #333333">
+            <div class="mono" style="font-size:8px;color:#ffffff;margin-bottom:3px;letter-spacing:0.05em">HOW IT WORKS</div>
+            <div style="font-size:8px;color:#aaaaaa;line-height:1.5" class="mono">
+              <div style="margin-bottom:4px">Lookback is adaptive per timeframe: 1H→6 candles (6 min), 4H/12H/1D→12 candles (~1 hr on 1D), 3D→8 candles (2 hrs), 1W→6 candles (6 hrs), 1M→6 candles (1 day), 3M→4 candles (2 days), 1Y→5 candles (5 days).</div>
+              <div style="margin-bottom:4px"><span style="color:#ffffff">Velocity</span> = current z-score − z-score from [lookback] candles ago. Positive = z moving up, negative = z moving down.</div>
+              <div style="margin-bottom:4px"><span style="color:#ffffff">Acceleration</span> = current velocity − previous velocity (measured over a second lookback window of equal length). Positive acceleration when z > 0 = trending away faster.</div>
+              <div style="margin-bottom:4px"><span style="color:#ffffff">Thresholds:</span> velocity > ±0.05 = moving. Acceleration > ±0.02 = accelerating.</div>
+              <div style="color:#22c55e;margin-bottom:4px">On the 1D chart, momentum now uses a ~1 hour lookback (12 candles × 5min) for faster reaction to direction changes.</div>
+            </div>
           </div>
           <div style="padding-top:4px;border-top:1px solid #333333">
             <div class="mono" style="font-size:8px;color:#ffffff;margin-bottom:3px;letter-spacing:0.05em">STATES</div>
@@ -655,6 +681,16 @@
   var tickTimerId = null;
 
   function $(id) { return document.getElementById(id); }
+
+  // ===== ADAPTIVE MOMENTUM LOOKBACK =====
+  // Returns the number of candles to look back for momentum, tuned per timeframe
+  // Goal: ~1 hour on intraday charts, scaling up for longer timeframes
+  var MOMENTUM_LOOKBACKS = [6, 12, 12, 12, 8, 6, 8, 6, 4, 5];
+  // Index:                 1H  4H 12H  1D 3D 1W 2W 1M 3M 1Y
+  function getMomentumLookback(dataLen) {
+    var lb = MOMENTUM_LOOKBACKS[currentWindow] || 12;
+    return Math.min(lb, Math.floor(dataLen * 0.25)); // never more than 25% of data
+  }
 
   // ===== LIVE CLOCK — ticks every second =====
   function startClock() {
@@ -1497,10 +1533,11 @@
     var currentZ = stats.zScore;
     var absZ = Math.abs(currentZ);
 
-    // Get momentum data
+    // Get momentum data (adaptive lookback per timeframe)
     var velocity = 0, acceleration = 0;
     var len = data.length;
-    var lookback = Math.max(5, Math.floor(len * 0.1));
+    var lookback = getMomentumLookback(len);
+    if (lookback < 3) lookback = 3;
     if (len >= lookback * 2 + 1 && stats.std > 0) {
       var z0 = currentZ;
       var z1 = (data[len - 1 - lookback].ratio - stats.mean) / stats.std;
@@ -1980,7 +2017,8 @@
 
     var currentZ = stats.zScore;
     var len = data.length;
-    var lookback = Math.max(5, Math.floor(len * 0.1));
+    var lookback = getMomentumLookback(len);
+    if (lookback < 3) lookback = 3;
     var lookback2 = lookback * 2;
 
     if (len < lookback2 + 1) {
@@ -3556,6 +3594,21 @@
 
   // Annotations: render on load
   renderAnnotations();
+
+  // ===== KEYBOARD SHORTCUTS =====
+  // 1-9 = timeframes (1H, 4H, 12H, 1D, 3D, 1W, 2W, 1M, 3M), 0 = 1Y
+  document.addEventListener("keydown", function(e) {
+    // Don't trigger when typing in an input
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    var key = e.key;
+    if (key >= "1" && key <= "9") {
+      var idx = parseInt(key) - 1; // "1" → 0, "9" → 8
+      if (idx < WINDOWS.length) selectWindow(idx);
+    } else if (key === "0") {
+      // 0 = last timeframe (1Y, index 9)
+      if (WINDOWS.length > 9) selectWindow(9);
+    }
+  });
 
 })();
 </script>
