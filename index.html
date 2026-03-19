@@ -123,7 +123,7 @@
     #smart-entry-mobile{max-width:100%;overflow:hidden}
     .right-panel{display:none !important}
     body{overflow-x:hidden}
-    .chart-area{padding:8px 10px 0 10px !important}
+    .chart-area{padding:8px 10px 20px 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
     .right-panel .stats-box{margin-bottom:6px !important}
     #price-box{margin-bottom:0 !important}
@@ -282,7 +282,7 @@
     </div>
 
     <!-- Scanner then Sessions in left column -->
-    <div id="mobile-extra" class="mobile-collapse">
+    <div id="mobile-extra" class="mobile-collapse" style="padding-bottom:20px">
 
     <!-- Alerts (mobile version, inside Show More) -->
     <div id="mobile-alerts" class="stats-box" style="margin-bottom:0;padding:10px 12px;margin-top:14px">
@@ -1603,19 +1603,19 @@
     // Sync to mobile — build a compact mobile-specific layout
     if (seMobile) {
       seMobile.innerHTML =
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-          '<span class="mono" style="font-size:9px;color:#ffffff;letter-spacing:0.1em">SMART ENTRY</span>' +
-          '<span class="mono" style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + '">' + badge + '</span>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
+          '<span class="mono" style="font-size:9px;color:#ffffff;letter-spacing:0.1em;white-space:nowrap">SMART ENTRY</span>' +
+          '<span class="mono" style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + ';white-space:nowrap">' + badge + '</span>' +
+          '<span class="mono" style="font-size:10px;font-weight:700;color:' + (absZ >= t ? badgeColor : "#bbbbbb") + ';white-space:nowrap">' + dirText + '</span>' +
         '</div>' +
-        '<div class="mono" style="font-size:11px;font-weight:700;color:' + (absZ >= t ? badgeColor : "#bbbbbb") + '">' + dirText + '</div>' +
-        '<div style="display:flex;gap:4px;margin-top:4px">' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+        '<div style="display:flex;gap:4px">' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center">' +
             '<span class="mono" style="font-size:10px;font-weight:700;color:' + $("se-z").style.color + '">' + $("se-z").textContent + '</span>' +
           '</div>' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center">' +
             '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-mom").style.color + '">' + momLabel.replace("✓ ","").replace("— ","").replace("~ ","").replace("↗ ","").replace("⚠ ","") + '</span>' +
           '</div>' +
-          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:3px 4px;text-align:center">' +
             '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-vol").style.color + '">' + volLabel.replace("✓ ","").replace("~ ","").replace("⚠ ","") + '</span>' +
           '</div>' +
         '</div>';
