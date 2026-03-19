@@ -120,11 +120,8 @@
     #src-hl,#src-bin{padding:3px 6px !important;font-size:8px !important}
     #z-display-section{display:none !important}
     #smart-entry{display:none !important}
-    #smart-entry-mobile{max-width:100%;overflow:hidden;word-break:break-word}
-    #smart-entry-mobile .mono{word-break:break-word}
-    #smart-entry-mobile [style*="font-size:13px"]{font-size:11px !important}
-    #smart-entry-mobile [style*="font-size:11px"]{font-size:9px !important}
-    #smart-entry-mobile [style*="font-size:10px"]{font-size:9px !important}
+    #smart-entry-mobile{max-width:100%;overflow:hidden}
+    .right-panel{display:none !important}
     body{overflow-x:hidden}
     .chart-area{padding:8px 10px 0 10px !important}
     .right-panel{padding:0 10px 10px !important;margin-top:0 !important}
@@ -1603,8 +1600,26 @@
     $("se-vol").style.color = volScore >= 1 ? "#22c55e" : volScore <= -1 ? "#ef4444" : "#f59e0b";
     se.style.borderColor = borderColor;
 
-    // Sync to mobile
-    if (seMobile) seMobile.innerHTML = se.innerHTML;
+    // Sync to mobile — build a compact mobile-specific layout
+    if (seMobile) {
+      seMobile.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
+          '<span class="mono" style="font-size:9px;color:#ffffff;letter-spacing:0.1em">SMART ENTRY</span>' +
+          '<span class="mono" style="font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;background:' + badgeBg + ';color:' + badgeColor + '">' + badge + '</span>' +
+        '</div>' +
+        '<div class="mono" style="font-size:11px;font-weight:700;color:' + (absZ >= t ? badgeColor : "#bbbbbb") + '">' + dirText + '</div>' +
+        '<div style="display:flex;gap:4px;margin-top:4px">' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+            '<span class="mono" style="font-size:10px;font-weight:700;color:' + $("se-z").style.color + '">' + $("se-z").textContent + '</span>' +
+          '</div>' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+            '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-mom").style.color + '">' + momLabel.replace("✓ ","").replace("— ","").replace("~ ","").replace("↗ ","").replace("⚠ ","") + '</span>' +
+          '</div>' +
+          '<div style="flex:1;background:#222222;border:1px solid #333333;border-radius:4px;padding:2px 4px;text-align:center">' +
+            '<span class="mono" style="font-size:9px;font-weight:700;color:' + $("se-vol").style.color + '">' + volLabel.replace("✓ ","").replace("~ ","").replace("⚠ ","") + '</span>' +
+          '</div>' +
+        '</div>';
+    }
   }
 
   // ===== POSITION TRACKER / MAX DRAWDOWN =====
