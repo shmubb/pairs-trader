@@ -1681,7 +1681,13 @@
 
   function addPositionEntry(prefillZ) {
     var id = posNextId++;
-    posEntries.push({ id: id, zScore: prefillZ || 0, notional: 0 });
+    // Store entry ratio and time from current chart data for accurate PnL
+    var entryRatio = 0;
+    var entryTime = Date.now();
+    if (chartData.length > 0) {
+      entryRatio = chartData[chartData.length - 1].ratio;
+    }
+    posEntries.push({ id: id, zScore: prefillZ || 0, notional: 0, entryRatio: entryRatio, entryTime: entryTime });
     savePositions();
     renderPositionEntries();
   }
@@ -1699,12 +1705,19 @@
     var html = "";
     for (var i = 0; i < posEntries.length; i++) {
       var e = posEntries[i];
-      html += '<div style="display:flex;align-items:center;gap:4px;background:#222222;border:1px solid #333333;border-radius:4px;padding:4px 6px" data-pos-id="' + e.id + '">';
+      // Format entryTime as datetime-local value (YYYY-MM-DDTHH:MM)
+      var dtVal = "";
+      if (e.entryTime) {
+        var d = new Date(e.entryTime);
+        dtVal = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0") + "T" + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+      }
+      html += '<div style="display:flex;align-items:center;gap:4px;background:#222222;border:1px solid #333333;border-radius:4px;padding:4px 6px;flex-wrap:wrap" data-pos-id="' + e.id + '">';
       html += '<span class="mono" style="font-size:9px;color:#ffffff;min-width:12px">' + (i+1) + '.</span>';
       html += '<span style="font-size:9px;color:#ffffff">z=</span>';
-      html += '<input type="text" class="pos-z-input mono" data-id="' + e.id + '" value="' + e.zScore + '" style="width:44px;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none;text-align:center" />';
+      html += '<input type="text" class="pos-z-input mono" data-id="' + e.id + '" value="' + e.zScore + '" style="width:40px;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none;text-align:center" />';
       html += '<span style="font-size:9px;color:#ffffff">$</span>';
-      html += '<input type="text" class="pos-n-input mono" data-id="' + e.id + '" value="' + (e.notional > 0 ? e.notional.toLocaleString() : "0") + '" style="flex:1;min-width:0;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none" />';
+      html += '<input type="text" class="pos-n-input mono" data-id="' + e.id + '" value="' + (e.notional > 0 ? e.notional.toLocaleString() : "0") + '" style="width:55px;min-width:0;background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:2px 4px;color:#ffffff;font-size:11px;font-weight:600;outline:none" />';
+      html += '<input type="datetime-local" class="pos-time-input mono" data-id="' + e.id + '" value="' + dtVal + '" style="background:#1a1a1a;border:1px solid #333333;border-radius:3px;padding:1px 3px;color:#aaaaaa;font-size:8px;outline:none;width:130px;color-scheme:dark" />';
       html += '<button class="pos-del-btn mono" data-id="' + e.id + '" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;padding:0 2px;opacity:0.6" title="Remove">✕</button>';
       html += '</div>';
     }
@@ -1731,10 +1744,33 @@
         var entry = posEntries.find(function(e) { return e.id === id; });
         if (entry) entry.notional = parseFloat(raw) || 0;
         savePositions();
-        // Format with commas
         var parts = raw.split(".");
         if (parts[0] && parts[0] !== "") parts[0] = parseInt(parts[0]).toLocaleString();
         this.value = parts.join(".");
+        updatePositionTracker();
+      });
+    }
+    // Time input: when changed, find the closest ratio in chartData for that time
+    var timeInputs = container.querySelectorAll(".pos-time-input");
+    for (var j = 0; j < timeInputs.length; j++) {
+      timeInputs[j].addEventListener("change", function() {
+        var id = parseInt(this.getAttribute("data-id"));
+        var entry = posEntries.find(function(e) { return e.id === id; });
+        if (!entry) return;
+        var newTime = new Date(this.value).getTime();
+        if (isNaN(newTime)) return;
+        entry.entryTime = newTime;
+        // Find closest ratio in chartData to this time
+        if (chartData.length > 0) {
+          var closest = chartData[0];
+          var closestDiff = Math.abs(chartData[0].time - newTime);
+          for (var k = 1; k < chartData.length; k++) {
+            var diff = Math.abs(chartData[k].time - newTime);
+            if (diff < closestDiff) { closest = chartData[k]; closestDiff = diff; }
+          }
+          entry.entryRatio = closest.ratio;
+        }
+        savePositions();
         updatePositionTracker();
       });
     }
@@ -1757,15 +1793,14 @@
     }
     var avgZ = totalNotional > 0 ? weightedZ / totalNotional : 0;
     var leverage = getLeverage();
-    var margin = totalNotional / leverage; // margin = notional / leverage
+    var margin = totalNotional / leverage;
 
-    // Get current z-score from chart data
+    // Get current ratio from chart data
     var ratios = [];
     for (var i = 0; i < chartData.length; i++) ratios.push(chartData[i].ratio);
     var stats = calcStats(ratios);
     var currentZ = stats.zScore;
-    var currentStd = stats.std;
-    var currentMean = stats.mean;
+    var currentRatio = stats.current;
 
     $("pos-avg-z").textContent = (avgZ >= 0 ? "+" : "") + avgZ.toFixed(2);
     $("pos-avg-z").style.color = zColor(avgZ);
@@ -1774,23 +1809,31 @@
     $("pos-current-z").textContent = (currentZ >= 0 ? "+" : "") + currentZ.toFixed(2);
     $("pos-current-z").style.color = zColor(currentZ);
 
-    // P&L estimate: based on z-score change from entry to current
-    // Notional = full position size (e.g. $60k). Margin = notional/leverage (e.g. $2k at 30x).
-    // P&L is on the notional: profit = (notional/2) * |zChange| * (std/mean)
-    // This P&L comes out of your margin, so % of margin = P&L / margin
-    var zChange = currentZ - avgZ;
-    var signalDir = avgZ > 0 ? -1 : 1;
-    var profitDirection = signalDir * zChange;
-    var spreadPerZ = currentMean > 0 ? (currentStd / currentMean) : 0;
-    var pnlPerLeg = (totalNotional / 2) * Math.abs(zChange) * spreadPerZ;
-    var pnl = profitDirection >= 0 ? pnlPerLeg : -pnlPerLeg;
+    // PnL calculation using entry ratios (not z-scores) for accuracy
+    // Each entry tracks the actual ratio at entry time
+    // PnL per entry = (notional/2) * (ratioChange / entryRatio) * direction
+    // direction: if entry z > 0 → short ETH/long BTC → profit when ratio drops
+    //            if entry z < 0 → long ETH/short BTC → profit when ratio rises
+    var totalPnl = 0;
+    for (var i = 0; i < posEntries.length; i++) {
+      var e = posEntries[i];
+      if (e.notional <= 0 || !e.entryRatio || e.entryRatio <= 0) continue;
+      var ratioChange = currentRatio - e.entryRatio;
+      var pctChange = ratioChange / e.entryRatio;
+      // If z > 0 at entry: short ETH / long BTC → profit = -pctChange * notional/2
+      // If z < 0 at entry: long ETH / short BTC → profit = +pctChange * notional/2
+      var dir = e.zScore > 0 ? -1 : 1;
+      var entryPnl = dir * pctChange * (e.notional / 2);
+      totalPnl += entryPnl;
+    }
 
-    $("pos-pnl").textContent = (pnl >= 0 ? "+" : "") + formatUSD(pnl);
-    $("pos-pnl").style.color = pnl >= 0 ? "#22c55e" : "#ef4444";
+    $("pos-pnl").textContent = (totalPnl >= 0 ? "+" : "") + formatUSD(totalPnl);
+    $("pos-pnl").style.color = totalPnl >= 0 ? "#22c55e" : "#ef4444";
 
-    // Drawdown scenarios
-    // First calculate max profit at z→0
+    // Also calculate z-based estimate for reference (what PnL would be if z goes to 0)
+    var spreadPerZ = stats.mean > 0 ? (stats.std / stats.mean) : 0;
     var zToMean = 0 - avgZ;
+    var signalDir = avgZ > 0 ? -1 : 1;
     var meanProfitDir = signalDir * zToMean;
     var meanPnlPerLeg = (totalNotional / 2) * Math.abs(zToMean) * spreadPerZ;
     var maxProfit = meanProfitDir >= 0 ? meanPnlPerLeg : -meanPnlPerLeg;
