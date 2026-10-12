@@ -58,7 +58,7 @@ export class Engine {
     for (const c of coins) if (!this.markets[c]) throw new Error(`Hyperliquid has no perp named "${c}" — check config/universe.json`);
 
     const saved = await this.loadState();
-    if (this.mode === "paper") this.broker = new PaperBroker({ equity: this.paperEquity, fee: this.cfg.costs.takerFee, slippage: this.cfg.costs.slippage, state: saved?.paper });
+    if (this.mode === "paper") this.broker = new PaperBroker({ equity: this.paperEquity, fee: this.cfg.costs.takerFee, makerFee: this.cfg.costs.makerFee, slippage: this.cfg.costs.slippage, state: saved?.paper });
     else this.broker = new HyperliquidBroker({ info: this.info, account: this.env.HL_ACCOUNT, agentKey: this.env.HL_AGENT_KEY, testnet: this.testnet, leverage: this.cfg.exchange?.leverage ?? 5, slippage: this.cfg.exchange?.slippage ?? 0.005, maxSlippage: this.cfg.exchange?.maxSlippage ?? 0.015, log: this.log });
     await this.broker.init(this.markets);
     await this.refreshMids();
@@ -268,7 +268,7 @@ export class Engine {
         { coin: p.hlA, usd: dir * w * p.plan.notionalA },
         { coin: p.hlB, usd: -dir * w * p.plan.notionalA * beta },
       ];
-      const res = await this.broker.executeLegs(legs);
+      const res = await this.broker.executeLegs(legs, { style: this.cfg.exchange?.entryStyle || "taker" });
       this.logFills(p, it.type, res);
       if (res.some((r) => !r.ok)) {
         if (it.type === "open") { st.pos = null; p.plan = null; st.cooldown[dir] = p.barIndex + 6; }

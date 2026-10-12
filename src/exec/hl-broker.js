@@ -16,7 +16,7 @@
 //     reduce-only. Never sit on a naked leg.
 
 import { randomBytes } from "node:crypto";
-import { formatSize, marketablePrice } from "./precision.js";
+import { formatSize, formatPrice, marketablePrice } from "./precision.js";
 
 export class HyperliquidBroker {
   constructor({ info, account, agentKey, testnet = false, slippage = 0.005, maxSlippage = 0.015, leverage = 5, log = console.log } = {}) {
@@ -124,8 +124,63 @@ export class HyperliquidBroker {
     });
   }
 
+  /**
+   * Hybrid entry: rest a post-only (ALO) order on the less liquid leg at the
+   * touch; as soon as any of it fills, hedge the filled fraction on the other
+   * leg with an IOC. Unfilled remainder is cancelled after makerTimeoutSec.
+   * Saves roughly half the taker cost on entries; never used for stops.
+   */
+  async executeHybrid(legs, { makerTimeoutSec = 20 } = {}) {
+    const [x, y] = legs;
+    const vol = (c) => this.markets[c]?.dayNtlVlm ?? 0;
+    const [maker, taker] = vol(x.coin) <= vol(y.coin) ? [x, y] : [y, x];
+    for (const l of legs) await this.ensureLeverage(l.coin);
+    const mc = await this.marginCheck(legs);
+    if (!mc.ok) return legs.map((l) => ({ coin: l.coin, ok: false, filledSz: 0, error: `margin pre-check: need ~$${mc.need.toFixed(0)}×1.5` }));
+    const m = this.markets[maker.coin];
+    const book = await this.info.l2Book(maker.coin);
+    const isBuy = maker.usd > 0;
+    const touch = isBuy ? +book.levels[0][0].px : +book.levels[1][0].px;
+    const sz = formatSize(Math.abs(maker.usd) / touch, m.szDecimals);
+    const cloid = "0x" + randomBytes(16).toString("hex");
+    const order = { a: m.asset, b: isBuy, p: formatPrice(touch, m.szDecimals, !isBuy), s: sz, r: false, t: { limit: { tif: "Alo" } }, c: cloid };
+    const st = (await this.send([order]))[0];
+    if (st?.error) return legs.map((l) => ({ coin: l.coin, ok: false, filledSz: 0, error: `maker leg rejected: ${st.error}` }));
+    let filled = st?.filled ? +st.filled.totalSz : 0;
+    let avgPx = st?.filled ? +st.filled.avgPx : touch;
+    const deadline = Date.now() + makerTimeoutSec * 1000;
+    while (filled < +sz * 0.999 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 1000));
+      const os = await this.info.orderStatus(this.account, cloid).catch(() => null);
+      const o = os?.order;
+      if (o) {
+        filled = +o.order.origSz - +o.order.sz;
+        if (o.status === "filled") filled = +o.order.origSz;
+        if (o.status !== "open") break; // filled, canceled, rejected… — nothing more will fill
+      }
+    }
+    if (filled < +sz * 0.999) {
+      await this.exchange.cancelByCloid({ cancels: [{ asset: m.asset, cloid }] }).catch(() => {});
+      const os = await this.info.orderStatus(this.account, cloid).catch(() => null);
+      if (os?.order) filled = +os.order.order.origSz - +os.order.order.sz;
+    }
+    if (filled <= 0) return legs.map((l) => ({ coin: l.coin, ok: false, filledSz: 0, error: "maker leg not filled in time (no position taken)" }));
+    // Hedge exactly the filled fraction on the other leg.
+    const frac = filled / +sz;
+    const [hedge] = await this.executeLegs([{ ...taker, usd: taker.usd * frac }]);
+    const makerRes = { coin: maker.coin, ok: true, filledSz: (isBuy ? 1 : -1) * filled, avgPx, maker: true };
+    if (!hedge.ok) {
+      this.log(`hybrid: hedge leg failed — unwinding maker fill on ${maker.coin}`);
+      await this.executeLegs([{ coin: maker.coin, usd: isBuy ? -1 : 1, szAbs: filled, reduceOnly: true }]);
+      return legs.map((l) => ({ coin: l.coin, ok: false, filledSz: 0, unwound: true, error: "hedge leg failed" }));
+    }
+    const out = [makerRes, hedge];
+    return legs.map((l) => out.find((r) => r.coin === l.coin));
+  }
+
   /** legs: [{coin, usd (signed), reduceOnly}] → per-leg results. */
-  async executeLegs(legs) {
+  async executeLegs(legs, { style = "taker" } = {}) {
+    if (style === "hybrid" && legs.length === 2 && legs.every((l) => !l.reduceOnly)) return this.executeHybrid(legs);
     const active = legs.filter((l) => Math.abs(l.usd) > 0 || l.szAbs);
     if (!active.length) return [];
     for (const l of active) if (!l.reduceOnly) await this.ensureLeverage(l.coin);

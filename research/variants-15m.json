@@ -1,0 +1,9 @@
+[
+  { "name": "default (30d)", "set": {} },
+  { "name": "default + maker exec", "set": { "costs.useMaker": true, "costs.slippage": 0 } },
+  { "name": "combo ratio p<.05 stop 5", "set": { "model.hedge": "ratio", "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo kalman p<.05 stop 5", "set": { "model.hedge": "kalman", "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo ratio + hybrid exec", "set": { "model.hedge": "ratio", "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.takerFee": 0.0003, "costs.slippage": 0.00015 } },
+  { "name": "combo ratio + maker exec", "set": { "model.hedge": "ratio", "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.useMaker": true, "costs.slippage": 0 } },
+  { "name": "7d formation + maker", "set": { "model.hedge": "ratio", "model.formationBars": 168, "model.longFormationBars": 504, "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.useMaker": true, "costs.slippage": 0 } }
+]

@@ -8,7 +8,7 @@
   "statusPort": 8787,
   "stateDir": "state",
   "overrides": {
-    "exchange": { "leverage": 5, "slippage": 0.005, "maxSlippage": 0.015 }
+    "exchange": { "leverage": 5, "slippage": 0.005, "maxSlippage": 0.015, "entryStyle": "taker" }
   },
   "pairs": [
     { "a": "ETH", "b": "BTC" },

@@ -1,0 +1,321 @@
+{
+ "generated": "2026-10-12T21:17:47.684Z",
+ "interval": "1h",
+ "assets": [
+  "BTC",
+  "ETH",
+  "SOL",
+  "BNB",
+  "XRP",
+  "DOGE",
+  "ADA",
+  "AVAX",
+  "LINK",
+  "DOT",
+  "LTC",
+  "BCH",
+  "ETC",
+  "ATOM",
+  "NEAR",
+  "APT",
+  "ARB",
+  "OP",
+  "INJ",
+  "AAVE",
+  "UNI",
+  "LDO",
+  "CRV",
+  "FIL",
+  "TRX",
+  "XLM",
+  "HBAR",
+  "kSHIB",
+  "FET"
+ ],
+ "periods": [
+  {
+   "name": "is",
+   "from": "2022-03-01",
+   "to": "2025-01-01"
+  },
+  {
+   "name": "oos",
+   "from": "2025-01-01"
+  }
+ ],
+ "summary": [
+  {
+   "name": "old app rules (reference)",
+   "set": {},
+   "is": {
+    "n": 406,
+    "meanRet": -1.0140342762497252,
+    "pctPos": 0,
+    "meanSharpe": -0.3878021532903849,
+    "trades": 381.10837438423647,
+    "meanDD": 1.0156601833441448,
+    "worstRet": -1.135872480284012
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.9704380127663345,
+    "pctPos": 0.017241379310344827,
+    "meanSharpe": -0.424475603775656,
+    "trades": 374.82512315270935,
+    "meanDD": 0.9952769904026711,
+    "worstRet": -1.1780491136216256
+   }
+  },
+  {
+   "name": "default",
+   "set": {},
+   "is": {
+    "n": 406,
+    "meanRet": -0.010648752137185183,
+    "pctPos": 0.31527093596059114,
+    "meanSharpe": -0.2419694943475187,
+    "trades": 13.30295566502463,
+    "meanDD": 0.034723295677830404,
+    "worstRet": -0.10972711644338962
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00499879879183921,
+    "pctPos": 0.4064039408866995,
+    "meanSharpe": -0.1708470236923848,
+    "trades": 13.137931034482758,
+    "meanDD": 0.031731070375350785,
+    "worstRet": -0.0751626658640806
+   }
+  },
+  {
+   "name": "combo: ratio, 60d, p<.05, stop 5",
+   "set": {
+    "model.hedge": "ratio",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0009159860666573011,
+    "pctPos": 0.37192118226600984,
+    "meanSharpe": -0.0799900431778526,
+    "trades": 3.0763546798029555,
+    "meanDD": 0.009465599769006133,
+    "worstRet": -0.042050067189584484
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0012465205327142034,
+    "pctPos": 0.31773399014778325,
+    "meanSharpe": -0.17400763123621982,
+    "trades": 2.958128078817734,
+    "meanDD": 0.007991419181808995,
+    "worstRet": -0.03132806579666536
+   }
+  },
+  {
+   "name": "combo: kalman, 60d, p<.05, stop 5",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.00011575361698369134,
+    "pctPos": 0.33004926108374383,
+    "meanSharpe": -0.04023815106275023,
+    "trades": 1.6650246305418719,
+    "meanDD": 0.005488376602812304,
+    "worstRet": -0.03084889850949335
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00039102945005245677,
+    "pctPos": 0.3472906403940887,
+    "meanSharpe": -0.04499484743118478,
+    "trades": 1.7783251231527093,
+    "meanDD": 0.00573650848060796,
+    "worstRet": -0.027783355436223234
+   }
+  },
+  {
+   "name": "combo: ols, 60d, p<.05, stop 5",
+   "set": {
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0008348303614623128,
+    "pctPos": 0.4236453201970443,
+    "meanSharpe": -0.054240041400371,
+    "trades": 4.573891625615763,
+    "meanDD": 0.01148956667251929,
+    "worstRet": -0.04092118422782498
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.002370322564937343,
+    "pctPos": 0.3275862068965517,
+    "meanSharpe": -0.18136973615810914,
+    "trades": 5.115763546798029,
+    "meanDD": 0.012072108738829577,
+    "worstRet": -0.03728149549573023
+   }
+  },
+  {
+   "name": "combo ratio, 30d",
+   "set": {
+    "model.hedge": "ratio",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0014282782932505136,
+    "pctPos": 0.41625615763546797,
+    "meanSharpe": -0.06888236597053228,
+    "trades": 5.977832512315271,
+    "meanDD": 0.01303368864698291,
+    "worstRet": -0.045865470056316915
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0017209347262488522,
+    "pctPos": 0.41133004926108374,
+    "meanSharpe": -0.11685210117285133,
+    "trades": 6.04679802955665,
+    "meanDD": 0.0132500981008613,
+    "worstRet": -0.03467818869101069
+   }
+  },
+  {
+   "name": "combo ratio + entry 2.5",
+   "set": {
+    "model.hedge": "ratio",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "entry.z": 2.5,
+    "entry.maxEntryZ": 3.8
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0006913537947430841,
+    "pctPos": 0.312807881773399,
+    "meanSharpe": -0.08904800296356362,
+    "trades": 1.5985221674876848,
+    "meanDD": 0.007481567257017751,
+    "worstRet": -0.035143662199883186
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0008513865943422811,
+    "pctPos": 0.2660098522167488,
+    "meanSharpe": -0.13066212216841921,
+    "trades": 1.5,
+    "meanDD": 0.0064771184578598425,
+    "worstRet": -0.0322218256063439
+   }
+  },
+  {
+   "name": "combo ratio + hybrid exec",
+   "set": {
+    "model.hedge": "ratio",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0006420373248441254,
+    "pctPos": 0.3793103448275862,
+    "meanSharpe": -0.06300942505565203,
+    "trades": 3.0763546798029555,
+    "meanDD": 0.009514541736274616,
+    "worstRet": -0.042238238081796275
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0009930523480129647,
+    "pctPos": 0.3251231527093596,
+    "meanSharpe": -0.15215526145647842,
+    "trades": 2.958128078817734,
+    "meanDD": 0.008014705364194007,
+    "worstRet": -0.031262644545926754
+   }
+  },
+  {
+   "name": "combo ratio + maker exec",
+   "set": {
+    "model.hedge": "ratio",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.useMaker": true,
+    "costs.slippage": 0
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.00037547977282067786,
+    "pctPos": 0.3866995073891626,
+    "meanSharpe": -0.04685077629390655,
+    "trades": 3.0788177339901477,
+    "meanDD": 0.009587132298160701,
+    "worstRet": -0.04243246068679907
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0007293778680686524,
+    "pctPos": 0.33251231527093594,
+    "meanSharpe": -0.13021970226397067,
+    "trades": 2.958128078817734,
+    "meanDD": 0.008045861031638556,
+    "worstRet": -0.031194343982427042
+   }
+  },
+  {
+   "name": "combo kalman + hybrid exec",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00005160816745120143,
+    "pctPos": 0.33251231527093594,
+    "meanSharpe": -0.027058500765643183,
+    "trades": 1.6650246305418719,
+    "meanDD": 0.005534510924285323,
+    "worstRet": -0.03109329667581373
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00020618749782395365,
+    "pctPos": 0.3522167487684729,
+    "meanSharpe": -0.02629121200030211,
+    "trades": 1.7783251231527093,
+    "meanDD": 0.0057760553557716695,
+    "worstRet": -0.027720930502622143
+   }
+  }
+ ]
+}

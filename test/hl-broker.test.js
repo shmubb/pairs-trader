@@ -77,3 +77,21 @@ test("margin pre-check blocks the trade before any order is sent", async () => {
   assert.equal(b.exchange.calls.length, 0);
   assert.ok(r.every((x) => !x.ok && /margin/.test(x.error)));
 });
+
+test("hybrid entry: post-only on the thinner leg, then hedge the filled fraction with IOC", async () => {
+  const b = broker((orders) => orders.map((o) => (o.t.limit.tif === "Alo" ? { resting: { oid: 7 } } : fill(o))));
+  b.markets.ETH.dayNtlVlm = 1e9; b.markets.BTC.dayNtlVlm = 5e9; // ETH is the thinner leg → maker
+  b.info.l2Book = async () => ({ levels: [[{ px: "2999.5", sz: "10" }], [{ px: "3000.5", sz: "10" }]] });
+  let polls = 0;
+  b.info.orderStatus = async () => { polls++; return { order: { status: polls >= 2 ? "canceled" : "open", order: { origSz: "1", sz: "0.4" } } }; };
+  b.exchange.cancelByCloid = async () => ({ status: "ok" });
+  const r = await b.executeLegs([{ coin: "ETH", usd: 3000 }, { coin: "BTC", usd: -3000 }], { style: "hybrid" });
+  const [first, second] = b.exchange.calls;
+  assert.equal(first[0].t.limit.tif, "Alo", "maker leg is post-only");
+  assert.equal(first[0].a, 1);
+  assert.equal(second[0].t.limit.tif, "Ioc", "hedge is IOC");
+  assert.equal(second[0].a, 0);
+  // 0.6 of the maker order filled → hedge 60% of the BTC leg.
+  assert.ok(Math.abs(+second[0].s - 0.018) < 0.0002, `hedge size ${second[0].s}`);
+  assert.ok(r.every((x) => x.ok));
+});
