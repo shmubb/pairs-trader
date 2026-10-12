@@ -1,14 +1,22 @@
 {
-  "_comment": "Pairs the dashboard scanner watches. Generated from research (see docs/RESEARCH.md); edit freely — any two Hyperliquid perps work, and the custom box in the header accepts e.g. SOL/ETH.",
+  "_comment": "Pairs the dashboard scanner watches, chosen in docs/RESEARCH.md: crypto pairs that were cointegrated most often in 2022-2024 (the only selection rule with a positive, if weak, out-of-sample tilt), economically linked TradFi pairs (short history — anecdotal), and the original ETH/BTC and HYPE/SOL for reference. Edit freely; the header's custom box accepts any two Hyperliquid perps, e.g. SOL/ETH.",
   "pairs": [
-    { "a": "ETH", "b": "BTC" },
+    { "a": "HBAR", "b": "kSHIB" },
+    { "a": "ATOM", "b": "kSHIB" },
+    { "a": "DOT", "b": "kSHIB" },
+    { "a": "INJ", "b": "PYTH" },
+    { "a": "NEAR", "b": "ONDO" },
+    { "a": "LINK", "b": "ONDO" },
     { "a": "LINK", "b": "DOT" },
-    { "a": "LTC", "b": "ETC" },
-    { "a": "ETC", "b": "FIL" },
     { "a": "ADA", "b": "LINK" },
-    { "a": "AVAX", "b": "LINK" },
+    { "a": "ADA", "b": "DOT" },
+    { "a": "AVAX", "b": "OP" },
+    { "a": "BTC", "b": "COIN" },
+    { "a": "ETH", "b": "MSTR" },
+    { "a": "GOLD", "b": "SILVER" },
+    { "a": "PAXG", "b": "GOLD" },
+    { "a": "ETH", "b": "BTC" },
     { "a": "SOL", "b": "ETH" },
-    { "a": "HYPE", "b": "SOL" },
-    { "a": "GOLD", "b": "SILVER" }
+    { "a": "HYPE", "b": "SOL" }
   ]
 }

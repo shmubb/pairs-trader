@@ -32,7 +32,7 @@ export class PairModel {
     this.cfg = { ...MODEL_DEFAULTS, ...cfg };
     const keep = Math.max(this.cfg.formationBars, this.cfg.longFormationBars) + 64;
     this.keep = keep;
-    this.t = []; this.la = []; this.lb = []; this.ra = []; this.rb = []; this.qa = []; this.qb = [];
+    this.t = []; this.la = []; this.lb = []; this.ra = []; this.rb = []; this.qa = []; this.qb = []; this.oiA = []; this.oiB = [];
     this.zHist = [];
     this.params = null;
     this.long = null;
@@ -52,6 +52,7 @@ export class PairModel {
     this.ra.push(n0 ? la - this.la[n0 - 1] : 0);
     this.rb.push(n0 ? lb - this.lb[n0 - 1] : 0);
     this.qa.push(bar.qa ?? 0); this.qb.push(bar.qb ?? 0);
+    this.oiA.push(bar.oiA ?? NaN); this.oiB.push(bar.oiB ?? NaN);
 
     // Volume EWMAs (prior to this bar) for relative-volume readings.
     const vDecay = 2 / (c.volumeAvgBars + 1);
@@ -107,6 +108,10 @@ export class PairModel {
     const lm = c.legMoveBars;
     const legMoveA = (la - this.la[n - 1 - lm]) / (p.volA * Math.sqrt(lm));
     const legMoveB = (lb - this.lb[n - 1 - lm]) / (p.volB * Math.sqrt(lm));
+    // Open-interest change over the same window: rising OI behind a move = new
+    // positioning (often informed); falling OI = forced closing (liquidations).
+    const oiChgA = this.oiA[n - 1] / this.oiA[n - 1 - lm] - 1;
+    const oiChgB = this.oiB[n - 1] / this.oiB[n - 1 - lm] - 1;
 
     return {
       t: bar.t, ready: true, bars: n,
@@ -115,7 +120,7 @@ export class PairModel {
       beta: p.beta, mu: p.mu, sigmaEq: p.sigmaEq, sigmaEps: p.sigmaEps,
       halfLife: p.halfLife, cointP: p.cointP, adfStat: p.adfStat, hurst: p.hurst,
       corr: p.corr, corrShort: p.corrShort, betaDrift: p.betaDrift,
-      volRatio, rvA, rvB, legMoveA, legMoveB,
+      volRatio, rvA, rvB, legMoveA, legMoveB, oiChgA, oiChgB,
       kalmanBeta: this.kBeta ? this.kBeta.beta : null,
       recalAt: p.t,
     };
@@ -163,6 +168,6 @@ export class PairModel {
 
   trim() {
     const cut = this.la.length - this.keep;
-    for (const k of ["t", "la", "lb", "ra", "rb", "qa", "qb", "zHist"]) this[k] = this[k].slice(cut);
+    for (const k of ["t", "la", "lb", "ra", "rb", "qa", "qb", "oiA", "oiB", "zHist"]) this[k] = this[k].slice(cut);
   }
 }

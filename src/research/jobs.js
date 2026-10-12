@@ -49,7 +49,7 @@ export async function scanPair(A, B, cfg, periods, { interval = "1h", legacy = f
     const res = runBacktest(bars, c, { startT, equity: 10_000, fixedNotional: legacy ? 20_000 : null, collectRecal: true, liquidity: true });
     out[p.name] = summarize(res);
     if (out[p.name]) out[p.name].start = new Date(startT).toISOString().slice(0, 10);
-    if (keepTrades) out[p.name + "Trades"] = res.trades.map((t) => ({ openT: t.openT, closeT: t.closeT, dir: t.dir, z: t.entryZ, pnl: t.pnl, r: t.r, ret: t.ret, kind: t.kind, bars: t.bars, adds: t.adds, hourUtc: t.hourUtc, dow: t.dow, rvA: t.rvA, rvB: t.rvB, legMove: t.legMove, legMoveA: t.legMoveA, legMoveB: t.legMoveB, signalT: t.signalT, volRatio: t.volRatio, zLong: t.zLong, halfLife: t.halfLife, cointP: t.cointP }));
+    if (keepTrades) out[p.name + "Trades"] = res.trades.map((t) => ({ openT: t.openT, closeT: t.closeT, dir: t.dir, z: t.entryZ, pnl: t.pnl, r: t.r, ret: t.ret, kind: t.kind, bars: t.bars, adds: t.adds, hourUtc: t.hourUtc, dow: t.dow, rvA: t.rvA, rvB: t.rvB, legMove: t.legMove, legMoveA: t.legMoveA, legMoveB: t.legMoveB, signalT: t.signalT, carry: t.carry, edgeRatio: t.edgeRatio, volRatio: t.volRatio, zLong: t.zLong, halfLife: t.halfLife, cointP: t.cointP }));
     if (keepTrades) out[p.name + "Equity"] = downsample(res.equity.slice(bars.findIndex((b) => b.t >= startT)), res.times.slice(bars.findIndex((b) => b.t >= startT)), 400);
   }
   return out;

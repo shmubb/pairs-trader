@@ -95,5 +95,7 @@ out.push(table("Leg impulse (σ over 24h)", (t) => (t.legMove < 1 ? "a <1σ" : t
 out.push(table("Entry |z|", (t) => (Math.abs(t.z) < 2.25 ? "a 2.0-2.25" : Math.abs(t.z) < 2.5 ? "b 2.25-2.5" : Math.abs(t.z) < 3 ? "c 2.5-3" : "d >3")));
 out.push(table("Scale-in adds used", (t) => `${t.adds} adds`));
 out.push(table("OI of the leg that moved, 24h change", (t) => (!Number.isFinite(t.oiMover) ? null : t.oiMover < -0.05 ? "a flush (< -5%)" : t.oiMover < 0 ? "b mild drop" : t.oiMover < 0.05 ? "c mild build" : "d build (> +5%)")));
+out.push(table("Funding carry over expected hold", (t) => (t.carry == null ? null : t.carry < -0.0005 ? "a pays > 5bp" : t.carry < 0 ? "b pays < 5bp" : t.carry < 0.0005 ? "c earns < 5bp" : "d earns > 5bp")));
+out.push(table("Edge / cost ratio at entry", (t) => (t.edgeRatio == null ? null : t.edgeRatio < 4 ? "a 2.5-4x" : t.edgeRatio < 8 ? "b 4-8x" : "c > 8x")));
 out.push(table("Long-window z agrees?", (t) => (!Number.isFinite(t.zLong) ? null : Math.sign(t.zLong) === Math.sign(t.z) ? (Math.abs(t.zLong) > Math.abs(t.z) ? "long more stretched" : "long same side, less") : "long opposite side")));
 await writeFile(args.out || `research/trade-study-${args.interval}.json`, JSON.stringify({ generated: new Date().toISOString(), config: cfg, tables: out }, null, 1));

@@ -54,8 +54,15 @@ export class Engine {
     await mkdir(this.stateDir, { recursive: true });
     this.info = this.injectedInfo || new HyperliquidInfo({ baseUrl: this.testnet ? TESTNET : MAINNET });
     const coins = this.pairs.flatMap((p) => [p.hlA, p.hlB]);
-    this.markets = await marketsFor(this.info, coins);
-    for (const c of coins) if (!this.markets[c]) throw new Error(`Hyperliquid has no perp named "${c}" — check config/universe.json`);
+    this.markets = await marketsFor(this.info, coins.filter((c) => !c.includes(":")));
+    for (const dex of [...new Set(coins.filter((c) => c.includes(":")).map((c) => c.split(":")[0]))]) {
+      try { Object.assign(this.markets, await marketsFor(this.info, coins.filter((c) => c.startsWith(dex + ":")))); }
+      catch (e) { this.log(`builder dex ${dex}: ${e.message}`); }
+    }
+    const missing = this.pairs.filter((p) => !this.markets[p.hlA] || !this.markets[p.hlB]);
+    for (const p of missing) this.log(`skipping ${p.id}: Hyperliquid has no perp named "${!this.markets[p.hlA] ? p.hlA : p.hlB}" (check config/universe.json)`);
+    this.pairs = this.pairs.filter((p) => !missing.includes(p));
+    if (!this.pairs.length) throw new Error("no tradeable pairs left — fix the coin names in config/universe.json");
 
     const saved = await this.loadState();
     if (this.mode === "paper") this.broker = new PaperBroker({ equity: this.paperEquity, fee: this.cfg.costs.takerFee, makerFee: this.cfg.costs.makerFee, slippage: this.cfg.costs.slippage, state: saved?.paper });
@@ -208,8 +215,13 @@ export class Engine {
     if (!closed.length) return;
     // Latest hourly funding (per hour) for carry estimates.
     const fA = this.markets[p.hlA]?.funding || 0, fB = this.markets[p.hlB]?.funding || 0;
+    // Open interest in USD from the latest market snapshot (refreshed hourly).
+    // Hyperliquid has no OI history endpoint, so the model's 24h OI change
+    // only becomes available after the engine has been running for a day.
+    const oiUsd = (c) => { const m = this.markets[c]; return m && m.openInterest ? m.openInterest * m.markPx : undefined; };
     for (let i = 0; i < closed.length; i++) {
-      const b = { ...closed[i], fundA: fA, fundB: fB, fundPeriodH: 1 };
+      const last = i === closed.length - 1;
+      const b = { ...closed[i], fundA: fA, fundB: fB, fundPeriodH: 1, oiA: last ? oiUsd(p.hlA) : undefined, oiB: last ? oiUsd(p.hlB) : undefined };
       p.snap = p.model.update(b);
       p.lastBarT = b.t;
       p.barIndex++;

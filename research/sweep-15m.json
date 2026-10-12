@@ -1,0 +1,218 @@
+{
+ "generated": "2026-10-12T21:22:05.893Z",
+ "interval": "15m",
+ "assets": [
+  "BTC",
+  "ETH",
+  "SOL",
+  "BNB",
+  "XRP",
+  "DOGE",
+  "LTC",
+  "BCH",
+  "LINK",
+  "AVAX",
+  "ARB",
+  "OP",
+  "AAVE",
+  "UNI"
+ ],
+ "periods": [
+  {
+   "name": "is",
+   "from": "2024-04-01",
+   "to": "2025-04-01"
+  },
+  {
+   "name": "oos",
+   "from": "2025-04-01"
+  }
+ ],
+ "summary": [
+  {
+   "name": "default (30d)",
+   "set": {},
+   "is": {
+    "n": 91,
+    "meanRet": -0.004635171627925728,
+    "pctPos": 0.31868131868131866,
+    "meanSharpe": -0.3670191321778155,
+    "trades": 7.7032967032967035,
+    "meanDD": 0.023506497169633447,
+    "worstRet": -0.03959945766282069
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.01271986270804617,
+    "pctPos": 0.32967032967032966,
+    "meanSharpe": -0.42646758646252836,
+    "trades": 16.34065934065934,
+    "meanDD": 0.03882361832174821,
+    "worstRet": -0.07411799619839332
+   }
+  },
+  {
+   "name": "default + maker exec",
+   "set": {
+    "costs.useMaker": true,
+    "costs.slippage": 0
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.001548881926374401,
+    "pctPos": 0.42857142857142855,
+    "meanSharpe": -0.2118018054669138,
+    "trades": 7.714285714285714,
+    "meanDD": 0.024108581771051456,
+    "worstRet": -0.040715252089067455
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.003166035773365643,
+    "pctPos": 0.37362637362637363,
+    "meanSharpe": -0.16878037500325713,
+    "trades": 16.36263736263736,
+    "meanDD": 0.03858776453048464,
+    "worstRet": -0.07131103470482836
+   }
+  },
+  {
+   "name": "combo ratio p<.05 stop 5",
+   "set": {
+    "model.hedge": "ratio",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.0014512341651668854,
+    "pctPos": 0.38461538461538464,
+    "meanSharpe": -0.2231136401650457,
+    "trades": 3.010989010989011,
+    "meanDD": 0.009535456966109745,
+    "worstRet": -0.021285229887596513
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.0023044681111827636,
+    "pctPos": 0.42857142857142855,
+    "meanSharpe": -0.12092476293841337,
+    "trades": 7.648351648351649,
+    "meanDD": 0.015241221488461453,
+    "worstRet": -0.027886493932826162
+   }
+  },
+  {
+   "name": "combo kalman p<.05 stop 5",
+   "set": {
+    "model.hedge": "kalman",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.0011522151734457125,
+    "pctPos": 0.4175824175824176,
+    "meanSharpe": -0.057538680544076966,
+    "trades": 2.5494505494505493,
+    "meanDD": 0.007300462963942073,
+    "worstRet": -0.03549317930421747
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.001460759103769933,
+    "pctPos": 0.43956043956043955,
+    "meanSharpe": -0.17083804536860434,
+    "trades": 4.241758241758242,
+    "meanDD": 0.010943240262530895,
+    "worstRet": -0.026249004643985385
+   }
+  },
+  {
+   "name": "combo ratio + hybrid exec",
+   "set": {
+    "model.hedge": "ratio",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.0011327587345402448,
+    "pctPos": 0.3956043956043956,
+    "meanSharpe": -0.1868520155828557,
+    "trades": 3.010989010989011,
+    "meanDD": 0.009594120128117552,
+    "worstRet": -0.021123305442822815
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.0012124648024900992,
+    "pctPos": 0.5054945054945055,
+    "meanSharpe": -0.0567790949418015,
+    "trades": 7.648351648351649,
+    "meanDD": 0.015123409147480577,
+    "worstRet": -0.027275527705395652
+   }
+  },
+  {
+   "name": "combo ratio + maker exec",
+   "set": {
+    "model.hedge": "ratio",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.useMaker": true,
+    "costs.slippage": 0
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.0007994706840582422,
+    "pctPos": 0.4065934065934066,
+    "meanSharpe": -0.1504609390666892,
+    "trades": 3.010989010989011,
+    "meanDD": 0.009664511279288338,
+    "worstRet": -0.020964172898900735
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.000048857874010725654,
+    "pctPos": 0.5384615384615384,
+    "meanSharpe": 0.007543452875331896,
+    "trades": 7.648351648351649,
+    "meanDD": 0.015037242444545552,
+    "worstRet": -0.02659900961362982
+   }
+  },
+  {
+   "name": "7d formation + maker",
+   "set": {
+    "model.hedge": "ratio",
+    "model.formationBars": 168,
+    "model.longFormationBars": 504,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.useMaker": true,
+    "costs.slippage": 0
+   },
+   "is": {
+    "n": 91,
+    "meanRet": -0.007168783838754001,
+    "pctPos": 0.32967032967032966,
+    "meanSharpe": -0.47328785180804867,
+    "trades": 12.307692307692308,
+    "meanDD": 0.022504753814070785,
+    "worstRet": -0.06714788461110488
+   },
+   "oos": {
+    "n": 91,
+    "meanRet": -0.0012968808260108307,
+    "pctPos": 0.4725274725274725,
+    "meanSharpe": -0.04237304241118915,
+    "trades": 23.36263736263736,
+    "meanDD": 0.030080616253645016,
+    "worstRet": -0.0984514341551288
+   }
+  }
+ ]
+}

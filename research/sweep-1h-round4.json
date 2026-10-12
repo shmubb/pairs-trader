@@ -1,0 +1,361 @@
+{
+ "generated": "2026-10-12T21:41:18.659Z",
+ "interval": "1h",
+ "assets": [
+  "BTC",
+  "ETH",
+  "SOL",
+  "BNB",
+  "XRP",
+  "DOGE",
+  "ADA",
+  "AVAX",
+  "LINK",
+  "DOT",
+  "LTC",
+  "BCH",
+  "ETC",
+  "ATOM",
+  "NEAR",
+  "APT",
+  "ARB",
+  "OP",
+  "INJ",
+  "AAVE",
+  "UNI",
+  "LDO",
+  "CRV",
+  "FIL",
+  "TRX",
+  "XLM",
+  "HBAR",
+  "kSHIB",
+  "FET"
+ ],
+ "periods": [
+  {
+   "name": "is",
+   "from": "2022-03-01",
+   "to": "2025-01-01"
+  },
+  {
+   "name": "oos",
+   "from": "2025-01-01"
+  }
+ ],
+ "summary": [
+  {
+   "name": "base: kalman60d p.05 stop5 hybrid",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00005160816745120143,
+    "pctPos": 0.33251231527093594,
+    "meanSharpe": -0.027058500765643183,
+    "trades": 1.6650246305418719,
+    "meanDD": 0.005534510924285323,
+    "worstRet": -0.03109329667581373
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00020618749782395365,
+    "pctPos": 0.3522167487684729,
+    "meanSharpe": -0.02629121200030211,
+    "trades": 1.7783251231527093,
+    "meanDD": 0.0057760553557716695,
+    "worstRet": -0.027720930502622143
+   }
+  },
+  {
+   "name": "+ OI build gate 5%",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "gates.maxMoverOiBuild": 0.05
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00012286188467521087,
+    "pctPos": 0.3078817733990148,
+    "meanSharpe": 0.0023933856243482025,
+    "trades": 1.2192118226600985,
+    "meanDD": 0.0039667359982773955,
+    "worstRet": -0.022573414033015937
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0004601521875796909,
+    "pctPos": 0.3078817733990148,
+    "meanSharpe": -0.02516738163196183,
+    "trades": 1.374384236453202,
+    "meanDD": 0.004514077456218665,
+    "worstRet": -0.03167491382992216
+   }
+  },
+  {
+   "name": "+ impulse ≤ 2σ",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "gates.maxLegMoveSigma": 2
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00014696571012187836,
+    "pctPos": 0.3251231527093596,
+    "meanSharpe": -0.024472053536779354,
+    "trades": 1.4679802955665024,
+    "meanDD": 0.00480582550183509,
+    "worstRet": -0.02512463188727576
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00029253767372470704,
+    "pctPos": 0.31773399014778325,
+    "meanSharpe": -0.03619225024472009,
+    "trades": 1.6133004926108374,
+    "meanDD": 0.005171367193721701,
+    "worstRet": -0.027720930502622143
+   }
+  },
+  {
+   "name": "+ carry cost ≤ 5bp",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "entry.maxCarryCost": 0.0005
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.00004703247263379958,
+    "pctPos": 0.31773399014778325,
+    "meanSharpe": -0.017557823525207298,
+    "trades": 1.3423645320197044,
+    "meanDD": 0.004719048007277695,
+    "worstRet": -0.03109329667581373
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0002825104648250451,
+    "pctPos": 0.3275862068965517,
+    "meanSharpe": -0.020722087864880504,
+    "trades": 1.5172413793103448,
+    "meanDD": 0.005065134104588381,
+    "worstRet": -0.027720930502622143
+   }
+  },
+  {
+   "name": "+ max first entry |z| 2.6",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "entry.maxEntryZ": 2.6
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00019657101864344043,
+    "pctPos": 0.3226600985221675,
+    "meanSharpe": -0.0077889850217252215,
+    "trades": 1.4926108374384237,
+    "meanDD": 0.004677342416244998,
+    "worstRet": -0.02512463188727576
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00028262815557912087,
+    "pctPos": 0.312807881773399,
+    "meanSharpe": -0.0272873397368808,
+    "trades": 1.6576354679802956,
+    "meanDD": 0.005100099990203961,
+    "worstRet": -0.022381640435371053
+   }
+  },
+  {
+   "name": "+ no ladder",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "ladder.enabled": false
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.00010496267174748732,
+    "pctPos": 0.33251231527093594,
+    "meanSharpe": -0.034466731864500645,
+    "trades": 1.6650246305418719,
+    "meanDD": 0.008177162451230159,
+    "worstRet": -0.047449555809338184
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00022244732862165262,
+    "pctPos": 0.3472906403940887,
+    "meanSharpe": -0.0335689942042335,
+    "trades": 1.7783251231527093,
+    "meanDD": 0.008369015342545368,
+    "worstRet": -0.041047063251964166
+   }
+  },
+  {
+   "name": "ALL filters, ladder",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "gates.maxMoverOiBuild": 0.05,
+    "gates.maxLegMoveSigma": 2,
+    "entry.maxCarryCost": 0.0005,
+    "entry.maxEntryZ": 2.6
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.000007736736759786844,
+    "pctPos": 0.2413793103448276,
+    "meanSharpe": -0.0004593786123667162,
+    "trades": 0.8152709359605911,
+    "meanDD": 0.00270012658053826,
+    "worstRet": -0.019103141317449612
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00017658878039828756,
+    "pctPos": 0.2733990147783251,
+    "meanSharpe": 0.01943040704363698,
+    "trades": 1.0492610837438423,
+    "meanDD": 0.003222283609025184,
+    "worstRet": -0.02107142894425451
+   }
+  },
+  {
+   "name": "ALL filters, no ladder",
+   "set": {
+    "model.hedge": "kalman",
+    "model.formationBars": 1440,
+    "model.longFormationBars": 4320,
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "gates.maxMoverOiBuild": 0.05,
+    "gates.maxLegMoveSigma": 2,
+    "entry.maxCarryCost": 0.0005,
+    "entry.maxEntryZ": 2.6,
+    "ladder.enabled": false
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.000054425473106874676,
+    "pctPos": 0.23645320197044334,
+    "meanSharpe": -0.00556143496816199,
+    "trades": 0.8152709359605911,
+    "meanDD": 0.004211288336439515,
+    "worstRet": -0.022951096159625428
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.00018103640158584125,
+    "pctPos": 0.26354679802955666,
+    "meanSharpe": 0.01321958172517801,
+    "trades": 1.0492610837438423,
+    "meanDD": 0.00493931117021718,
+    "worstRet": -0.027764246917064028
+   }
+  },
+  {
+   "name": "ALL filters on default 30d/OLS, taker",
+   "set": {
+    "gates.maxMoverOiBuild": 0.05,
+    "gates.maxLegMoveSigma": 2,
+    "entry.maxCarryCost": 0.0005,
+    "entry.maxEntryZ": 2.6
+   },
+   "is": {
+    "n": 406,
+    "meanRet": -0.0036955587973573106,
+    "pctPos": 0.39655172413793105,
+    "meanSharpe": -0.12889561594240176,
+    "trades": 7.384236453201971,
+    "meanDD": 0.01987147788379949,
+    "worstRet": -0.08487844338856498
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": -0.0006586509498150138,
+    "pctPos": 0.47044334975369456,
+    "meanSharpe": -0.04677842453105991,
+    "trades": 8.014778325123153,
+    "meanDD": 0.01908353225340623,
+    "worstRet": -0.05660411955259792
+   }
+  },
+  {
+   "name": "ALL filters 30d ratio p.05 stop5 hybrid",
+   "set": {
+    "model.hedge": "ratio",
+    "gates.maxCointP": 0.05,
+    "exit.stopZ": 5,
+    "costs.takerFee": 0.0003,
+    "costs.slippage": 0.00015,
+    "gates.maxMoverOiBuild": 0.05,
+    "gates.maxLegMoveSigma": 2,
+    "entry.maxCarryCost": 0.0005,
+    "entry.maxEntryZ": 2.6
+   },
+   "is": {
+    "n": 406,
+    "meanRet": 0.0001631464002306025,
+    "pctPos": 0.45073891625615764,
+    "meanSharpe": 0.03198415948069662,
+    "trades": 3.1995073891625614,
+    "meanDD": 0.007306283630184241,
+    "worstRet": -0.03704196129755144
+   },
+   "oos": {
+    "n": 406,
+    "meanRet": 0.00016216350450333245,
+    "pctPos": 0.43103448275862066,
+    "meanSharpe": -0.011219823269659722,
+    "trades": 3.5369458128078817,
+    "meanDD": 0.007571086054956106,
+    "worstRet": -0.02428810964215955
+   }
+  }
+ ]
+}

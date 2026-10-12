@@ -49,7 +49,7 @@ function fakeHL() {
 
 test("engine: warms up, opens a β-weighted pair, closes it, and honours the kill switch (paper)", async () => {
   const dir = await mkdtemp(join(tmpdir(), "pt-"));
-  const cfg = await loadConfig();
+  const cfg = await loadConfig(undefined, { model: { hedge: "ols" } }); // mechanics test: regression β so leg sizing is non-trivial
   const logs = [];
   const eng = new Engine({ cfg, pairs: [{ a: "AAA", b: "BBB", hlA: "AAA", hlB: "BBB" }], mode: "paper", equity: 10_000, stateDir: dir, port: 0, info: fakeHL(), autoLoop: false, log: (m) => logs.push(m) });
   await eng.start();

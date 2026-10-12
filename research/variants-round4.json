@@ -1,0 +1,135 @@
+[
+ {
+  "name": "base: kalman60d p.05 stop5 hybrid",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015
+  }
+ },
+ {
+  "name": "+ OI build gate 5%",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "gates.maxMoverOiBuild": 0.05
+  }
+ },
+ {
+  "name": "+ impulse ≤ 2σ",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "gates.maxLegMoveSigma": 2
+  }
+ },
+ {
+  "name": "+ carry cost ≤ 5bp",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "entry.maxCarryCost": 0.0005
+  }
+ },
+ {
+  "name": "+ max first entry |z| 2.6",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "entry.maxEntryZ": 2.6
+  }
+ },
+ {
+  "name": "+ no ladder",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "ladder.enabled": false
+  }
+ },
+ {
+  "name": "ALL filters, ladder",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "gates.maxMoverOiBuild": 0.05,
+   "gates.maxLegMoveSigma": 2,
+   "entry.maxCarryCost": 0.0005,
+   "entry.maxEntryZ": 2.6
+  }
+ },
+ {
+  "name": "ALL filters, no ladder",
+  "set": {
+   "model.hedge": "kalman",
+   "model.formationBars": 1440,
+   "model.longFormationBars": 4320,
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "gates.maxMoverOiBuild": 0.05,
+   "gates.maxLegMoveSigma": 2,
+   "entry.maxCarryCost": 0.0005,
+   "entry.maxEntryZ": 2.6,
+   "ladder.enabled": false
+  }
+ },
+ {
+  "name": "ALL filters on default 30d/OLS, taker",
+  "set": {
+   "gates.maxMoverOiBuild": 0.05,
+   "gates.maxLegMoveSigma": 2,
+   "entry.maxCarryCost": 0.0005,
+   "entry.maxEntryZ": 2.6
+  }
+ },
+ {
+  "name": "ALL filters 30d ratio p.05 stop5 hybrid",
+  "set": {
+   "model.hedge": "ratio",
+   "gates.maxCointP": 0.05,
+   "exit.stopZ": 5,
+   "costs.takerFee": 0.0003,
+   "costs.slippage": 0.00015,
+   "gates.maxMoverOiBuild": 0.05,
+   "gates.maxLegMoveSigma": 2,
+   "entry.maxCarryCost": 0.0005,
+   "entry.maxEntryZ": 2.6
+  }
+ }
+]

@@ -1,7 +1,7 @@
 // Load aligned two-leg history from the local cache (Node only).
 
 import { readFile } from "node:fs/promises";
-import { loadKlines, loadFunding } from "./binance-archive.js";
+import { loadKlines, loadFunding, loadMetrics } from "./binance-archive.js";
 
 let universeCache = null;
 export async function loadUniverse() {
@@ -24,7 +24,9 @@ export async function loadAsset(id, interval = "1h", cacheDir = "data/cache") {
   const k = await loadKlines(a.binance, interval, cacheDir);
   if (!k) throw new Error(`no cached ${interval} data for ${id} — run: node bin/fetch-data.js --assets ${id}`);
   const f = (await loadFunding(a.binance, cacheDir)) || [];
-  const out = { id, interval, k, funding: f };
+  const m = await loadMetrics(a.binance, cacheDir);
+  const oi = m ? new Map(m.map((r) => [r.t, r.oi])) : null;
+  const out = { id, interval, k, funding: f, oi };
   seriesCache.set(key, out);
   return out;
 }
@@ -34,6 +36,7 @@ export async function loadAsset(id, interval = "1h", cacheDir = "data/cache") {
  * {t, oa, ob, pa, pb, qa, qb, fa, fb} — opens, closes, quote volumes, and the
  * funding rate (per 8h on Binance) that settled during the bar, else 0.
  * `fundA`/`fundB` carry the most recent known funding rate (for carry estimates).
+ * `oiA`/`oiB` are open interest (USD) at the hour, when downloaded (--metrics).
  */
 export async function loadPair(idA, idB, { interval = "1h", from, to, cacheDir = "data/cache" } = {}) {
   const [A, B] = await Promise.all([loadAsset(idA, interval, cacheDir), loadAsset(idB, interval, cacheDir)]);
@@ -51,7 +54,8 @@ export async function loadPair(idA, idB, { interval = "1h", from, to, cacheDir =
     let fa = 0, fb = 0;
     while (fIdx.a < A.funding.length && A.funding[fIdx.a].t < end) { if (A.funding[fIdx.a].t >= ra.t) { fa += A.funding[fIdx.a].rate; } lastFa = A.funding[fIdx.a].rate; fIdx.a++; }
     while (fIdx.b < B.funding.length && B.funding[fIdx.b].t < end) { if (B.funding[fIdx.b].t >= ra.t) { fb += B.funding[fIdx.b].rate; } lastFb = B.funding[fIdx.b].rate; fIdx.b++; }
-    bars.push({ t: ra.t, oa: ra.o, ob: rb.o, pa: ra.c, pb: rb.c, qa: ra.qv, qb: rb.qv, fa, fb, fundA: lastFa, fundB: lastFb });
+    const hour = ra.t - (ra.t % 3600_000);
+    bars.push({ t: ra.t, oa: ra.o, ob: rb.o, pa: ra.c, pb: rb.c, qa: ra.qv, qb: rb.qv, fa, fb, fundA: lastFa, fundB: lastFb, oiA: A.oi?.get(hour), oiB: B.oi?.get(hour) });
   }
   return bars;
 }

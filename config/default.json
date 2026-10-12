@@ -1,9 +1,9 @@
 {
-  "_comment": "Every tunable in one place. Bars are in units of `interval`. See docs/STRATEGY.md for what each one does and why it has the value it has.",
+  "_comment": "Every tunable in one place, written for 1h bars (other intervals are rescaled automatically). These defaults are the configuration that held up best in docs/RESEARCH.md: fixed-ratio hedge, strict cointegration, wide stop sized from risk, OI/impulse/carry filters. costs.takerFee/slippage are blended for hybrid (maker-then-hedge) entries; see docs/STRATEGY.md.",
   "interval": "1h",
 
   "model": {
-    "hedge": "ols",
+    "hedge": "ratio",
     "formationBars": 720,
     "longFormationBars": 2160,
     "recalEvery": 24,
@@ -18,7 +18,7 @@
   },
 
   "gates": {
-    "maxCointP": 0.10,
+    "maxCointP": 0.05,
     "minHalfLifeBars": 3,
     "maxHalfLifeBars": 120,
     "maxHurst": 0.55,
@@ -27,9 +27,10 @@
     "maxVolRatio": 2.5,
     "minBeta": 0.2,
     "maxBeta": 5,
-    "maxLegMoveSigma": 4,
+    "maxLegMoveSigma": 2,
     "requireLongAgreement": false,
-    "maxOpposingLongZ": 3.0
+    "maxOpposingLongZ": 3.0,
+    "maxMoverOiBuild": 0.05
   },
 
   "entry": {
@@ -37,10 +38,11 @@
     "confirm": "stall",
     "stallGiveback": 0.15,
     "minEdgeCostRatio": 2.5,
-    "maxEntryZ": 3.3,
+    "maxEntryZ": 2.6,
     "cooldownBarsAfterStop": 48,
     "volumeFilter": "off",
-    "maxRelVolume": 4
+    "maxRelVolume": 4,
+    "maxCarryCost": 0.0005
   },
 
   "ladder": {
@@ -58,7 +60,7 @@
     "z": 0.0,
     "partialZ": null,
     "partialFraction": 0.5,
-    "stopZ": 4.0,
+    "stopZ": 5.0,
     "timeStopHalfLives": 3,
     "minTimeStopBars": 12,
     "maxHoldBars": 336,
@@ -82,9 +84,9 @@
   },
 
   "costs": {
-    "takerFee": 0.00045,
+    "takerFee": 0.0003,
     "makerFee": 0.00015,
-    "slippage": 0.0003,
+    "slippage": 0.00015,
     "useMaker": false
   },
 

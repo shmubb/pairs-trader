@@ -29,7 +29,7 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 node bin/fetch-data.js            # download history (≈500 MB, a few minutes)
 node bin/backtest.js ETH BTC      # new rules
 node bin/backtest.js ETH BTC --legacy   # old rules, same data
-npm test                          # 20 tests
+npm test                          # 25 tests
 
 cp config/engine.example.json config/engine.json
 node bin/engine.js                # paper trading + dashboard at http://localhost:8787

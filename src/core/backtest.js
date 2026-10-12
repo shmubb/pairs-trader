@@ -58,7 +58,7 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
           if (fixedNotional) plan = { ok: true, notionalA: fixedNotional / (1 + Math.abs(it.snap.beta)), maxLoss: fixedNotional * 0.05 };
           else plan = planPosition(it.snap, sc, risk, { equity: eqNow, grossOpen: 0 }, { volA24h: it.volA24h, volB24h: it.volB24h });
           if (!plan.ok) { strat.pos = null; continue; }
-          trade = { openT: b.t, openBar: i, dir: it.dir, equityBefore: eqNow, plan, fees: 0, funding: 0, adds: 0, entryZ: it.snap.z, beta: it.snap.beta, halfLife: it.snap.halfLife, cointP: it.snap.cointP, rvA: it.snap.rvA, rvB: it.snap.rvB, hourUtc: new Date(it.snap.t).getUTCHours(), dow: new Date(it.snap.t).getUTCDay(), legMove: Math.max(Math.abs(it.snap.legMoveA), Math.abs(it.snap.legMoveB)), legMoveA: it.snap.legMoveA, legMoveB: it.snap.legMoveB, signalT: it.snap.t, volRatio: it.snap.volRatio, zLong: it.snap.zLong };
+          trade = { openT: b.t, openBar: i, dir: it.dir, equityBefore: eqNow, plan, fees: 0, funding: 0, adds: 0, entryZ: it.snap.z, beta: it.snap.beta, halfLife: it.snap.halfLife, cointP: it.snap.cointP, rvA: it.snap.rvA, rvB: it.snap.rvB, hourUtc: new Date(it.snap.t).getUTCHours(), dow: new Date(it.snap.t).getUTCDay(), legMove: Math.max(Math.abs(it.snap.legMoveA), Math.abs(it.snap.legMoveB)), legMoveA: it.snap.legMoveA, legMoveB: it.snap.legMoveB, signalT: it.snap.t, carry: it.edge ? it.edge.carry : null, edgeRatio: it.edge ? it.edge.ratio : null, volRatio: it.snap.volRatio, zLong: it.snap.zLong };
           guard.openPairs = 1;
         }
         if (!trade) continue;
@@ -126,7 +126,7 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
     const d = strat.onBar(snap, ctx);
     lastDiag = d;
     for (const it of d.intents) {
-      pending.push({ ...it, kind: d.action, snap, volA24h: opts.liquidity ? avgVol(bars, i, "qa") : undefined, volB24h: opts.liquidity ? avgVol(bars, i, "qb") : undefined });
+      pending.push({ ...it, kind: d.action, snap, edge: d.edge, volA24h: opts.liquidity ? avgVol(bars, i, "qa") : undefined, volB24h: opts.liquidity ? avgVol(bars, i, "qb") : undefined });
     }
   }
   // Close anything still open at the last close (marked, not filled).

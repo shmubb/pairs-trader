@@ -8,11 +8,12 @@
   "statusPort": 8787,
   "stateDir": "state",
   "overrides": {
-    "exchange": { "leverage": 5, "slippage": 0.005, "maxSlippage": 0.015, "entryStyle": "taker" }
+    "exchange": { "leverage": 5, "slippage": 0.005, "maxSlippage": 0.015, "entryStyle": "hybrid" }
   },
   "pairs": [
-    { "a": "ETH", "b": "BTC" },
+    { "a": "HBAR", "b": "kSHIB" },
     { "a": "LINK", "b": "DOT" },
-    { "a": "LTC", "b": "ETC" }
+    { "a": "INJ", "b": "PYTH" },
+    { "a": "NEAR", "b": "ONDO" }
   ]
 }

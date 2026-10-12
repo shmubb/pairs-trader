@@ -11,11 +11,11 @@ export const STRATEGY_DEFAULTS = {
   gates: {
     maxCointP: 0.10, minHalfLifeBars: 3, maxHalfLifeBars: 120, maxHurst: 0.55,
     minCorr: 0.6, minCorrShort: 0.4, maxVolRatio: 2.5, minBeta: 0.2, maxBeta: 5,
-    maxLegMoveSigma: 4, requireLongAgreement: false, maxOpposingLongZ: 3.0,
+    maxLegMoveSigma: 4, requireLongAgreement: false, maxOpposingLongZ: 3.0, maxMoverOiBuild: null,
   },
   entry: {
     z: 2.0, confirm: "stall", stallGiveback: 0.15, minEdgeCostRatio: 2.5, maxEntryZ: 3.3,
-    cooldownBarsAfterStop: 48, volumeFilter: "off", maxRelVolume: 4,
+    cooldownBarsAfterStop: 48, volumeFilter: "off", maxRelVolume: 4, maxCarryCost: null,
   },
   ladder: {
     enabled: true,
@@ -67,6 +67,11 @@ export function evaluateGates(snap, cfg) {
   add("beta", Math.abs(snap.beta) >= g.minBeta && Math.abs(snap.beta) <= g.maxBeta, snap.beta, [g.minBeta, g.maxBeta], "implausible hedge ratios signal a broken fit");
   const legMove = Math.max(Math.abs(snap.legMoveA), Math.abs(snap.legMoveB));
   add("impulse", !(legMove > g.maxLegMoveSigma), legMove, g.maxLegMoveSigma, "one leg is in a violent move (crash/pump/news); wait for it to settle");
+  if (g.maxMoverOiBuild != null) {
+    const moverA = Math.abs(snap.legMoveA) >= Math.abs(snap.legMoveB);
+    const oi = moverA ? snap.oiChgA : snap.oiChgB;
+    add("positioning", !(oi > g.maxMoverOiBuild), Number.isFinite(oi) ? oi : null, g.maxMoverOiBuild, "open interest building behind the move = new (often informed) positioning, which reverts less than forced liquidations; unknown OI passes");
+  }
   if (Number.isFinite(snap.zLong)) {
     const opposing = Math.sign(snap.zLong) === Math.sign(snap.z) && Math.abs(snap.zLong) > g.maxOpposingLongZ;
     add("longHorizon", !opposing, snap.zLong, g.maxOpposingLongZ, "the spread is also extreme on the 3× longer window — likely a trend, not a wobble");
@@ -147,6 +152,7 @@ export class PairStrategy {
     const carry = (ctx.carryPerBar ?? 0) * dir * hold;
     const ratio = (gross + Math.max(0, carry)) / (cost + Math.max(0, -carry));
     out.edge = { gross, cost, carry, ratio, holdBars: hold };
+    if (c.entry.maxCarryCost != null && -carry > c.entry.maxCarryCost) blockers.push(`funding would cost ${(-carry * 1e4).toFixed(1)}bp over the expected hold (max ${(c.entry.maxCarryCost * 1e4).toFixed(0)}bp)`);
     if (ratio < c.entry.minEdgeCostRatio) blockers.push(`edge ${(gross * 100).toFixed(2)}% only ${ratio.toFixed(1)}× costs (need ${c.entry.minEdgeCostRatio}×)`);
 
     if (blockers.length) {
