@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pairs Trader</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111111'/><path d='M6 22 L11 16 L16 19 L21 10 L26 13' stroke='%2394a3b8' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='26' cy='13' r='2.5' fill='%2394a3b8'/></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1011; --panel: #17181a; --panel-2: #1e2023; --line: #2a2d31; --line-2: #3a3e44;
+    --text: #f2f3f5; --muted: #9aa0a8; --faint: #5d636b;
+    --long: #eab308;  /* long the spread: A cheap vs B */
+    --short: #a855f7; /* short the spread: A rich vs B */
+    --good: #22c55e; --warn: #f59e0b; --bad: #ef4444; --info: #60a5fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Outfit', system-ui, sans-serif; min-height: 100vh; font-size: 14px; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  button, input, select { font: inherit; color: inherit; }
+  a { color: var(--info); }
+
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: -.02em; font-size: 18px; }
+  .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text); box-shadow: 0 0 10px var(--text); }
+  select, input[type=text], input[type=number] { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; outline: none; }
+  select:focus, input:focus { border-color: var(--line-2); }
+  #pair-select { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 16px; }
+  .seg { display: inline-flex; background: var(--panel-2); border-radius: 6px; padding: 2px; gap: 2px; }
+  .seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+  .seg button.on { background: var(--text); color: var(--bg); }
+  .spacer { flex: 1; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .pill .led { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+  .led.ok { background: var(--good); box-shadow: 0 0 6px var(--good); } .led.warn { background: var(--warn); } .led.bad { background: var(--bad); }
+
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding: 16px 20px 40px; }
+  @media (max-width: 1050px) { main { grid-template-columns: minmax(0, 1fr); padding: 12px 16px 40px; } header { padding: 10px 16px; } }
+  .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+  .card h3 { font-size: 11px; letter-spacing: .1em; color: var(--muted); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .card h3 .sub { letter-spacing: 0; font-weight: 400; color: var(--faint); }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* Action banner */
+  .action { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+  @media (max-width: 640px) { .action { grid-template-columns: minmax(0, 1fr); } }
+  .badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 15px; letter-spacing: .04em; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+  .b-enter { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); }
+  .b-wait { background: var(--panel-2); color: var(--muted); }
+  .b-notrade { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); }
+  .b-hold { background: color-mix(in srgb, var(--info) 15%, transparent); color: var(--info); }
+  .b-exit { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+  .direction { font-size: 17px; font-weight: 700; }
+  .reasons { margin-top: 4px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .zbig { text-align: right; }
+  .zbig .v { font-size: 40px; font-weight: 800; line-height: 1; font-family: 'JetBrains Mono', monospace; }
+  .zbig .l { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* Charts */
+  .chart { position: relative; width: 100%; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .tip { position: absolute; pointer-events: none; background: #000d; border: 1px solid var(--line-2); border-radius: 6px; padding: 6px 8px; font-size: 11px; white-space: nowrap; opacity: 0; transition: opacity .1s; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .legend i { display: inline-block; width: 14px; height: 2px; vertical-align: middle; margin-right: 5px; }
+
+  /* Key/value grids */
+  .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .kv div { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+  .kv .k { font-size: 10px; color: var(--muted); letter-spacing: .04em; }
+  .kv .v { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 15px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; }
+  .kv .s { font-size: 10px; color: var(--faint); margin-top: 2px; }
+
+  .gates { display: flex; flex-direction: column; gap: 4px; }
+  .gate { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 12px; padding: 5px 6px; border-radius: 6px; }
+  .gate:hover { background: var(--panel-2); }
+  .gate .val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .ok-c { color: var(--good); } .bad-c { color: var(--bad); } .warn-c { color: var(--warn); } .muted { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 10px; letter-spacing: .05em; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+  td { padding: 6px; border-bottom: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; }
+  tr.click { cursor: pointer; } tr.click:hover td { background: var(--panel-2); }
+  .scroll-x { overflow-x: auto; }
+
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .row label { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+  .row input { width: 100px; }
+  .btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
+  .btn:hover { border-color: var(--line-2); }
+  .btn.on { border-color: var(--good); color: var(--good); }
+
+  .heat-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .heat-wrap { grid-template-columns: 1fr; } }
+  .log { font-size: 11px; max-height: 220px; overflow: auto; white-space: pre-wrap; color: var(--muted); line-height: 1.5; }
+  .warnbox { border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); background: color-mix(in srgb, var(--warn) 8%, transparent); color: var(--warn); border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.5; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  .foot { padding: 0 20px 30px; color: var(--faint); font-size: 11px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="dot"></div>PAIRS</div>
+  <select id="pair-select" aria-label="Pair"></select>
+  <input id="pair-custom" type="text" class="mono" placeholder="custom: SOL/ETH" style="width:150px" aria-label="Custom pair">
+  <div class="seg" id="interval-seg"><button data-v="15m">15m</button><button data-v="1h" class="on">1h</button></div>
+  <div class="spacer"></div>
+  <span class="pill mono"><span class="led" id="data-led"></span><span id="data-status">connecting…</span></span>
+  <span class="pill mono"><span class="led" id="engine-led"></span><span id="engine-status">engine offline</span></span>
+  <span class="pill mono" id="clock">--:--:--</span>
+</header>
+
+<main>
+  <div class="col">
+    <section class="card">
+      <div class="action">
+        <span class="badge b-wait" id="action-badge">LOADING</span>
+        <div>
+          <div class="direction" id="action-direction">—</div>
+          <div class="reasons" id="action-reasons">Fetching history from Hyperliquid…</div>
+        </div>
+        <div class="zbig">
+          <div class="v" id="z-live">—</div>
+          <div class="l mono" id="z-sub">live z · bar z —</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>SPREAD Z-SCORE <span class="sub" id="chart-sub">as it looked in real time (no hindsight)</span></h3>
+      <div class="chart" id="z-chart"></div>
+      <div class="legend" id="z-legend"></div>
+    </section>
+
+    <section class="card">
+      <h3>LIQUIDATION &amp; STOP HEAT <span class="sub">modelled estimate + live order book</span></h3>
+      <div class="heat-wrap"><div id="heat-a"></div><div id="heat-b"></div></div>
+      <p class="hint" style="margin-top:8px">Bars show where leveraged positions opened in recent candles would be liquidated (model: volume × 5–100× leverage, levels price has already swept are removed). Cascades through these zones cause the overshoots this strategy fades — and they're where a leg can get wicked. Dashed lines: round-number / swing levels where stops cluster. Depth = resting book within ±1%.</p>
+    </section>
+
+    <section class="card">
+      <h3>SCANNER <span class="sub" id="scan-sub">research-shortlisted pairs, refreshed in rotation</span></h3>
+      <div class="scroll-x"><table id="scan-table"><thead><tr><th>PAIR</th><th>Z</th><th>ACTION</th><th>HALF-LIFE</th><th>COINT P</th><th>CORR</th><th>EDGE</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section class="card" id="engine-card" hidden>
+      <h3>ENGINE <span class="sub" id="engine-sub"></span></h3>
+      <div class="kv" id="engine-kv"></div>
+      <h3 style="margin-top:12px">LOG</h3>
+      <div class="log mono" id="engine-log"></div>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="card">
+      <h3>RISK TICKET <span class="sub">sized from the stop</span></h3>
+      <div class="row">
+        <label>Account $<input id="r-equity" type="number" value="10000" min="0" step="100"></label>
+        <label>Risk / trade %<input id="r-risk" type="number" value="1" min="0.1" max="5" step="0.1"></label>
+        <label>Max gross lev<input id="r-lev" type="number" value="3" min="0.5" max="20" step="0.5"></label>
+      </div>
+      <div id="ticket" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card">
+      <h3>TRADEABILITY GATES <span class="sub" id="gates-sub"></span></h3>
+      <div class="gates" id="gates"></div>
+    </section>
+
+    <section class="card">
+      <h3>MODEL &amp; REGIME</h3>
+      <div class="kv" id="regime"></div>
+    </section>
+
+    <section class="card">
+      <h3>FUNDING &amp; CARRY</h3>
+      <div class="kv" id="funding"></div>
+    </section>
+
+    <section class="card">
+      <h3>SESSIONS &amp; EVENTS</h3>
+      <div id="sessions"></div>
+    </section>
+
+    <section class="card">
+      <h3>MY POSITIONS <span class="sub">read-only</span></h3>
+      <div class="row"><input id="wallet" type="text" class="mono" placeholder="0x… main wallet address" style="flex:1;min-width:0"><button class="btn" id="wallet-go">Load</button></div>
+      <div id="positions" style="margin-top:10px" class="hint">Paste your Hyperliquid address to watch your legs (no keys, read-only).</div>
+    </section>
+
+    <section class="card">
+      <h3>ALERTS</h3>
+      <div class="row"><button class="btn" id="al-sound">Sound off</button><button class="btn" id="al-push">Notifications off</button></div>
+      <div class="hint" id="al-log" style="margin-top:8px">Fires when a watched pair turns ENTER, or when an open engine position exits.</div>
+    </section>
+  </div>
+</main>
+<div class="foot">
+  Data: Hyperliquid public API, straight from your browser. Signals use the same model, gates and risk code as the backtester and the engine (src/core). This page never holds keys and cannot trade — run the engine for that (docs/RUNBOOK.md). Not financial advice; the research notes in docs/RESEARCH.md show where this edge is thin.
+  <a href="legacy/index.html">Old version</a>
+</div>
+<script type="module" src="src/ui/app.js"></script>
+</body>
+</html>

@@ -17,6 +17,7 @@ import { loadConfig } from "../src/util/config.js";
 import { loadUniverse } from "../src/data/history.js";
 import { mergeConfig } from "../src/core/strategy.js";
 import { parseArgs } from "../src/util/args.js";
+import { scaleConfig } from "../src/core/timeframe.js";
 
 const args = parseArgs(process.argv.slice(2), {});
 const engPath = args.engine || (existsSync("config/engine.json") ? "config/engine.json" : "config/engine.example.json");
@@ -35,6 +36,7 @@ if (existsSync(".env")) {
 
 let cfg = await loadConfig(eng.config);
 if (eng.overrides) cfg = mergeConfig(cfg, eng.overrides);
+cfg = scaleConfig(cfg, eng.interval || cfg.interval);
 const uni = await loadUniverse();
 const pairs = eng.pairs.map((p) => {
   const A = uni.find((u) => u.id === p.a), B = uni.find((u) => u.id === p.b);

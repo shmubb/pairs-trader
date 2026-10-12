@@ -1,0 +1,14 @@
+{
+  "_comment": "Pairs the dashboard scanner watches. Generated from research (see docs/RESEARCH.md); edit freely — any two Hyperliquid perps work, and the custom box in the header accepts e.g. SOL/ETH.",
+  "pairs": [
+    { "a": "ETH", "b": "BTC" },
+    { "a": "LINK", "b": "DOT" },
+    { "a": "LTC", "b": "ETC" },
+    { "a": "ETC", "b": "FIL" },
+    { "a": "ADA", "b": "LINK" },
+    { "a": "AVAX", "b": "LINK" },
+    { "a": "SOL", "b": "ETH" },
+    { "a": "HYPE", "b": "SOL" },
+    { "a": "GOLD", "b": "SILVER" }
+  ]
+}

@@ -14,6 +14,7 @@ import { mergeConfig } from "../src/core/strategy.js";
 import { loadConfig, setPath } from "../src/util/config.js";
 import { parseArgs } from "../src/util/args.js";
 import { fmtMetrics } from "../src/util/format.js";
+import { scaleConfig } from "../src/core/timeframe.js";
 
 const args = parseArgs(process.argv.slice(2), { interval: "1h", from: "2022-03-01", equity: 10000 });
 const [A, B] = args._;
@@ -24,6 +25,7 @@ for (const s of [].concat(args.set || [])) {
   const [k, v] = String(s).split("=");
   setPath(cfg, k, v === "true" ? true : v === "false" ? false : v === "null" ? null : isNaN(Number(v)) ? v : Number(v));
 }
+cfg = scaleConfig(cfg, args.interval);
 const legacyWindow = args.interval === "15m" ? 96 : args.interval === "5m" ? 288 : 24;
 if (args.legacy) cfg = mergeConfig(cfg, legacyConfig(legacyWindow));
 
