@@ -4,7 +4,9 @@
   "private": true,
   "description": "Statistical-arbitrage pairs trader for Hyperliquid perps: cointegration/OU signal, regime gates, risk engine, backtester and execution engine.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test test/*.test.js",
     "fetch-data": "node bin/fetch-data.js",
@@ -13,5 +15,9 @@
     "research": "node bin/research.js",
     "engine": "node bin/engine.js",
     "serve": "node bin/serve.js"
+  },
+  "optionalDependencies": {
+    "@nktkas/hyperliquid": "0.33.3",
+    "viem": "2.57.5"
   }
 }

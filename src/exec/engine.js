@@ -27,7 +27,8 @@ const STEP = { "5m": 3e5, "15m": 9e5, "1h": 36e5, "4h": 144e5 };
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 export class Engine {
-  constructor({ cfg, pairs, mode = "paper", interval = "1h", equity = 10_000, pollSeconds = 20, stateDir = "state", port = 8787, testnet = false, env = process.env, log, info, autoLoop = true }) {
+  constructor({ cfg, pairs, mode = "paper", interval = "1h", equity = 10_000, pollSeconds = 20, stateDir = "state", port = 8787, testnet = false, env = process.env, log, info, autoLoop = true, resetHalt = false }) {
+    this.resetHalt = resetHalt;
     this.injectedInfo = info;
     this.autoLoop = autoLoop;
     this.cfg = cfg;
@@ -64,6 +65,7 @@ export class Engine {
 
     this.guard = new AccountGuard(this.cfg.risk);
     if (saved?.guard) Object.assign(this.guard, saved.guard);
+    if (this.resetHalt) { this.guard.reset(); this.log("drawdown halt reset by operator (--reset-halt)"); }
     this.trades = saved?.trades || [];
 
     for (const p of this.pairs) await this.warm(p, saved?.pairs?.[p.id]);

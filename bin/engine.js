@@ -9,6 +9,7 @@
 // Live mode reads HL_ACCOUNT (main wallet address) and HL_AGENT_KEY (API
 // wallet private key) from the environment or a .env file in the project root.
 // Stop instantly: create the file state/KILL (the engine flattens and idles).
+// After a drawdown halt: review what happened, then restart with --reset-halt.
 
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -50,6 +51,6 @@ if (mode === "live" && !testnet && !args["i-understand"]) {
 }
 
 console.log(`config: ${engPath} → ${mode}${testnet ? " (testnet)" : ""}`);
-const engine = new Engine({ cfg, pairs, mode, interval: eng.interval || cfg.interval, equity: eng.paperEquity ?? 10_000, pollSeconds: eng.pollSeconds ?? 20, stateDir: eng.stateDir || "state", port: eng.statusPort ?? 8787, testnet, env });
+const engine = new Engine({ cfg, pairs, mode, interval: eng.interval || cfg.interval, equity: eng.paperEquity ?? 10_000, pollSeconds: eng.pollSeconds ?? 20, stateDir: eng.stateDir || "state", port: eng.statusPort ?? 8787, testnet, env, resetHalt: !!args["reset-halt"] });
 process.on("SIGINT", async () => { console.log("\nstopping (positions are left as they are; state saved)"); engine.running = false; await engine.saveState().catch(() => {}); process.exit(0); });
 await engine.start();

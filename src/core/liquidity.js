@@ -73,7 +73,7 @@ export function stopLevels(candles, { lookback = 168 } = {}) {
   const last = candles[candles.length - 1].c;
   const mag = Math.pow(10, Math.floor(Math.log10(last)) - 1);
   const out = [];
-  for (const step of [mag * 10, mag * 5]) {
+  for (const step of [mag * 10, mag * 5, mag]) {
     const below = Math.floor(last / step) * step, above = Math.ceil(last / step) * step;
     out.push({ px: below, kind: "round", side: "below" }, { px: above, kind: "round", side: "above" });
   }

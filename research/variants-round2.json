@@ -1,0 +1,12 @@
+[
+  { "name": "old app rules (reference)", "legacy": true, "set": {} },
+  { "name": "default", "set": {} },
+  { "name": "combo: ratio, 60d, p<.05, stop 5", "set": { "model.hedge": "ratio", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo: kalman, 60d, p<.05, stop 5", "set": { "model.hedge": "kalman", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo: ols, 60d, p<.05, stop 5", "set": { "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo ratio, 30d", "set": { "model.hedge": "ratio", "gates.maxCointP": 0.05, "exit.stopZ": 5 } },
+  { "name": "combo ratio + entry 2.5", "set": { "model.hedge": "ratio", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5, "entry.z": 2.5, "entry.maxEntryZ": 3.8 } },
+  { "name": "combo ratio + hybrid exec", "set": { "model.hedge": "ratio", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.takerFee": 0.0003, "costs.slippage": 0.00015 } },
+  { "name": "combo ratio + maker exec", "set": { "model.hedge": "ratio", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.useMaker": true, "costs.slippage": 0 } },
+  { "name": "combo kalman + hybrid exec", "set": { "model.hedge": "kalman", "model.formationBars": 1440, "model.longFormationBars": 4320, "gates.maxCointP": 0.05, "exit.stopZ": 5, "costs.takerFee": 0.0003, "costs.slippage": 0.00015 } }
+]
