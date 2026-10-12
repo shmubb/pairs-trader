@@ -1,0 +1,18 @@
+{
+  "_comment": "Copy to config/engine.json and edit. Pairs use ids from config/universe.json (Hyperliquid names are looked up there). `set` overrides config/default.json for one pair.",
+  "mode": "paper",
+  "testnet": false,
+  "interval": "1h",
+  "paperEquity": 10000,
+  "pollSeconds": 20,
+  "statusPort": 8787,
+  "stateDir": "state",
+  "overrides": {
+    "exchange": { "leverage": 5, "slippage": 0.005, "maxSlippage": 0.015 }
+  },
+  "pairs": [
+    { "a": "ETH", "b": "BTC" },
+    { "a": "LINK", "b": "DOT" },
+    { "a": "LTC", "b": "ETC" }
+  ]
+}

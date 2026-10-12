@@ -1,0 +1,97 @@
+{
+  "_comment": "Every tunable in one place. Bars are in units of `interval`. See docs/STRATEGY.md for what each one does and why it has the value it has.",
+  "interval": "1h",
+
+  "model": {
+    "hedge": "ols",
+    "formationBars": 720,
+    "longFormationBars": 2160,
+    "recalEvery": 24,
+    "kalmanDelta": 1e-5,
+    "adfLags": 1,
+    "volShortBars": 24,
+    "corrShortBars": 72,
+    "zVelocityBars": 3,
+    "zExtremeBars": 12,
+    "volumeAvgBars": 720,
+    "legMoveBars": 24
+  },
+
+  "gates": {
+    "maxCointP": 0.10,
+    "minHalfLifeBars": 3,
+    "maxHalfLifeBars": 120,
+    "maxHurst": 0.55,
+    "minCorr": 0.6,
+    "minCorrShort": 0.4,
+    "maxVolRatio": 2.5,
+    "minBeta": 0.2,
+    "maxBeta": 5,
+    "maxLegMoveSigma": 4,
+    "requireLongAgreement": false,
+    "maxOpposingLongZ": 3.0
+  },
+
+  "entry": {
+    "z": 2.0,
+    "confirm": "stall",
+    "stallGiveback": 0.15,
+    "minEdgeCostRatio": 2.5,
+    "maxEntryZ": 3.3,
+    "cooldownBarsAfterStop": 48,
+    "volumeFilter": "off",
+    "maxRelVolume": 4
+  },
+
+  "ladder": {
+    "enabled": true,
+    "levels": [
+      { "z": 0,    "weight": 0.5 },
+      { "z": 0.75, "weight": 0.3 },
+      { "z": 1.25, "weight": 0.2 }
+    ],
+    "minBarsBetweenAdds": 3,
+    "noAddAfterTimeFraction": 0.5
+  },
+
+  "exit": {
+    "z": 0.0,
+    "partialZ": null,
+    "partialFraction": 0.5,
+    "stopZ": 4.0,
+    "timeStopHalfLives": 3,
+    "minTimeStopBars": 12,
+    "maxHoldBars": 336,
+    "breakCointP": 0.5,
+    "breakConsecutive": 3,
+    "maxFundingDrainOfEdge": 0.5,
+    "rebalanceBetaDrift": 0.15
+  },
+
+  "risk": {
+    "riskPerTrade": 0.01,
+    "maxGrossLeverage": 3,
+    "maxConcurrentPairs": 3,
+    "maxAssetExposure": 1.5,
+    "dailyLossLimit": 0.03,
+    "maxDrawdownHalt": 0.12,
+    "consecutiveLossCooldown": 3,
+    "cooldownBars": 24,
+    "maxLegShareOfVolume": 0.002,
+    "minOrderUsd": 11
+  },
+
+  "costs": {
+    "takerFee": 0.00045,
+    "makerFee": 0.00015,
+    "slippage": 0.0003,
+    "useMaker": false
+  },
+
+  "sessions": {
+    "allowedHoursUtc": null,
+    "avoidWeekendEntries": false,
+    "eventBlackoutHoursBefore": 2,
+    "eventBlackoutHoursAfter": 1
+  }
+}
