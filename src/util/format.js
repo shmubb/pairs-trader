@@ -1,6 +1,13 @@
 export const pct = (x, d = 1) => (Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "—");
 export const num = (x, d = 2) => (Number.isFinite(x) ? x.toFixed(d) : x === Infinity ? "∞" : "—");
 
+export function fmtVolume(v) {
+  if (!v || !v.volume) return "volume: none";
+  return `volume $${(v.volume / 1e6).toFixed(2)}M ($${Math.round(v.volumePerDay).toLocaleString()}/day, ${v.turnoverPerDay.toFixed(2)}× equity/day)  ` +
+    `edge ${v.grossBps.toFixed(2)}bp gross − fees ${v.feeBps.toFixed(2)}bp − slip ${v.slipBps.toFixed(2)}bp + funding ${v.fundingBps.toFixed(2)}bp = ${v.netBps.toFixed(2)}bp net ` +
+    `(${v.netPerMillion >= 0 ? "+" : ""}$${v.netPerMillion.toFixed(0)} per $1M)`;
+}
+
 export function fmtMetrics(m) {
   if (!m) return "no data";
   const exits = Object.entries(m.byExit).map(([k, v]) => `${k}:${v.n} (${v.pnl >= 0 ? "+" : ""}${v.pnl.toFixed(0)})`).join("  ");

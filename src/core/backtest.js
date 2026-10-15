@@ -36,6 +36,9 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
   let lastDiag = null;
   const recals = [];
   let lastRecalT = null;
+  // Volume accounting (after startT), so a run can be re-priced under any
+  // venue's fee schedule: net = gross − volume × (fee + slippage) + funding.
+  const acct = { volume: 0, fees: 0, slippage: 0, funding: 0 };
 
   const fill = (qty, px, isA) => {
     if (qty === 0) return;
@@ -43,6 +46,9 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
     cash -= qty * p + Math.abs(qty) * p * fee;
     if (isA) qA += qty; else qB += qty;
     if (trade) trade.fees += Math.abs(qty) * p * fee + Math.abs(qty) * px * slip;
+    acct.volume += Math.abs(qty) * px;
+    acct.fees += Math.abs(qty) * p * fee;
+    acct.slippage += Math.abs(qty) * px * slip;
   };
 
   for (let i = 0; i < bars.length; i++) {
@@ -91,6 +97,7 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
     if (qA !== 0 || qB !== 0) {
       const fpay = -(qA * b.pa * b.fa + qB * b.pb * b.fb);
       cash += fpay;
+      acct.funding += fpay;
       if (trade) trade.funding += fpay;
       exposureBars++;
     }
@@ -137,7 +144,22 @@ export function runBacktest(bars, cfg = {}, opts = {}) {
   }
 
   const startIdx = Math.max(0, bars.findIndex((b) => b.t >= startT));
-  return { trades, equity, times: bars.map((b) => b.t), metrics: metrics(equity.slice(startIdx), trades, barsPerYear, exposureBars), lastDiag, strategy: strat, model, recals };
+  const days = (bars.length - startIdx) * step / 86_400_000;
+  const net = equity[equity.length - 1] - equity[startIdx];
+  const gross = net - acct.funding + acct.fees + acct.slippage;
+  const volumeStats = {
+    volume: acct.volume, days, volumePerDay: acct.volume / (days || 1),
+    turnoverPerDay: acct.volume / (days || 1) / equity0, // traded notional per day per $1 of equity
+    grossBps: acct.volume ? (gross / acct.volume) * 1e4 : 0,          // edge per $ traded before costs
+    feeBps: acct.volume ? (acct.fees / acct.volume) * 1e4 : 0,
+    slipBps: acct.volume ? (acct.slippage / acct.volume) * 1e4 : 0,
+    fundingBps: acct.volume ? (acct.funding / acct.volume) * 1e4 : 0,
+    netBps: acct.volume ? (net / acct.volume) * 1e4 : 0,
+    netPerMillion: acct.volume ? (net / acct.volume) * 1e6 : 0,       // $ per $1M traded (negative = cost)
+    gross, net,
+  };
+  return {
+    volumeStats, trades, equity, times: bars.map((b) => b.t), metrics: metrics(equity.slice(startIdx), trades, barsPerYear, exposureBars), lastDiag, strategy: strat, model, recals };
 }
 
 function avgVol(bars, i, key) {

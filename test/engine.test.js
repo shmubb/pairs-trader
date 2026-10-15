@@ -84,3 +84,31 @@ test("engine: warms up, opens a β-weighted pair, closes it, and honours the kil
   assert.ok(saved.mode === "paper" || saved.mode === undefined);
   eng.running = false;
 });
+
+test("engine farm mode (paper): enters at |z| ≥ zIn with fixed gross, exits, tracks volume", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "pt-farm-"));
+  const cfg = await loadConfig(undefined, { strategy: "farm", farm: { grossPerPair: 2000 }, costs: { takerFee: 0, slippage: 0.00003 } });
+  const eng = new Engine({ cfg, pairs: [{ a: "AAA", b: "BBB", hlA: "AAA", hlB: "BBB" }], mode: "paper", equity: 10_000, stateDir: dir, port: 0, info: fakeHL(), autoLoop: false, interval: "1h", log: () => {} });
+  await eng.start();
+  const p = eng.pairs[0];
+  assert.equal(p.strategy.kind, "farm");
+  await eng.tick();
+  // Force an entry decision: z well below −zIn.
+  const snap = { ...p.snap, ready: true, z: -1.6, cointP: 0.5, beta: 1 };
+  let d = p.strategy.onBar(snap, { bar: p.barIndex + 1 });
+  assert.equal(d.action, "ENTER");
+  for (const it of d.intents) await eng.execute(p, it, snap);
+  let pos = await eng.broker.positions();
+  const usdA = pos.AAA.szi * eng.mids.AAA, usdB = pos.BBB.szi * eng.mids.BBB;
+  assert.ok(usdA > 0 && usdB < 0, "long A / short B");
+  assert.ok(Math.abs(usdA - usdB - 2000) / 2000 < 0.02, `gross ${usdA - usdB}`);
+  // Exit when z reverts inside zOut.
+  d = p.strategy.onBar({ ...snap, z: -0.3 }, { bar: p.barIndex + 2 });
+  assert.equal(d.action, "TAKE_PROFIT");
+  for (const it of d.intents) await eng.execute(p, it, snap);
+  pos = await eng.broker.positions();
+  assert.equal(Object.keys(pos).length, 0, "flat");
+  assert.ok(eng.stats.volume > 3900 && eng.stats.volume < 4100, `volume ${eng.stats.volume}`);
+  assert.ok(eng.status().farm.volume > 0);
+  eng.running = false;
+});

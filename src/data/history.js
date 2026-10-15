@@ -55,7 +55,7 @@ export async function loadPair(idA, idB, { interval = "1h", from, to, cacheDir =
     while (fIdx.a < A.funding.length && A.funding[fIdx.a].t < end) { if (A.funding[fIdx.a].t >= ra.t) { fa += A.funding[fIdx.a].rate; } lastFa = A.funding[fIdx.a].rate; fIdx.a++; }
     while (fIdx.b < B.funding.length && B.funding[fIdx.b].t < end) { if (B.funding[fIdx.b].t >= ra.t) { fb += B.funding[fIdx.b].rate; } lastFb = B.funding[fIdx.b].rate; fIdx.b++; }
     const hour = ra.t - (ra.t % 3600_000);
-    bars.push({ t: ra.t, oa: ra.o, ob: rb.o, pa: ra.c, pb: rb.c, qa: ra.qv, qb: rb.qv, fa, fb, fundA: lastFa, fundB: lastFb, oiA: A.oi?.get(hour), oiB: B.oi?.get(hour) });
+    bars.push({ t: ra.t, oa: ra.o, ob: rb.o, pa: ra.c, pb: rb.c, ha: ra.h, la: ra.l, hb: rb.h, lb: rb.l, qa: ra.qv, qb: rb.qv, fa, fb, fundA: lastFa, fundB: lastFb, oiA: A.oi?.get(hour), oiB: B.oi?.get(hour) });
   }
   return bars;
 }

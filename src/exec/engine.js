@@ -17,6 +17,7 @@ import { join, extname, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PairModel } from "../core/model.js";
 import { PairStrategy } from "../core/strategy.js";
+import { FarmStrategy, farmModelConfig, FARM_DEFAULTS } from "../core/farm-strategy.js";
 import { planPosition, AccountGuard } from "../core/risk.js";
 import { sessionCheck, nextEvents } from "../core/sessions.js";
 import { HyperliquidInfo, marketsFor, loadPairHL, dexOf, MAINNET, TESTNET } from "../data/hyperliquid.js";
@@ -42,7 +43,10 @@ export class Engine {
     this.testnet = testnet;
     this.env = env;
     this.paperEquity = equity;
-    this.pairs = pairs.map((p) => ({ ...p, id: `${p.a}/${p.b}` }));
+    this.pairs = pairs.map((p) => ({ ...p, id: `${p.a}/${p.b}`, kind: p.strategy || cfg.strategy || "pairs" }));
+    this.farmCfg = { ...FARM_DEFAULTS, ...(cfg.farm || {}) };
+    this.venue = cfg.venue || "hyperliquid";
+    this.stats = { volume: 0, fills: 0, since: Date.now(), startEquity: null, days: {} };
     this.logLines = [];
     this.log = log || ((m) => { const line = `${new Date().toISOString()} ${m}`; console.log(line); this.logLines.push(line); if (this.logLines.length > 300) this.logLines.shift(); appendFile(join(this.stateDir, "engine.log"), line + "\n").catch(() => {}); });
     this.trades = [];
@@ -66,6 +70,10 @@ export class Engine {
 
     const saved = await this.loadState();
     if (this.mode === "paper") this.broker = new PaperBroker({ equity: this.paperEquity, fee: this.cfg.costs.takerFee, makerFee: this.cfg.costs.makerFee, slippage: this.cfg.costs.slippage, state: saved?.paper });
+    else if (this.venue === "lighter") {
+      const { LighterBroker } = await import("./lighter-broker.js");
+      this.broker = new LighterBroker({ bridgeUrl: this.env.LIGHTER_BRIDGE_URL || "http://127.0.0.1:8790", maxSlippage: this.cfg.exchange?.slippage ?? 0.003, log: this.log });
+    }
     else this.broker = new HyperliquidBroker({ info: this.info, account: this.env.HL_ACCOUNT, agentKey: this.env.HL_AGENT_KEY, testnet: this.testnet, leverage: this.cfg.exchange?.leverage ?? 5, slippage: this.cfg.exchange?.slippage ?? 0.005, maxSlippage: this.cfg.exchange?.maxSlippage ?? 0.015, log: this.log });
     await this.broker.init(this.markets);
     await this.refreshMids();
@@ -74,6 +82,7 @@ export class Engine {
     if (saved?.guard) Object.assign(this.guard, saved.guard);
     if (this.resetHalt) { this.guard.reset(); this.log("drawdown halt reset by operator (--reset-halt)"); }
     this.trades = saved?.trades || [];
+    if (saved?.stats) this.stats = { ...this.stats, ...saved.stats };
 
     for (const p of this.pairs) await this.warm(p, saved?.pairs?.[p.id]);
     await this.reconcile();
@@ -84,9 +93,10 @@ export class Engine {
   }
 
   async warm(p, saved) {
-    const mc = { ...this.cfg.model, ...(p.set?.model || {}) };
+    const farm = p.kind === "farm";
+    const mc = farm ? farmModelConfig({ ...this.farmCfg, ...(p.set?.farm || {}) }, this.interval) : { ...this.cfg.model, ...(p.set?.model || {}) };
     p.model = new PairModel(mc);
-    p.strategy = new PairStrategy({ ...this.cfg, ...(p.set || {}) });
+    p.strategy = farm ? new FarmStrategy({ ...this.farmCfg, ...(p.set?.farm || {}) }, this.interval) : new PairStrategy({ ...this.cfg, ...(p.set || {}) });
     const need = Math.max(mc.formationBars, mc.longFormationBars) + 120;
     const now = Date.now();
     const bars = await loadPairHL(this.info, p.hlA, p.hlB, this.interval, now - need * this.step, now);
@@ -102,9 +112,9 @@ export class Engine {
       p.fundingPaid = saved.fundingPaid || 0;
       // Saved bar indices are relative to the old process; shift them to the new one.
       const shift = p.barIndex - (saved.barIndex ?? p.barIndex);
-      p.strategy.pos.openedBar += shift;
-      p.strategy.pos.lastAddBar += shift;
-      this.log(`${p.id}: restored open position (dir ${saved.pos.dir > 0 ? "long" : "short"} spread, ${(saved.pos.filledWeight * 100).toFixed(0)}% of plan)`);
+      if (farm) p.strategy.pos.entryBar += shift;
+      else { p.strategy.pos.openedBar += shift; p.strategy.pos.lastAddBar += shift; }
+      this.log(`${p.id}: restored open position (dir ${saved.pos.dir > 0 ? "long" : "short"} spread${farm ? "" : `, ${(saved.pos.filledWeight * 100).toFixed(0)}% of plan`})`);
     }
     p.strategy.bar = p.barIndex;
   }
@@ -150,6 +160,7 @@ export class Engine {
     this.positions = await this.broker.positions();
     const equity = await this.broker.equity();
     this.equity = equity;
+    if (this.stats.startEquity == null) this.stats.startEquity = equity;
     const openCount = this.pairs.filter((p) => p.strategy.pos).length;
     this.guard.openPairs = openCount;
     const g = this.guard.update(now, equity, this.pairs[0]?.barIndex ?? 0);
@@ -174,7 +185,7 @@ export class Engine {
 
     for (const p of this.pairs) {
       if (p.closing) { await this.closePair(p, p.closing); continue; }
-      if (p.strategy.pos) await this.intrabarCheck(p);
+      if (p.strategy.pos && p.kind !== "farm") await this.intrabarCheck(p);
       if (now >= p.lastBarT + 2 * this.step + 5000) await this.onNewBars(p, now);
     }
     await this.saveState();
@@ -247,6 +258,14 @@ export class Engine {
       pnlFrac: hasPos && p.plan ? this.pairPnl(p) / p.plan.maxLoss : null,
       fundingPaid: hasPos ? p.fundingPaid || 0 : null,
     };
+    if (p.kind === "farm") {
+      const d = st.onBar(snap, { bar: p.barIndex });
+      if (d.action === "ENTER" && !canOpen.ok) { st.pos = null; d.action = "WAIT"; d.intents = []; d.reasons.push(`blocked: ${canOpen.reason}`); }
+      p.diag = d;
+      if (d.action !== "WAIT" && d.action !== "HOLD") this.log(`${p.id}: ${d.action} — ${d.intents.map((i) => i.reason).join("; ")}`);
+      for (const it of d.intents) await this.execute(p, it, snap);
+      return;
+    }
     const d = st.onBar(snap, ctx);
     p.diag = d;
     if (d.action !== "WAIT" && d.action !== "HOLD") this.log(`${p.id}: ${d.action} — ${d.reasons.join("; ")}`);
@@ -267,6 +286,19 @@ export class Engine {
 
   async execute(p, it, snap) {
     const st = p.strategy;
+    if (it.type === "farm") {
+      if (it.target === 0) return this.closePair(p, it.reason);
+      const fc = { ...this.farmCfg, ...(p.set?.farm || {}) };
+      const beta = Math.abs(snap.beta || 1), nA = fc.grossPerPair / (1 + beta);
+      const legs = [
+        { coin: p.hlA, usd: it.target * nA },
+        { coin: p.hlB, usd: -it.target * nA * beta },
+      ];
+      const res = await this.broker.executeLegs(legs, { style: "taker" });
+      this.logFills(p, "farm open", res);
+      if (res.some((r) => !r.ok)) st.pos = null;
+      return;
+    }
     if (it.type === "open") {
       const plan = planPosition(snap, st.cfg, this.cfg.risk, this.accountForPlan(p), { volA24h: this.markets[p.hlA].dayNtlVlm, volB24h: this.markets[p.hlB].dayNtlVlm });
       if (!plan.ok) { this.log(`${p.id}: entry skipped — ${plan.reason}`); st.pos = null; return; }
@@ -332,6 +364,13 @@ export class Engine {
   }
 
   logFills(p, what, res) {
+    const day = new Date().toISOString().slice(0, 10);
+    for (const r of res) {
+      if (!r.ok || !r.filledSz || !r.avgPx) continue;
+      const v = Math.abs(r.filledSz * r.avgPx);
+      this.stats.volume += v; this.stats.fills++;
+      this.stats.days[day] = (this.stats.days[day] || 0) + v;
+    }
     for (const r of res) this.log(`${p.id} ${what}: ${r.coin} ${r.ok ? `filled ${r.filledSz} @ ${r.avgPx?.toFixed?.(4) ?? r.avgPx}` : `FAILED ${r.error || ""}`}${r.unwound ? " (unwound)" : ""}`);
   }
 
@@ -350,6 +389,7 @@ export class Engine {
       guard: { peak: this.guard.peak, halted: this.guard.halted, haltReason: this.guard.haltReason, lossStreak: this.guard.lossStreak, cooldownUntil: this.guard.cooldownUntil, dayKey: this.guard.dayKey, dayStart: this.guard.dayStart, dayHalted: this.guard.dayHalted },
       paper: this.broker.snapshot ? this.broker.snapshot() : undefined,
       trades: this.trades.slice(-200),
+      stats: this.stats,
       pairs: Object.fromEntries(this.pairs.map((p) => [p.id, { pos: p.strategy.pos, cooldown: p.strategy.cooldown, plan: p.plan, fundingPaid: p.fundingPaid, barIndex: p.barIndex }])),
     };
     await writeFile(join(this.stateDir, `engine-${this.mode}.json`), JSON.stringify(s, null, 1));
@@ -357,7 +397,14 @@ export class Engine {
 
   status() {
     return {
-      now: Date.now(), mode: this.mode, testnet: this.testnet, interval: this.interval, equity: this.equity,
+      now: Date.now(), mode: this.mode, testnet: this.testnet, interval: this.interval, equity: this.equity, venue: this.venue,
+      farm: {
+        volume: this.stats.volume, fills: this.stats.fills, since: this.stats.since,
+        volumeToday: this.stats.days[new Date().toISOString().slice(0, 10)] || 0,
+        pnl: this.stats.startEquity != null && this.equity != null ? this.equity - this.stats.startEquity : null,
+        // Net PnL per $1M traded since start: the number that matters for points farming.
+        perMillion: this.stats.volume > 0 && this.stats.startEquity != null ? ((this.equity - this.stats.startEquity) / this.stats.volume) * 1e6 : null,
+      },
       guard: { halted: this.guard.halted, haltReason: this.guard.haltReason, dayHalted: this.guard.dayHalted, peak: this.guard.peak, dayStart: this.guard.dayStart, canOpen: this.guard.canOpen() },
       positions: this.positions,
       events: nextEvents(Date.now(), 5),

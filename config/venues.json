@@ -1,0 +1,14 @@
+{
+  "_comment": "Fee schedules (bps) for cost-per-volume estimates. Sources and confidence: docs/DEX_FEES.md (snapshot 2026-10-15). Verify against each venue's live fee endpoint before trading — these change often.",
+  "venues": [
+    { "id": "lighter_std", "short": "LighterS", "name": "Lighter Standard", "maker": 0, "taker": 0, "show": true, "note": "60 req/min, 300 ms taker delay" },
+    { "id": "lighter_pro", "short": "LighterP", "name": "Lighter Premium", "maker": 0.4, "taker": 2.8, "show": false },
+    { "id": "paradex_api", "short": "Paradex", "name": "Paradex (API / Pro)", "maker": 0, "taker": 2, "show": true, "note": "API taker ~2 bp unconfirmed" },
+    { "id": "extended", "short": "Extended", "name": "Extended", "maker": 0, "taker": 2.5, "show": true },
+    { "id": "aster", "short": "Aster", "name": "Aster (USDT perps)", "maker": 0, "taker": 4, "show": false },
+    { "id": "nado", "short": "Nado", "name": "Nado (entry tier)", "maker": 1, "taker": 3.5, "show": true },
+    { "id": "pacifica", "short": "Pacifica", "name": "Pacifica", "maker": 1.5, "taker": 4, "show": true },
+    { "id": "hyperliquid", "short": "HL", "name": "Hyperliquid (base)", "maker": 1.5, "taker": 4.5, "show": true },
+    { "id": "grvt", "short": "GRVT", "name": "GRVT L1", "maker": -0.01, "taker": 4.5, "show": false }
+  ]
+}

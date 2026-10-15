@@ -29,13 +29,24 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 node bin/fetch-data.js            # download history (≈500 MB, a few minutes)
 node bin/backtest.js ETH BTC      # new rules
 node bin/backtest.js ETH BTC --legacy   # old rules, same data
-npm test                          # 25 tests
+npm test                          # 30 tests (+ npm run test:py for the Lighter bridge)
 
 cp config/engine.example.json config/engine.json
 node bin/engine.js                # paper trading + dashboard at http://localhost:8787
 ```
 
 The dashboard also works as a static page (GitHub Pages): open `index.html`.
+
+## Volume farming mode
+
+A separate, research-backed mode for farming DEX points. It runs market-neutral 5-minute pair trading on majors and generates large two-asset volume at about **−$3 per $1M traded** in backtest. That was $203M of volume on a $5k account over 20 months, on a zero-fee venue. The engine runs it in paper mode or live on Lighter through `src/exec/lighter_bridge.py`.
+
+```bash
+node bin/farm-plan.js --equity 5000 --gross-per-pair 3000 --pairs 3   # volume, cost, risk per venue
+node bin/engine.js --engine config/farm.example.json                  # paper-farm on live prices
+```
+
+Details, caveats and Lighter setup: [`docs/FARMING.md`](docs/FARMING.md). Venue fees: [`docs/DEX_FEES.md`](docs/DEX_FEES.md).
 
 ## Read next
 

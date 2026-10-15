@@ -13,7 +13,7 @@ import { runBacktest, legacyConfig } from "../src/core/backtest.js";
 import { mergeConfig } from "../src/core/strategy.js";
 import { loadConfig, setPath } from "../src/util/config.js";
 import { parseArgs } from "../src/util/args.js";
-import { fmtMetrics } from "../src/util/format.js";
+import { fmtMetrics, fmtVolume } from "../src/util/format.js";
 import { scaleConfig } from "../src/core/timeframe.js";
 
 const args = parseArgs(process.argv.slice(2), { interval: "1h", from: "2022-03-01", equity: 10000 });
@@ -36,6 +36,7 @@ const res = runBacktest(bars, cfg, { startT, equity: args.equity, fixedNotional:
 
 console.log(`${A}/${B} ${args.interval} ${new Date(startT).toISOString().slice(0, 10)} → ${new Date(bars[bars.length - 1].t).toISOString().slice(0, 10)}${args.legacy ? "  [LEGACY RULES]" : ""}`);
 console.log(fmtMetrics(res.metrics));
+console.log(fmtVolume(res.volumeStats));
 if (args.trades) {
   for (const t of res.trades) {
     console.log(`${new Date(t.openT).toISOString().slice(0, 16)} ${t.dir > 0 ? "LONG " : "SHORT"} z=${t.entryZ.toFixed(2)} adds=${t.adds} bars=${String(t.bars).padStart(4)} ${t.kind.padEnd(11)} pnl=${t.pnl.toFixed(2).padStart(9)} R=${t.r.toFixed(2).padStart(6)}  ${t.reason}`);

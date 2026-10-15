@@ -14,7 +14,9 @@
     "backtest": "node bin/backtest.js",
     "research": "node bin/research.js",
     "engine": "node bin/engine.js",
-    "serve": "node bin/serve.js"
+    "serve": "node bin/serve.js",
+    "test:py": "python -m unittest discover -s test/python",
+    "farm-plan": "node bin/farm-plan.js"
   },
   "optionalDependencies": {
     "@nktkas/hyperliquid": "0.33.3",

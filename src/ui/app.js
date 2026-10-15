@@ -454,7 +454,7 @@ async function pollEngine() {
 function renderEngine() {
   const e = S.engine;
   $("engine-card").hidden = false;
-  $("engine-sub").textContent = `${e.mode}${e.testnet ? " · testnet" : ""} · ${e.interval}`;
+  $("engine-sub").textContent = `${e.mode}${e.testnet ? " · testnet" : ""} · ${e.interval}${e.venue ? " · " + e.venue : ""}`;
   const dd = e.guard.peak ? 1 - e.equity / e.guard.peak : 0;
   const open = e.pairs.filter((p) => p.pos);
   $("engine-kv").innerHTML = kv([
@@ -462,6 +462,10 @@ function renderEngine() {
     ["today", e.guard.dayStart ? sgn(((e.equity / e.guard.dayStart) - 1) * 100, 2) + "%" : "—", e.guard.dayHalted ? "daily limit hit" : "within limit", e.guard.dayHalted ? "bad-c" : ""],
     ["status", e.guard.halted ? "HALTED" : e.guard.canOpen.ok ? "trading" : "no new risk", e.guard.haltReason || e.guard.canOpen.reason || "", e.guard.halted ? "bad-c" : "ok-c"],
     ["open pairs", String(open.length), open.map((p) => `${p.id} ${p.live ? sgn(p.live.pnl) : ""}`).join(", ")],
+    ...(e.farm && e.farm.volume > 0 ? [
+      ["volume (since start)", "$" + Math.round(e.farm.volume).toLocaleString(), `today $${Math.round(e.farm.volumeToday).toLocaleString()} · ${e.farm.fills} fills`],
+      ["cost per $1M traded", e.farm.perMillion == null ? "—" : (e.farm.perMillion >= 0 ? "+" : "") + "$" + e.farm.perMillion.toFixed(1), "net PnL ÷ volume (farming efficiency)", e.farm.perMillion >= -30 ? "ok-c" : "warn-c"],
+    ] : []),
     ...e.pairs.map((p) => [p.id, (p.diag?.action || "—") + (p.snap?.ready ? ` · z ${sgn(p.snap.z)}` : ""), p.pos ? `frozen z ${p.live ? sgn(p.live.zFrozen) : "—"}, ${p.plan ? usd(p.plan.maxLoss) + " at risk" : ""}` : (p.diag?.reasons || [])[0] || ""]),
   ]);
   $("engine-log").textContent = (e.log || []).slice(-60).join("\n");

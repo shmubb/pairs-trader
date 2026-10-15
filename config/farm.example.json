@@ -1,0 +1,29 @@
+{
+  "_comment": "Volume-farming mode (docs/FARMING.md). Market-neutral 5-minute pair trading on majors, built to generate genuine two-asset volume at close to zero cost on a ZERO-FEE venue. Signals use Hyperliquid prices; execution goes to `venue` (\"lighter\" via src/exec/lighter_bridge.py, or \"hyperliquid\" — but Hyperliquid's 1.5/4.5 bp fees make farming there cost ~$450 per $1M). Paper mode simulates the venue's costs from `overrides.costs`.",
+  "mode": "paper",
+  "venue": "lighter",
+  "strategy": "farm",
+  "interval": "5m",
+  "paperEquity": 10000,
+  "pollSeconds": 10,
+  "statusPort": 8787,
+  "stateDir": "state/farm",
+  "farm": {
+    "formationH": 6,
+    "zIn": 1,
+    "zOut": 0.5,
+    "zStop": 3.5,
+    "maxHoldF": 0.5,
+    "grossPerPair": 3000
+  },
+  "overrides": {
+    "costs": { "takerFee": 0, "makerFee": 0, "slippage": 0.00003 },
+    "risk": { "maxConcurrentPairs": 3, "dailyLossLimit": 0.02, "maxDrawdownHalt": 0.1 },
+    "exchange": { "slippage": 0.003 }
+  },
+  "pairs": [
+    { "a": "BTC", "b": "BNB" },
+    { "a": "ETH", "b": "DOGE" },
+    { "a": "SOL", "b": "XRP" }
+  ]
+}

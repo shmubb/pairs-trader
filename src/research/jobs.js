@@ -26,6 +26,8 @@ function summarize(res) {
     medHurst: r.length ? median(r.map((x) => x.hurst)) : null,
     medSigma: r.length ? median(r.map((x) => x.sigmaEq)) : null,
     years: m.years,
+    volume: res.volumeStats?.volume, volumePerDay: res.volumeStats?.volumePerDay, turnoverPerDay: res.volumeStats?.turnoverPerDay,
+    grossBps: res.volumeStats?.grossBps, netBps: res.volumeStats?.netBps, fundingBps: res.volumeStats?.fundingBps, gross: res.volumeStats?.gross,
   };
 }
 

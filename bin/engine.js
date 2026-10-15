@@ -5,6 +5,7 @@
 //   node bin/engine.js --engine config/engine.json --mode paper
 //   node bin/engine.js --mode live --testnet             # real orders on Hyperliquid TESTNET
 //   node bin/engine.js --mode live                       # real money — read docs/RUNBOOK.md first
+//   node bin/engine.js --engine config/farm.example.json # volume-farming mode (docs/FARMING.md)
 //
 // Live mode reads HL_ACCOUNT (main wallet address) and HL_AGENT_KEY (API
 // wallet private key) from the environment or a .env file in the project root.
@@ -37,11 +38,14 @@ if (existsSync(".env")) {
 
 let cfg = await loadConfig(eng.config);
 if (eng.overrides) cfg = mergeConfig(cfg, eng.overrides);
+if (eng.strategy) cfg.strategy = eng.strategy;
+if (eng.venue) cfg.venue = eng.venue;
+if (eng.farm) cfg.farm = eng.farm;
 cfg = scaleConfig(cfg, eng.interval || cfg.interval);
 const uni = await loadUniverse();
 const pairs = eng.pairs.map((p) => {
   const A = uni.find((u) => u.id === p.a), B = uni.find((u) => u.id === p.b);
-  return { a: p.a, b: p.b, hlA: p.hlA || A?.hl || p.a, hlB: p.hlB || B?.hl || p.b, set: p.set };
+  return { a: p.a, b: p.b, hlA: p.hlA || A?.hl || p.a, hlB: p.hlB || B?.hl || p.b, set: p.set, strategy: p.strategy };
 });
 
 if (mode === "live" && !testnet && !args["i-understand"]) {
