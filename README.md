@@ -1,8 +1,12 @@
 # pairs-trader
 
-Statistical-arbitrage pairs trading for Hyperliquid perps: a research toolkit, a
-backtester, a live dashboard and a paper/live execution engine, all running
-the **same** signal and risk code.
+Crypto perp trading for Hyperliquid: research toolkits, backtesters, a live
+dashboard and paper/live execution engines that run the **same** signal and risk
+code as the backtests. Three strategies live here:
+
+- **carry + trend book:** the one that makes money;
+- **statistical-arbitrage pairs:** the original project, now rebuilt;
+- **volume farming:** for DEX points.
 
 It replaces the original single-file app (kept at [`legacy/index.html`](legacy/index.html)).
 That app traded a z-score of the ETH/BTC ratio over a rolling 24-hour window
@@ -21,6 +25,8 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 | Data | `src/data/` | Binance public archive (multi-year perp candles, funding, open interest) for research; Hyperliquid public API for live |
 | Dashboard | `index.html`, `src/ui/` | Live signal, causal z-chart, gates, risk ticket, regime, funding carry, sessions/macro events, modelled liquidation & stop heat with order-book depth, scanner, read-only positions, alerts, engine view |
 | Engine | `src/exec/`, `bin/engine.js` | Paper and live Hyperliquid trading: both legs in one signed action, leg reconciliation with unwind, margin pre-check, intrabar stops, kill switch, state recovery |
+| Portfolio book | `src/core/xs-strategies.js`, `src/exec/portfolio-engine.js`, `bin/portfolio.js` | Carry + trend across ~20 perps: daily target book, paper/live Hyperliquid execution, drawdown halt, kill switch |
+| Strategy research | `src/research/portfolio.js`, `bin/strategies.js`, `bin/robust.js` | Multi-asset backtester (next-open fills, costs, real funding); trend, breakout, cross-sectional momentum/reversal, carry and funding-contrarian families; IS/OOS and robustness grids |
 
 ## Quick start
 
@@ -29,13 +35,35 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 node bin/fetch-data.js            # download history (≈500 MB, a few minutes)
 node bin/backtest.js ETH BTC      # new rules
 node bin/backtest.js ETH BTC --legacy   # old rules, same data
-npm test                          # 30 tests (+ npm run test:py for the Lighter bridge)
+npm test                          # 35 tests (+ npm run test:py for the Lighter bridge)
 
 cp config/engine.example.json config/engine.json
 node bin/engine.js                # paper trading + dashboard at http://localhost:8787
 ```
 
 The dashboard also works as a static page (GitHub Pages): open `index.html`.
+
+## Carry + trend book (the money-making strategy)
+
+The pairs signal on its own came out at roughly break-even after costs (see `docs/RESEARCH.md`). The strategy that held up out-of-sample is a **daily-rebalanced book of crypto perps** with two legs:
+
+- **funding carry:** long the lowest-funding coins, short the highest;
+- **trend following:** long or short each coin by the sign of its multi-week returns.
+
+The two legs are nearly uncorrelated.
+
+Backtest, June 2020 → October 2026, after 6 bp/side costs and real funding:
+
+- **Sharpe 1.57, 24% a year, max drawdown 14%.**
+- **On the unseen 2024–2026 period:** Sharpe 1.17, 17% a year.
+- **Every calendar year was positive**, including 2022.
+
+```bash
+node bin/portfolio.js --plan     # today's target book and orders (trades nothing)
+node bin/portfolio.js            # paper trading on live Hyperliquid prices
+```
+
+Rules, results, risks and how to go live: [`docs/CARRY_TREND.md`](docs/CARRY_TREND.md).
 
 ## Volume farming mode
 
@@ -50,7 +78,8 @@ Details, caveats and Lighter setup: [`docs/FARMING.md`](docs/FARMING.md). Venue 
 
 ## Read next
 
-- [`docs/STRATEGY.md`](docs/STRATEGY.md) — every rule (entry, sizing, when to add, when to hedge, when to cut) and why.
+- [`docs/CARRY_TREND.md`](docs/CARRY_TREND.md) — the carry + trend book: research, rules, running it.
+- [`docs/STRATEGY.md`](docs/STRATEGY.md) — every pairs rule (entry, sizing, when to add, when to hedge, when to cut) and why.
 - [`docs/RESEARCH.md`](docs/RESEARCH.md) — what the data says, including where the edge is thin.
 - [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — running the dashboard, research, paper, testnet and live; safety controls; incident handling.
 - [`docs/HYPERLIQUID_API.md`](docs/HYPERLIQUID_API.md) — exchange API notes the execution code relies on.

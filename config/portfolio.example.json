@@ -1,0 +1,24 @@
+{
+  "_comment": "Carry + trend book on Hyperliquid (docs/CARRY_TREND.md). Copy to config/portfolio.json and edit. `book` overrides the strategy defaults; leave them unless you have re-run the research. Use a dedicated account or subaccount: positions in the universe coins are managed by the engine.",
+  "mode": "paper",
+  "testnet": false,
+  "paperEquity": 10000,
+  "stateDir": "state/portfolio",
+  "book": {
+    "targetVol": 0.2,
+    "topN": 20,
+    "minAdv": 5000000,
+    "carryD": 7,
+    "q": 0.3,
+    "lookbacksD": [7, 14, 28, 56, 112],
+    "wCarry": 0.5,
+    "band": 0.25,
+    "maxLev": 3
+  },
+  "rebalanceDelayMin": 5,
+  "minOrderUsd": 15,
+  "maxDrawdown": 0.25,
+  "pollSeconds": 60,
+  "exchange": { "leverage": 5, "slippage": 0.004, "maxSlippage": 0.01 },
+  "exclude": []
+}

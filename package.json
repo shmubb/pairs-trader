@@ -2,7 +2,7 @@
   "name": "pairs-trader",
   "version": "2.0.0",
   "private": true,
-  "description": "Statistical-arbitrage pairs trader for Hyperliquid perps: cointegration/OU signal, regime gates, risk engine, backtester and execution engine.",
+  "description": "Crypto perp trading toolkit for Hyperliquid: carry + trend portfolio book, statistical-arbitrage pairs, volume farming; research backtesters and a paper/live execution engine.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -16,7 +16,9 @@
     "engine": "node bin/engine.js",
     "serve": "node bin/serve.js",
     "test:py": "python -m unittest discover -s test/python",
-    "farm-plan": "node bin/farm-plan.js"
+    "farm-plan": "node bin/farm-plan.js",
+    "portfolio": "node bin/portfolio.js",
+    "strategies": "node bin/strategies.js"
   },
   "optionalDependencies": {
     "@nktkas/hyperliquid": "0.33.3",

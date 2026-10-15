@@ -20,6 +20,11 @@ Raw outputs are in `research/*.json`.
    - cheaper execution.
 6. **What didn't help:** hour-of-day, weekend, and "13th–15th of the month" filters (no consistent effect); a short (24 h–14 d) lookback; tighter stops; adding to losing positions.
 7. **Where an edge is most plausible:** economically linked pairs (BTC vs COIN/MSTR, gold vs silver, PAXG vs gold) traded with maker execution. History on Hyperliquid's builder markets is too short to prove it (6–10 months, a handful of trades). Paper-trade these.
+8. **Beyond pairs, a strategy that does make money: the carry + trend book (§9, `docs/CARRY_TREND.md`).**
+   - Long low-funding / short high-funding coins, plus multi-week trend following, on a daily-rebalanced top-20 universe.
+   - Out-of-sample 2024–2026: **Sharpe 1.17, 17% a year, 14% max drawdown** after costs and funding.
+   - Full period since 2020: Sharpe 1.57.
+   - Robust to every parameter perturbation tried.
 
 ## Data and method
 
@@ -171,3 +176,43 @@ They make economic sense and look good, but on far too few trades to rely on. Th
    - **Residual stat-arb.** Trade each alt against a BTC+ETH factor (or a sector basket) instead of a single partner. Basket spreads are more stable than pairs.
    - **Structural pairs with dedicated models** (PAXG/GOLD, BTC/COIN, MSTR) once there's a year of history.
    - **Signals into Master Control.** The engine serves `/state` as JSON. Master Control's alerts can read it, so the notifications live in the terminal and not in a bot.
+
+## 9. Beyond pairs: directional and cross-sectional strategies (`bin/strategies.js`, `bin/robust.js`)
+
+| | |
+|---|---|
+| Question | Is there a strategy on crypto perps that is profitable after realistic DEX costs, other than pairs? |
+| Data | Binance USD-M perps, 1 h candles and funding since 2020, resampled to daily bars |
+| Universe | The 45 crypto assets in `config/universe.json`; each day, the top 20 by 30-day $ volume |
+| Execution model | Next-open fills, 6 bp per side, funding paid/received at every settlement |
+| Periods | In-sample 2020-06 → 2023-12, out-of-sample 2024-01 → 2026-10 |
+| Backtester | `src/research/portfolio.js` |
+
+### Strategy families, out-of-sample Sharpe
+
+| Family | Out-of-sample Sharpe |
+|---|---|
+| Time-series trend (TSMOM, EMA crossover, Donchian; long/short and long-only) | Positive but modest: 0.1–0.6, after 1.2–1.7 in-sample |
+| **Cross-sectional funding carry** | **0.9 (7-day funding)**, against 1.0 in-sample, so it held up |
+| Cross-sectional momentum (4–8 weeks) | Failed out-of-sample |
+| Short-term reversal | Strongly negative (Sharpe −2.7). The 1–3 day cross-section *continues*; it doesn't revert. That also explains why mean reversion between pairs struggles at short horizons. |
+| Funding contrarian (time series) | No edge |
+| BTC-regime-filtered long basket | Mostly beta |
+
+### The blend
+
+Carry and trend returns are nearly uncorrelated (−0.09). A 50/50 blend has:
+
+- **Sharpe 1.86 in-sample, 1.17 out-of-sample**, with max drawdowns of 11% and 14%;
+- positive returns in every calendar year, 2022 included;
+- robustness across carry lookback, quantile, trend lookbacks, universe size, blend weight, rebalance hour and frequency, and costs up to 15 bp per side. No variant lost money out-of-sample.
+
+Full tables, rules and how to run it: `docs/CARRY_TREND.md`. Engine: `bin/portfolio.js`.
+
+### Caveats specific to this result
+
+- Binance funding is a proxy for Hyperliquid funding.
+- The universe has survivorship bias.
+- The 95% confidence interval on the full-period Sharpe ratio is wide (≈ 0.4–2.7).
+
+Paper-trade before sizing up.
