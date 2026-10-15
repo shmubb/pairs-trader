@@ -6,7 +6,7 @@ const H = 3600_000;
 
 /**
  * series: {asset: {k: [{t,o,h,l,c,qv}], funding: [{t, rate}]}} at any interval ≤ barH.
- * Returns m = {ids, barH, t, o, c, h, l, qv, fund} with Float64Arrays per asset,
+ * Returns m = {ids, barH, t, o, c, h, l, qv, v, tbv, fund} with Float64Arrays per asset,
  * resampled to `barH`-hour bars (NaN where an asset has no data). `fund[a][k]` is
  * the sum of funding rates settled during bar k. Only complete bars are kept
  * when `now` is given.
@@ -21,10 +21,10 @@ export function buildMatrix(series, { barH = 24, from, to, offsetH = 0, now } = 
   if (now) t1 = Math.min(t1, now);
   t0 = Math.ceil((t0 - offsetH * H) / step) * step + offsetH * H; // offsetH shifts bar boundaries (daily bars closing at 08:00 UTC, ...)
   const nb = Math.max(0, Math.floor((t1 - t0) / step));
-  const m = { ids, barH, t: new Float64Array(nb), o: {}, c: {}, h: {}, l: {}, qv: {}, fund: {} };
+  const m = { ids, barH, t: new Float64Array(nb), o: {}, c: {}, h: {}, l: {}, qv: {}, v: {}, tbv: {}, fund: {} };
   for (let k = 0; k < nb; k++) m.t[k] = t0 + k * step;
   for (const a of ids) {
-    const o = new Float64Array(nb).fill(NaN), c = new Float64Array(nb).fill(NaN), hi = new Float64Array(nb).fill(NaN), lo = new Float64Array(nb).fill(NaN), qv = new Float64Array(nb), f = new Float64Array(nb);
+    const o = new Float64Array(nb).fill(NaN), c = new Float64Array(nb).fill(NaN), hi = new Float64Array(nb).fill(NaN), lo = new Float64Array(nb).fill(NaN), qv = new Float64Array(nb), v = new Float64Array(nb), tbv = new Float64Array(nb), f = new Float64Array(nb);
     for (const r of series[a].k) {
       if (r.t < t0) continue;
       const k = Math.floor((r.t - t0) / step);
@@ -34,6 +34,7 @@ export function buildMatrix(series, { barH = 24, from, to, offsetH = 0, now } = 
       hi[k] = Number.isNaN(hi[k]) ? r.h : Math.max(hi[k], r.h);
       lo[k] = Number.isNaN(lo[k]) ? r.l : Math.min(lo[k], r.l);
       qv[k] += r.qv;
+      v[k] += r.v || 0; tbv[k] += r.tbv || 0; // base volume and taker-buy base volume (order flow)
     }
     for (const x of series[a].funding || []) {
       if (x.t < t0) continue;
@@ -41,7 +42,7 @@ export function buildMatrix(series, { barH = 24, from, to, offsetH = 0, now } = 
       if (k < nb) f[k] += x.rate;
     }
     for (let k = 0; k < nb; k++) if (!(o[k] > 0 && c[k] > 0)) { o[k] = NaN; c[k] = NaN; } // a bar needs open and close
-    m.o[a] = o; m.c[a] = c; m.h[a] = hi; m.l[a] = lo; m.qv[a] = qv; m.fund[a] = f;
+    m.o[a] = o; m.c[a] = c; m.h[a] = hi; m.l[a] = lo; m.qv[a] = qv; m.v[a] = v; m.tbv[a] = tbv; m.fund[a] = f;
   }
   return m;
 }

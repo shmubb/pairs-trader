@@ -4,7 +4,8 @@ Crypto perp trading for Hyperliquid: research toolkits, backtesters, a live
 dashboard and paper/live execution engines that run the **same** signal and risk
 code as the backtests. Three strategies live here:
 
-- **carry + trend book:** the one that makes money;
+- **OI-backed momentum:** short-term, trades held for hours;
+- **carry + trend book:** daily rebalance, trades held for weeks;
 - **statistical-arbitrage pairs:** the original project, now rebuilt;
 - **volume farming:** for DEX points.
 
@@ -27,6 +28,7 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 | Engine | `src/exec/`, `bin/engine.js` | Paper and live Hyperliquid trading: both legs in one signed action, leg reconciliation with unwind, margin pre-check, intrabar stops, kill switch, state recovery |
 | Portfolio book | `src/core/xs-strategies.js`, `src/exec/portfolio-engine.js`, `bin/portfolio.js` | Carry + trend across ~20 perps: daily target book, paper/live Hyperliquid execution, drawdown halt, kill switch |
 | Strategy research | `src/research/portfolio.js`, `bin/strategies.js`, `bin/robust.js` | Multi-asset backtester (next-open fills, costs, real funding); trend, breakout, cross-sectional momentum/reversal, carry and funding-contrarian families; IS/OOS and robustness grids |
+| Short-term momentum | `src/core/oi-momentum.js`, `src/exec/momentum-engine.js`, `bin/momentum.js`, `bin/oi-momentum.js`, `bin/short-term.js` | OI-backed breakout longs checked every 5 minutes; Hyperliquid or Binance signal feed; paper/live; intraday research harness on 1h/5m bars |
 
 ## Quick start
 
@@ -35,7 +37,7 @@ here loses the whole account (see [`docs/RESEARCH.md`](docs/RESEARCH.md)).
 node bin/fetch-data.js            # download history (≈500 MB, a few minutes)
 node bin/backtest.js ETH BTC      # new rules
 node bin/backtest.js ETH BTC --legacy   # old rules, same data
-npm test                          # 35 tests (+ npm run test:py for the Lighter bridge)
+npm test                          # 39 tests (+ npm run test:py for the Lighter bridge)
 
 cp config/engine.example.json config/engine.json
 node bin/engine.js                # paper trading + dashboard at http://localhost:8787
@@ -43,7 +45,23 @@ node bin/engine.js                # paper trading + dashboard at http://localhos
 
 The dashboard also works as a static page (GitHub Pages): open `index.html`.
 
-## Carry + trend book (the money-making strategy)
+## OI-backed momentum (short-term)
+
+Go long a coin when it makes an unusually large move up **while open interest rises**: new positions piling in, not shorts covering. Hold 8 hours.
+
+- **Frequency:** about two trades a day across the top 20 coins, checked every 5-minute close.
+- **Backtest, 2022 → Oct 2026** (5-minute data, 6 bp/side and funding): **44% a year, Sharpe 1.76, max drawdown 18%**.
+- **Out-of-sample 2025–26:** Sharpe 1.86.
+- **Every year was positive.**
+
+```bash
+node bin/momentum.js --scan      # current move/OI readings and signals (trades nothing)
+node bin/momentum.js             # paper trading on live Hyperliquid prices
+```
+
+Rules, research, risks and setup: [`docs/OI_MOMENTUM.md`](docs/OI_MOMENTUM.md).
+
+## Carry + trend book (daily)
 
 The pairs signal on its own came out at roughly break-even after costs (see `docs/RESEARCH.md`). The strategy that held up out-of-sample is a **daily-rebalanced book of crypto perps** with two legs:
 
@@ -78,6 +96,7 @@ Details, caveats and Lighter setup: [`docs/FARMING.md`](docs/FARMING.md). Venue 
 
 ## Read next
 
+- [`docs/OI_MOMENTUM.md`](docs/OI_MOMENTUM.md) — the short-term OI-backed momentum strategy: research, rules, running it.
 - [`docs/CARRY_TREND.md`](docs/CARRY_TREND.md) — the carry + trend book: research, rules, running it.
 - [`docs/STRATEGY.md`](docs/STRATEGY.md) — every pairs rule (entry, sizing, when to add, when to hedge, when to cut) and why.
 - [`docs/RESEARCH.md`](docs/RESEARCH.md) — what the data says, including where the edge is thin.

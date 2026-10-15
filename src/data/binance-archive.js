@@ -254,3 +254,26 @@ export async function loadMetrics(symbol, cacheDir) {
     return { t: +t, oi: +oi, taker: taker === "" ? NaN : +taker, topLS: topLS === "" ? NaN : +topLS };
   });
 }
+
+/**
+ * 5-minute open-interest snapshots from the raw daily metrics files cached by
+ * syncMetrics. Returns Map(stamp ms → OI in coins); a stamp marks the moment of
+ * the snapshot (the close of the 5-minute bar that starts 5 minutes earlier).
+ */
+export async function loadMetrics5m(symbol, cacheDir, { fromDay = "2000-01-01" } = {}) {
+  const dir = join(cacheDir, "binance-um", "_metrics", symbol);
+  if (!(await exists(dir))) return null;
+  const { readdir } = await import("node:fs/promises");
+  const out = new Map();
+  for (const f of (await readdir(dir)).filter((x) => x.endsWith(".csv") && x >= fromDay).sort()) {
+    for (const line of (await readFile(join(dir, f), "utf8")).split("\n")) {
+      if (!line || !/^\d/.test(line)) continue;
+      const c = line.split(",");
+      const t = Date.parse(c[0].replace(" ", "T") + "Z");
+      const oi = +c[2];
+      if (Number.isFinite(t) && oi > 0) out.set(t, oi);
+    }
+  }
+  return out;
+}
+

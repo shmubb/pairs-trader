@@ -1,0 +1,24 @@
+{
+  "_comment": "OI-backed momentum on Hyperliquid (docs/OI_MOMENTUM.md). Copy to config/momentum.json and edit. `strategy` overrides the researched defaults in src/core/oi-momentum.js; leave them unless you re-run bin/oi-momentum.js. Use a dedicated account or subaccount.",
+  "mode": "paper",
+  "testnet": false,
+  "paperEquity": 10000,
+  "stateDir": "state/momentum",
+  "signalSource": "hyperliquid",
+  "strategy": {
+    "lookbacksH": [0.25, 1, 4, 12],
+    "zMin": 2.5,
+    "oiMin": 0.03,
+    "holdH": 8,
+    "riskPerTrade": 0.0025,
+    "maxGross": 1,
+    "topN": 20,
+    "hoursUTC": null
+  },
+  "minOrderUsd": 12,
+  "maxDrawdown": 0.25,
+  "dailyLossLimit": 0.06,
+  "pollSeconds": 15,
+  "exchange": { "leverage": 5, "slippage": 0.004, "maxSlippage": 0.01 },
+  "exclude": []
+}

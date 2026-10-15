@@ -2,7 +2,7 @@
   "name": "pairs-trader",
   "version": "2.0.0",
   "private": true,
-  "description": "Crypto perp trading toolkit for Hyperliquid: carry + trend portfolio book, statistical-arbitrage pairs, volume farming; research backtesters and a paper/live execution engine.",
+  "description": "Crypto perp trading toolkit for Hyperliquid: short-term OI-backed momentum, carry + trend portfolio book, statistical-arbitrage pairs, volume farming; research backtesters and paper/live execution engines.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -18,7 +18,8 @@
     "test:py": "python -m unittest discover -s test/python",
     "farm-plan": "node bin/farm-plan.js",
     "portfolio": "node bin/portfolio.js",
-    "strategies": "node bin/strategies.js"
+    "strategies": "node bin/strategies.js",
+    "momentum": "node bin/momentum.js"
   },
   "optionalDependencies": {
     "@nktkas/hyperliquid": "0.33.3",

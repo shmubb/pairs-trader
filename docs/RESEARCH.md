@@ -25,6 +25,11 @@ Raw outputs are in `research/*.json`.
    - Out-of-sample 2024–2026: **Sharpe 1.17, 17% a year, 14% max drawdown** after costs and funding.
    - Full period since 2020: Sharpe 1.57.
    - Robust to every parameter perturbation tried.
+9. **Short-term: OI-backed momentum (§10, `docs/OI_MOMENTUM.md`).**
+   - Long a coin after a ≥2.5σ move up that comes with ≥3% open-interest growth, checked every 5 minutes; hold 8 h.
+   - 2022–2026 on 5-minute data: **Sharpe 1.76, 44% a year, max drawdown 18%**.
+   - 2025–26: Sharpe 1.86.
+   - Most other short-horizon ideas can't beat fees.
 
 ## Data and method
 
@@ -216,3 +221,47 @@ Full tables, rules and how to run it: `docs/CARRY_TREND.md`. Engine: `bin/portfo
 - The 95% confidence interval on the full-period Sharpe ratio is wide (≈ 0.4–2.7).
 
 Paper-trade before sizing up.
+
+## 10. Short horizons: hours to two days (`bin/short-term.js`, `bin/oi-momentum.js`)
+
+| | |
+|---|---|
+| Data | Hourly candles with taker-buy volume; hourly and 5-minute open interest (Binance archive, 2022 →); 5-minute candles for 20 coins |
+| Universe | Top 20 by volume |
+| Periods | In-sample 2022–2024, out-of-sample 2025 → |
+| Metric | Gross edge per $ traded, which has to beat ≈ 6 bp per side as a Hyperliquid taker |
+
+### Hourly screen, ~100 candidates
+
+| Family | Gross edge per $ traded | Verdict |
+|---|---|---|
+| Intraday trend (1–48 h lookbacks) | Mostly < 2 bp, unstable | Fees eat it |
+| Cross-sectional momentum / reversal | Under fees at every horizon | Fees eat it |
+| Order-flow imbalance (taker-buy share) | ~0 in-sample | No |
+| BTC → alt lead-lag | ~0 | No |
+| OI flushes (OI falling) | Flips sign between periods | No |
+| Large shocks (≥ 3σ), followed | Positive in both periods, weak in-sample | Weak |
+| **Big moves with OI rising** | **+6 to +30 bp per $ traded in both periods** | Positive after costs almost everywhere in the grid |
+
+### The OI-backed move family
+
+| Check | Result |
+|---|---|
+| Direction | Almost all of it is on the long side. Shorts were weak out-of-sample. |
+| Random long entries at the same rate | ≈ 0 |
+| BTC-hedged | Edge drops to ~8–12 bp: part of it is the market following through |
+| One-hour entry delay | Edge halves |
+
+### 5-minute refinement
+
+- **Faster checks help.** Checking every 5 minutes beat hourly in both periods.
+- **Selected setting:** windows 15 min / 1 h / 4 h / 12 h, move ≥ 2.5σ, OI ≥ +3%, hold 8 h, 0.25% risk per trade, gross ≤ 1×.
+- **Results:** Sharpe 1.70 in-sample and 1.86 out-of-sample, 18% max drawdown in each, 44% a year over the full period. Every neighbouring setting has a Sharpe of 1.4–2.4.
+- **Contamination:** the refinements were each kept only if both periods improved, so the out-of-sample period has been looked at more than once.
+
+### Caveats specific to this result
+
+- The backtest used Binance OI; the engine's default feed is Hyperliquid's own OI.
+- Entry slippage after sharp moves may exceed 6 bp.
+- About half of all weeks are negative. The edge is in the size of the winners.
+
